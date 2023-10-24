@@ -9,4 +9,9 @@ nacos=8848
 gateway=10010
 user-service-provider=10011
 user-service-consumer=10012
+
+user-service-provider=10013
+user-service-consumer=10014
+
+
 ```

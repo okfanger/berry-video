@@ -12,6 +12,7 @@
         <module>berry-common</module>
         <!--    rpc     -->
         <module>berry-services/berry-user-service</module>
+        <module>berry-services/berry-video-service</module>
     </modules>
 
     <packaging>pom</packaging>

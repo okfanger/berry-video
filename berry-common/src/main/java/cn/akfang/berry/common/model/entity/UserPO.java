@@ -13,7 +13,7 @@ import java.util.Date;
 
 @Data
 @TableName("t_user")
-public class User implements Serializable {
+public class UserPO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
