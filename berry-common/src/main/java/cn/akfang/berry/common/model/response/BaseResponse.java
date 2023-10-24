@@ -1,5 +1,6 @@
-package cn.akfang.berry.common.model;
+package cn.akfang.berry.common.model.response;
 
+import cn.akfang.berry.common.model.ErrorCode;
 import lombok.Data;
 
 import java.io.Serializable;
