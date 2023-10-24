@@ -3,6 +3,7 @@ server:
 logging:
   level:
     cn.akfang.berry: debug
+    com.alibaba.nacos: warn
 
 spring:
   application:

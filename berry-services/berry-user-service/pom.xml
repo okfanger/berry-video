@@ -23,6 +23,7 @@
     <modules>
         <module>berry-user-provider</module>
         <module>berry-user-consumer</module>
+        <module>berry-user-interface</module>
     </modules>
 
     <dependencyManagement>
@@ -32,7 +33,6 @@
                 <artifactId>dubbo-spring-boot-starter</artifactId>
                 <version>${dubbo.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
@@ -47,6 +47,12 @@
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
                 <version>1.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.akfang.berry</groupId>
+                <artifactId>berry-common</artifactId>
+                <version>1.0</version>
+                <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

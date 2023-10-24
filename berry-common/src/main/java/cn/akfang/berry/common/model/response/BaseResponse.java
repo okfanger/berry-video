@@ -1,12 +1,13 @@
 package cn.akfang.berry.common.model.response;
 
-import cn.akfang.berry.common.model.ErrorCode;
+import cn.akfang.berry.common.enums.ErrorCode;
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
 public class BaseResponse<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private int status;
 

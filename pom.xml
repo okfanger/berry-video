@@ -8,12 +8,10 @@
     <artifactId>berry-video</artifactId>
     <version>1.0</version>
     <modules>
-        <module>berry-api</module>
         <module>berry-gateway</module>
         <module>berry-common</module>
         <!--    rpc     -->
         <module>berry-services/berry-user-service</module>
-        <module>berry-services/berry-user-service/berry-user-interface</module>
     </modules>
 
     <packaging>pom</packaging>
