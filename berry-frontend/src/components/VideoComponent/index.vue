@@ -1,9 +1,30 @@
 <template>
   <div class="vedio-container">
     <div class="dplayer-container">
-      <div id="dplayer" ref="player" class="dplayer video-box"></div>
+      
+      <!-- 视频 -->
+      <!-- <div id="dplayer" ref="player" class="dplayer video-box"></div> -->
+      <OriginVideo 
+        @play="handlerPlay"
+        @mute="handlerMute"
+        :volume="volume"
+        :speed="speed"
+        :speedList="speedList"
+        @changeSpeed="handlerChangeSpeed"
+        :videoSrc="videoSrc"
+        :coverSrc="coverSrc"
+        :streamLoad="streamLoad"
+
+
+        :continuous="continuous"
+        @printscreen="handlerPrintscreen"
+        :openPrintScreen="openPrintScreen"
+        @videoEnd="videoEnd"
+        
+      />
+      <!-- 点赞,评论,收藏,分享 -->
       <div class="func">
-        <div class="like" @click="liked()">
+        <div class="like" :class="{ liked: funcInfo.like.value  }" @click="liked()">
           <i class="iconfont icon-aixin2" v-if="!funcInfo.like.value"></i>
           <i class="iconfont icon-aixin1" style="color:#ff2e56;" v-else></i>
           <div>{{ funcInfo.like.num }}</div>
@@ -24,7 +45,8 @@
       </div>
     </div>
     
-    <div class="commonPane" v-if="isComming">
+    <!-- 评论面板 -->
+    <div class="commonPane" v-if="isCommoning">
 
     </div>
  </div>
@@ -34,6 +56,7 @@
 import { ref, onMounted, reactive } from 'vue'
 import Dplayer from 'dplayer'
 import Hls from "hls.js";
+import OriginVideo from './OriginIndex.vue';
 
 const video = {
   url: "https://e-sign.dms.t.cn-np.com/files/m3u8_file/c4b94118-3c8d-4410-9987-985c2b44c278/c4b94118-3c8d-4410-9987-985c2b44c278.m3u8",
@@ -41,6 +64,15 @@ const video = {
 }
 const player = ref();
 const dp = ref();
+const volume = ref(1);
+const speed = ref(10);
+const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4, 5, 10])
+const continuous = ref(true) 
+const openPrintScreen = ref(false)
+const videoSrc = ref("http://toffee-private-oss.akfang.cn/4585_1697538264.mp4")
+const coverSrc = ref("coverSrc")
+const streamLoad = ref(false)
+
 const funcInfo = reactive({
   like: {
     value: false,
@@ -57,21 +89,36 @@ const funcInfo = reactive({
     num: 7434
   }
 })
-const isComming = ref(false)
+
+
+const isCommoning = ref(false)
 const liked = () => {
   funcInfo.like.value = !funcInfo.like.value;
 }
 const changeCommonState = () => {
-  isComming.value = !isComming.value
+  isCommoning.value = !isCommoning.value
 }
 const collected = () => {
   funcInfo.collect.value = !funcInfo.collect.value;
 }
 onMounted(()=>{
-  loadVedio()
+  // loadVedio()
 })
 
-
+const handlerPlay = (e) => {
+  console.log("handlerPlay", e);
+}
+const handlerMute = (e) => {
+  console.log("handlerMute", e);
+}
+const handlerChangeSpeed = (val) => {
+  console.log("changeSpeed", val);
+  speed.value = val;
+}
+const videoEnd = () => {
+  console.log("end 父组件");
+}
+const handlerPrintscreen = () => {}
 const loadVedio = () => {
   dp.value = new Dplayer({          //初始化视频对象
     container:player.value,   //指定视频容器节点
@@ -94,8 +141,6 @@ const loadVedio = () => {
     }
   })
 }
-
-
 </script>
 
 <style scoped>
@@ -139,7 +184,32 @@ const loadVedio = () => {
   text-align: center;
   color: white;
   user-select: none;
+  height: 50px;
 }
+
+
+/* 爱心点击效果 */
+
+.liked i.icon-aixin1 {
+	animation:  blink 1s forwards;
+}
+.func i:hover {
+  font-size: 35px;
+}
+
+@keyframes blink{
+	10%{
+    font-size: 35px;
+		color: #c23802 ;    
+		/* box-shadow: 0 0 250px #f1e794;  */
+	}
+	100% {
+    font-size: 30px;
+		color: #ff2e56;     
+		/* box-shadow: 0 0 250px #FFEB3B  */
+	}
+}
+
 
 
 .commonPane {
@@ -149,4 +219,8 @@ const loadVedio = () => {
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
 }
+
+
 </style>
+
+
