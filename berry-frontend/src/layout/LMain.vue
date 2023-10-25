@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VideoComponent />
+    <VideoComponent  />
  </div>
 </template>
 
