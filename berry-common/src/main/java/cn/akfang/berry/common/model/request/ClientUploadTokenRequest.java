@@ -6,11 +6,8 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 @Data
-public class UserLoginRequest implements Serializable {
+public class ClientUploadTokenRequest implements Serializable {
     private static final long serialVersionUID = 1L;
-
     @NotBlank
-    private String username;
-    @NotBlank
-    private String password;
+    private String uuid;
 }

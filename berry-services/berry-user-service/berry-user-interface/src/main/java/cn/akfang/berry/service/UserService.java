@@ -11,4 +11,6 @@ public interface UserService extends IService<UserPO> {
     UserPO getUserByUsername(String username);
 
     UserTokenResponse login(UserLoginRequest userLoginRequest) throws BerryRpcException;
+
+    UserTokenResponse smsAuthLogin();
 }

@@ -44,4 +44,10 @@ public class UserProvider extends ServiceImpl<UserMapper, UserPO> implements Use
             throw new BerryRpcException(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
         }
     }
+
+    @Override
+    public UserTokenResponse smsAuthLogin() {
+
+        return null;
+    }
 }
