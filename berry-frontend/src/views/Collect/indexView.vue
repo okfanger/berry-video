@@ -1,10 +1,11 @@
 <template>
   <div>
-    <router-view></router-view>
+    收藏
  </div>
 </template>
 
 <script setup>
+
 </script>
 
 <style scoped>

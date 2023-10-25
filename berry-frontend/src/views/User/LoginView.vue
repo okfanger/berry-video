@@ -1,10 +1,11 @@
 <template>
   <div>
-    <router-view></router-view>
+    <div class="qrcode"></div>
  </div>
 </template>
 
 <script setup>
+
 </script>
 
 <style scoped>

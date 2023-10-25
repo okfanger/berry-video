@@ -1,32 +1,27 @@
 <template>
   <div class="vedio-container">
     <div class="dplayer-container">
-      
       <!-- 视频 -->
-      <!-- <div id="dplayer" ref="player" class="dplayer video-box"></div> -->
       <OriginVideo 
         @play="handlerPlay"
         @mute="handlerMute"
-        :volume="volume"
-        :speed="speed"
+        v-model:volume="volume"
+        v-model:speed="speed"
         :speedList="speedList"
-        @changeSpeed="handlerChangeSpeed"
         :videoSrc="videoSrc"
         :coverSrc="coverSrc"
         :streamLoad="streamLoad"
-
 
         :continuous="continuous"
         @printscreen="handlerPrintscreen"
         :openPrintScreen="openPrintScreen"
         @videoEnd="videoEnd"
-        
+        @likeOrDisLike="liked"
       />
       <!-- 点赞,评论,收藏,分享 -->
       <div class="func">
-        <div class="like" :class="{ liked: funcInfo.like.value  }" @click="liked()">
-          <i class="iconfont icon-aixin2" v-if="!funcInfo.like.value"></i>
-          <i class="iconfont icon-aixin1" style="color:#ff2e56;" v-else></i>
+        <div class="like" @click="liked()">
+          <div class="heart" :style="{'--bgColor': funcInfo.like.value ? '#ff2e56': '#fff'}"></div>
           <div>{{ funcInfo.like.num }}</div>
         </div>
         <div class="common">
@@ -54,28 +49,21 @@
 
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
-import Dplayer from 'dplayer'
-import Hls from "hls.js";
 import OriginVideo from './OriginIndex.vue';
-
-const video = {
-  url: "https://e-sign.dms.t.cn-np.com/files/m3u8_file/c4b94118-3c8d-4410-9987-985c2b44c278/c4b94118-3c8d-4410-9987-985c2b44c278.m3u8",
-  cover: "https://cn.bing.com/th?id=OHR.MeotoIwa_ZH-CN3126370410_1920x1080.jpg&rf=LaDigue_1920x1080.jpg"
-}
-const player = ref();
-const dp = ref();
+import { continuous } from '@/utils'
 const volume = ref(1);
-const speed = ref(10);
+const speed = ref(3);
 const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4, 5, 10])
-const continuous = ref(true) 
+
 const openPrintScreen = ref(false)
-const videoSrc = ref("http://toffee-private-oss.akfang.cn/4585_1697538264.mp4")
+// const videoSrc = ref("http://toffee-private-oss.akfang.cn/4585_1697538264.mp4")
+const videoSrc = ref("sysndhy.flv")
 const coverSrc = ref("coverSrc")
 const streamLoad = ref(false)
 
 const funcInfo = reactive({
   like: {
-    value: false,
+    value: true,
     num: "5.8万"
   },
   common: {
@@ -111,36 +99,11 @@ const handlerPlay = (e) => {
 const handlerMute = (e) => {
   console.log("handlerMute", e);
 }
-const handlerChangeSpeed = (val) => {
-  console.log("changeSpeed", val);
-  speed.value = val;
-}
 const videoEnd = () => {
   console.log("end 父组件");
+
 }
 const handlerPrintscreen = () => {}
-const loadVedio = () => {
-  dp.value = new Dplayer({          //初始化视频对象
-    container:player.value,   //指定视频容器节点
-    hotkey: true, // 支持快进
-    autoplay: false, // 自动播放视频
-    screenshot: true, // 截图
-    theme: "#fe5c71", // 主题色
-    video:{
-      url: video.url,   // 指定视频播放链接
-      pic: video.cover,  // 指定视频封面图
-      type: "customHls",
-      thumbnails: "",  // 视频缩略图
-      customType: {
-        customHls: function (video) {
-          const hls = new Hls();
-          hls.loadSource(video.src);
-          hls.attachMedia(video);
-        },
-      },
-    }
-  })
-}
 </script>
 
 <style scoped>
@@ -150,7 +113,6 @@ const loadVedio = () => {
   display: flex;
   border-radius: 20px;
   overflow: hidden;
-  border: 1px solid;
   min-width: 700px;
 }
 .dplayer-container{
@@ -176,50 +138,84 @@ const loadVedio = () => {
 }
 .func i {
   font-size: 30px;
-  color: white;
-
 }
 .func > div {
   margin: 10px 0;
   text-align: center;
   color: white;
   user-select: none;
-  height: 50px;
+  height: 60px;
 }
 
 
 /* 爱心点击效果 */
 
-.liked i.icon-aixin1 {
-	animation:  blink 1s forwards;
-}
+
 .func i:hover {
   font-size: 35px;
 }
 
-@keyframes blink{
-	10%{
-    font-size: 35px;
-		color: #c23802 ;    
-		/* box-shadow: 0 0 250px #f1e794;  */
-	}
-	100% {
-    font-size: 30px;
-		color: #ff2e56;     
-		/* box-shadow: 0 0 250px #FFEB3B  */
-	}
-}
+
 
 
 
 .commonPane {
   height: 100%;
   width: 400px;
-  background-color: #e2e2e2;
+  background-color: var(--bgColor);
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
 }
 
+
+.heart {
+  position: relative;
+  width: 30px;
+  height: 30px;
+}
+.heart:before,
+.heart:after {
+  content: "";
+  position: absolute;
+  background-color: white;
+  width: 20px;
+  height:29px;
+  left: 20px;
+  border-radius: 20px 20px 0 0 ;
+  transform: rotate(-45deg);
+  transform-origin: 0 100%;
+}
+.heart:after {
+  left: 0;
+  transform: rotate(45deg);
+  transform-origin: 100% 100%;
+}
+.heart:hover {
+  animation: heart 1s forwards;
+}
+@keyframes heart {
+  0% {
+    transform: scale(.95);
+  }
+  20% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.15);
+  }
+  60% {
+    transform: scale(1.20);
+  }
+  80% {
+    transform: scale(1.15);
+  }
+  90% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 
 </style>
 

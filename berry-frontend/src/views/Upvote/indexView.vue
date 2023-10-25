@@ -1,10 +1,11 @@
 <template>
   <div>
-    <router-view></router-view>
+    喜欢列表
  </div>
 </template>
 
 <script setup>
+
 </script>
 
 <style scoped>

@@ -1,10 +1,11 @@
 <template>
   <div>
-    <router-view></router-view>
+    菌子不是君子 wx
  </div>
 </template>
 
 <script setup>
+
 </script>
 
 <style scoped>

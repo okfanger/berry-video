@@ -2,6 +2,8 @@
   <div class="container">
     <div class="initial-video">
       <video ref="video"
+        webkit-playsinline="true"
+        playsinline="true"
         crossorigin="anonymous">
         <source :src="videoSrc" type="video/mp4">
         您的浏览器不支持video标签，请使用google浏览器浏览
@@ -25,9 +27,12 @@
           
         </div>
         <div class="right">
-          <div @click="mute">
+          <div @click="mute"  style="display: flex;">
             <i class="iconfont icon-1 setting" v-if="!muted"></i>
             <i class="iconfont icon-jingyinmute31 setting" style="font-size: 17px;" v-else></i>
+            <!-- <div class="slider-demo-block">
+              <el-slider v-model="props.volume" vertical v-show="!muted" />
+            </div> -->
           </div>
           <div>
             <el-dropdown :hide-on-click="false">
@@ -56,10 +61,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineEmits, defineProps } from 'vue'
+import { ref, onMounted, defineEmits, defineProps, h } from 'vue'
 
-const emits = defineEmits(['play', 'mute', 'changeSpeed',
-   'printscreen', 'videoEnd'])
+const emits = defineEmits(['play', 'mute', 'update:speed',
+   'printscreen', 'videoEnd', "likeOrDisLike",
+  'upadte:volume'])
 
 const props = defineProps(['volume', 'speed', 'speedList',
    'continuous', 'openPrintScreen', 'videoSrc', 'coverSrc',
@@ -73,8 +79,27 @@ let progressTimer = null // 进度 timer
 const paused = ref(false) // true 暂停  false 播放
 const muted = ref(false) // true 静音  false 开启声音
 const progressTime = ref("00:00/00:00")
+let clickTimer = null;
 onMounted(() => {
-  initVideo()
+  initVideo();
+  // 监听视频进度条拖拽 全屏后进度条拖拽,自定义进度条也要到同样位置
+  video.value.addEventListener('timeupdate', ()=>{
+    changeProgress()
+  })
+  // 单点视频 播放/暂停
+  video.value.addEventListener("click", ()=>{
+    clickTimer && clearTimeout(clickTimer);
+    clickTimer = setTimeout(()=>{
+      play()
+    }, 300)
+  })
+  // 双击视频 点赞/取消点赞
+  video.value.addEventListener("dblclick", ()=>{
+    clickTimer && clearTimeout(clickTimer);
+    emits("likeOrDisLike")
+  })
+  // video.value
+  // window.addEventListener("keyup", )
 });
 
 const initVideo = () => {
@@ -107,7 +132,6 @@ const checkAnyTime = (e) => {
   var length = e.clientX - progressBox.value.offsetLeft
   var percent = length / progressBox.value.offsetWidth
   video.value.currentTime = percent * video.value.duration
-  console.log(e.clientX, progressBox.value.offsetWidth, length, );
   video.value.play()
   progressTimer = setInterval(changeProgress, 60)
   // 显示视频在播放的样式
@@ -148,16 +172,20 @@ const mute = () => {
 // 调整播放速度
 const changeSpeed = (value) => {
   video.value.playbackRate = value;
-  emits("changeSpeed", value)
+  emits("update:speed", value)
 }
 
 // 视频截图
 const openPrintScreen = () => {
   const canvas = document.createElement("canvas")
   let ctx = canvas.getContext("2d")
-  canvas.width = video.value.width;
-  canvas.height = video.value.height;
-  ctx.drawImage(video.value, 0, 0)
+  let width = video.value.width
+  let height = video.value.height
+  console.log(width, height);
+  console.log([video.value]);
+  canvas.width = width;
+  canvas.height = height;
+  ctx.drawImage(video.value, 0, 0, width, height)
 
   let imgUrl = canvas.toDataURL("image/png")
   const a = document.createElement("a")
@@ -203,9 +231,9 @@ const videoEnd = () => {
   position: relative;
   height: 4px;
   margin-bottom: 10px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(10, 183, 102, 0.1);
   border-radius: 2px;
-  border: 1px solid rgb(131, 175, 155);
+  border: 1px solid #ff2e56;
   overflow: hidden;
   cursor: pointer;
 }
@@ -215,7 +243,7 @@ const videoEnd = () => {
   left: 0;
   width: 0%;
   height: 100%;
-  background: rgb(131, 175, 155);
+  background: #ff2e56;
 }
 .ctrl-box .progress-time {
   display: inline-block;
@@ -233,18 +261,20 @@ const videoEnd = () => {
   flex-direction: column;
   justify-content: space-around;
 }
-
 .initial-video {
   width: 100%;
   height: calc(100% - 40px);
-  background-color: #000;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background: url('https://t7.baidu.com/it/u=3908717,2002330211&fm=193&f=GIF') center center  no-repeat;
+  background-size: 100% 100%;
+  /* backdrop-filter: blur(10px); */
 }
 .initial-video video {
   height: 100%;
   width: 100%;
-  object-fit: cover;
+  object-fit: fill;
 }
-
 .controls {
   height: 40px;
   display: flex;
@@ -268,12 +298,18 @@ const videoEnd = () => {
   height: 24px;
   line-height: 24px;
 }
-
-
-
 i.setting {
   font-size: 20px;
   cursor: pointer;
+}
+
+
+
+.blur {    
+    -webkit-filter: blur(10px);
+       -moz-filter: blur(10px);
+        -ms-filter: blur(10px);    
+            filter: blur(10px);    
 }
 </style>
 
