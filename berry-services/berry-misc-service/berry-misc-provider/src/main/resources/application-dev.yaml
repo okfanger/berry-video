@@ -4,3 +4,8 @@ spring:
     url: jdbc:mysql://localhost:3306/berryvideo-dev
     username: root
     password:
+
+qiniu:
+  oss:
+    accessKey:
+    secretKey:

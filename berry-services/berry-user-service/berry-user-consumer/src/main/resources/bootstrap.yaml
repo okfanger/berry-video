@@ -16,6 +16,18 @@ spring:
         server-addr: 127.0.0.1:8848
   main:
     allow-bean-definition-overriding: true
+  redis:
+    database: 1
+    host: localhost
+    port: 6379
+    password:
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1
+    timeout: 1000
 
 dubbo:
   application:
@@ -25,3 +37,23 @@ dubbo:
   protocol:
     name: dubbo
     port: -1
+
+wx:
+  mp:
+    token: xxxxx
+    aesKey: xxxxx
+    appId: xxxxx
+    secret: xxxxx
+    config-storage:
+      http-client-type: HttpClient
+      key-prefix: wx
+      redis:
+        host: 127.0.0.1
+        port: 6379
+      type: Memory
+
+  open:
+    appId:
+      xxxxx
+    appSecret:
+      xxxxx
