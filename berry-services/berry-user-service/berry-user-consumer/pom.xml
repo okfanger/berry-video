@@ -42,6 +42,12 @@
         <version>1.0</version>
         <scope>compile</scope>
     </dependency>
+    <dependency>
+        <groupId>cn.akfang.berry</groupId>
+        <artifactId>berry-misc-interface</artifactId>
+        <version>1.0</version>
+        <scope>compile</scope>
+    </dependency>
 </dependencies>
 
     <build>

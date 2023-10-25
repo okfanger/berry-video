@@ -10,8 +10,11 @@ gateway=10010
 user-service-provider=10011
 user-service-consumer=10012
 
-user-service-provider=10013
-user-service-consumer=10014
+video-service-provider=10013
+video-service-consumer=10014
 
+
+misc-service-provider=10015
+misc-service-consumer=10016
 
 ```

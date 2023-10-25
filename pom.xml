@@ -13,6 +13,7 @@
         <!--    rpc     -->
         <module>berry-services/berry-user-service</module>
         <module>berry-services/berry-video-service</module>
+        <module>berry-services/berry-misc-service</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -34,10 +35,16 @@
         <hutool.version>5.8.15</hutool.version>
         <alibaba.version>2.2.5.RELEASE</alibaba.version>
         <mp.version>3.5.3.1</mp.version>
+        <qiniu.version>7.13.0</qiniu.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.qiniu</groupId>
+                <artifactId>qiniu-java-sdk</artifactId>
+                <version>${qiniu.version}</version>
+            </dependency>
             <!-- hutool -->
             <dependency>
                 <groupId>cn.hutool</groupId>

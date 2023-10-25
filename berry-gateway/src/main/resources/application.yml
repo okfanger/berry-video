@@ -18,9 +18,9 @@ spring:
           filters:
             - RewritePath=/user/(?<segment>.*), //$\{segment}
 
-#        - id: video-service
-#          uri: lb://berry-video-consumer
-#          predicates:
-#            - Path=/video/**
-#          filters:
-#            - RewritePath=/video/(?<segment>.*), //$\{segment}
+        - id: video-service
+          uri: lb://berry-video-consumer
+          predicates:
+            - Path=/video/**
+          filters:
+            - RewritePath=/video/(?<segment>.*), //$\{segment}

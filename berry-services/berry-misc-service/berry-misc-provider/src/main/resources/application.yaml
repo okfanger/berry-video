@@ -12,6 +12,6 @@ mybatis-plus:
 
 qiniu:
   oss:
-    accessKey: JCRk3sj6U9jBaqe4jwKRhL6_dw8e_JLvekS_d9-d
-    secretKey: Wn5duM7bJzvc317ZshWrsPsZvlUYum3yhi7Y5-hZ
-    bucket: toffee-private
+    accessKey: accessKey
+    secretKey: secretKey
+    bucket: bucket
