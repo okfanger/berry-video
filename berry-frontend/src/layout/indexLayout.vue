@@ -2,7 +2,7 @@
   <div class="common-layout">
     <el-container>
       <el-header style="padding: 0;height: 80px;">
-        <LHeader />
+        <LHeader  />
       </el-header>
       <el-container>
         <el-aside width="200px" style="height: calc(100vh - 80px);background-color: aqua;">
@@ -13,6 +13,8 @@
         </el-main>
       </el-container>
     </el-container>
+
+   
   </div>
 </template>
 
@@ -20,6 +22,7 @@
 import LHeader from './LHeader.vue';
 import LMain from './LMain.vue';
 import LAside from '@/layout/LAside'
+
 
 </script>
 
