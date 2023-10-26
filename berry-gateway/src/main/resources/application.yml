@@ -24,3 +24,10 @@ spring:
             - Path=/video/**
           filters:
             - RewritePath=/video/(?<segment>.*), //$\{segment}
+
+        - id: misc-service
+          uri: lb://berry-misc-consumer
+          predicates:
+            - Path=/misc/**
+          filters:
+            - RewritePath=/misc/(?<segment>.*), //$\{segment}

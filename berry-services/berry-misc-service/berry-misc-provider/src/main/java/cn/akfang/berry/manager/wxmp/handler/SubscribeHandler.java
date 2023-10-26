@@ -1,4 +1,4 @@
-package cn.akfang.berry.wxmp.handler;
+package cn.akfang.berry.manager.wxmp.handler;
 
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;

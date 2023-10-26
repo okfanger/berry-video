@@ -13,6 +13,7 @@ public enum ErrorCode {
     FORBIDDEN_ERROR(40300, "禁止访问"),
     SYSTEM_ERROR(50000, "系统内部异常"),
     OPERATION_ERROR(50001, "操作失败"),
+    WX_SERVER_ERROR(50002, "微信服务器异常"),
     QINIU_UPLOAD_ERROR(50002, "七牛-文件上传错误");
 
     /**

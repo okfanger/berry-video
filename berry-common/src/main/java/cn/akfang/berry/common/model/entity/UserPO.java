@@ -1,7 +1,5 @@
 package cn.akfang.berry.common.model.entity;
 
-import cn.akfang.berry.common.enums.UserGenderEnum;
-import cn.akfang.berry.common.enums.UserRoleEnum;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
@@ -42,12 +40,12 @@ public class UserPO implements Serializable {
     /**
      * 性别
      */
-    private UserGenderEnum gender;
+    private Integer gender;
 
     /**
      * 用户角色: user, admin
      */
-    private UserRoleEnum userRole;
+    private String userRole;
 
     /**
      * 密码

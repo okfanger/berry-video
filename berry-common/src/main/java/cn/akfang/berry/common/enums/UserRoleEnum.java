@@ -9,10 +9,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Getter
 public enum UserRoleEnum implements Serializable {
-    ADMIN(0, "管理员"),
-    USER(1, "普通用户");
+    ADMIN("admin", "管理员"),
+    USER("user", "普通用户");
 
     @EnumValue
-    private final int code;
+    private final String code;
     private final String desc;
 }

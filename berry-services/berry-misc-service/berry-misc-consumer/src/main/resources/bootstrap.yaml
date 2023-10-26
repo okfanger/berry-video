@@ -1,5 +1,5 @@
 server:
-  port: 10014
+  port: 10016
 logging:
   level:
     cn.akfang.berry: debug
@@ -7,7 +7,7 @@ logging:
 
 spring:
   application:
-    name: berry-video-consumer
+    name: berry-misc-consumer
   cloud:
     nacos:
       discovery:
@@ -19,7 +19,7 @@ spring:
 
 dubbo:
   application:
-    name: berry-video-consumer
+    name: berry-misc-consumer
   registry:
     address: nacos://127.0.0.1:8848
   protocol:

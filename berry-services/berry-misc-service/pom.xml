@@ -22,6 +22,7 @@
 
     <modules>
         <module>berry-misc-provider</module>
+        <module>berry-misc-consumer</module>
         <module>berry-misc-interface</module>
     </modules>
 

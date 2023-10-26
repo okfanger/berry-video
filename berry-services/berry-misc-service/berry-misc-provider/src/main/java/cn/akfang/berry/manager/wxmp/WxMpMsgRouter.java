@@ -1,8 +1,9 @@
-package cn.akfang.berry.wxmp;
+package cn.akfang.berry.manager.wxmp;
 
-import cn.akfang.berry.wxmp.handler.EventHandler;
-import cn.akfang.berry.wxmp.handler.MessageHandler;
-import cn.akfang.berry.wxmp.handler.SubscribeHandler;
+import cn.akfang.berry.manager.wxmp.handler.EventHandler;
+import cn.akfang.berry.manager.wxmp.handler.MessageHandler;
+import cn.akfang.berry.manager.wxmp.handler.ScanHandler;
+import cn.akfang.berry.manager.wxmp.handler.SubscribeHandler;
 import me.chanjar.weixin.common.api.WxConsts.EventType;
 import me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;
@@ -30,9 +31,13 @@ public class WxMpMsgRouter {
     @Resource
     private SubscribeHandler subscribeHandler;
 
+    @Resource
+    private ScanHandler scanHandler;
+
     @Bean
     public WxMpMessageRouter getWxMsgRouter() {
         WxMpMessageRouter router = new WxMpMessageRouter(wxMpService);
+
         // 消息
         router.rule()
                 .async(false)
@@ -51,9 +56,19 @@ public class WxMpMsgRouter {
                 .async(false)
                 .msgType(XmlMsgType.EVENT)
                 .event(EventType.CLICK)
-                .eventKey(WxMpConstant.CLICK_MENU_KEY)
+                .eventKey(WxMpConstant.CLICK_MENU_KEY.getValue())
                 .handler(eventHandler)
                 .end();
+
+        // 扫码登录
+        router.rule()
+                .async(false)
+                .msgType(XmlMsgType.EVENT)
+                .event(EventType.SCAN)
+                .handler(scanHandler)
+                .end();
+
+
         return router;
     }
 }

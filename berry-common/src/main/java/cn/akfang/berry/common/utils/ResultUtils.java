@@ -8,7 +8,9 @@ import cn.akfang.berry.common.model.response.BaseResponse;
  */
 public class ResultUtils {
     public static <T> BaseResponse<T> success(T data) {
-        return new BaseResponse<>(ErrorCode.SUCCESS.getCode(), data, "ok");
+        BaseResponse<T> ok = new BaseResponse<>(ErrorCode.SUCCESS.getCode(), data, "ok");
+        ok.setSuccess(true);
+        return ok;
     }
 
     public static BaseResponse<Object> error(ErrorCode errorCode) {
