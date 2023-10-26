@@ -1,13 +1,12 @@
+
+
 const vScroll = {
   mounted (el) {
     let scrollPosition = 0
     let lock = false // 如果正在滚动中,则不允许再次滚动
 
-
-
     function handleScroll (direction) {
       if (lock) return
-
       if (direction == 'down' && scrollPosition < el.scrollHeight - el.clientHeight) {
         // Scrolling down
         scrollPosition += el.clientHeight
@@ -27,7 +26,6 @@ const vScroll = {
 
     // 滚动事件
     function wheelEvent (event) {
-      console.log(event)
       if (event.deltaY > 0) {
         handleScroll('down')
       } else {
@@ -39,7 +37,6 @@ const vScroll = {
 
     // 键盘 ⬆️⬇️键事件
     function keydownEvent (event) {
-      console.log(event)
       if (event.keyCode === 38) {
         handleScroll('up')
       } else if (event.keyCode === 40) {
@@ -52,6 +49,7 @@ const vScroll = {
 
     el._whellEvent = handleScroll
     el._keydownEvent = keydownEvent
+
   },
   unmounted (el) {
     el.removeEventListener('wheel', el._handleScroll)

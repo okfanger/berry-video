@@ -8,7 +8,7 @@
         v-model:volume="volume"
         v-model:speed="speed"
         :speedList="speedList"
-        :videoSrc="videoSrc"
+        :videoSrc="props.videoSrc"
         :coverSrc="coverSrc"
         :streamLoad="streamLoad"
 
@@ -48,16 +48,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, defineProps } from 'vue'
 import OriginVideo from './OriginIndex.vue';
 import { continuous } from '@/utils'
+
+const props = defineProps(['videoSrc'])
 const volume = ref(1);
 const speed = ref(3);
 const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4, 5, 10])
 
 const openPrintScreen = ref(false)
 // const videoSrc = ref("http://toffee-private-oss.akfang.cn/4585_1697538264.mp4")
-const videoSrc = ref("sysndhy.flv")
+// const videoSrc = ref("sysndhy.flv")
 const coverSrc = ref("coverSrc")
 const streamLoad = ref(false)
 

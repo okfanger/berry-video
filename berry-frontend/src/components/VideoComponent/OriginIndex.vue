@@ -4,6 +4,7 @@
       <video ref="video"
         webkit-playsinline="true"
         playsinline="true"
+        controlslist="nodownload"
         crossorigin="anonymous">
         <source :src="videoSrc" type="video/mp4">
         您的浏览器不支持video标签，请使用google浏览器浏览
@@ -61,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineEmits, defineProps, h } from 'vue'
+import { ref, onMounted, defineEmits, defineProps } from 'vue'
 
 const emits = defineEmits(['play', 'mute', 'update:speed',
    'printscreen', 'videoEnd', "likeOrDisLike",
@@ -76,7 +77,7 @@ const progressBox = ref()
 const progress = ref()
 let progressTimer = null // 进度 timer
 
-const paused = ref(false) // true 暂停  false 播放
+const paused = ref(true) // true 暂停  false 播放
 const muted = ref(false) // true 静音  false 开启声音
 const progressTime = ref("00:00/00:00")
 let clickTimer = null;
@@ -103,7 +104,6 @@ onMounted(() => {
 });
 
 const initVideo = () => {
-  // video.value.play();
   video.value.currentTime = 0;
   muted.value = video.value.muted = props.volume == 0 ? true : false;
   video.value.playbackRate = props.speed;
@@ -129,10 +129,11 @@ function changeProgress() {
 // 点击进度条的任意地方
 const checkAnyTime = (e) => {
   clearInterval(progressTimer)
-  var length = e.clientX - progressBox.value.offsetLeft
+  var length = e.clientX - progressBox.value.offsetLeft - 220;
   var percent = length / progressBox.value.offsetWidth
   video.value.currentTime = percent * video.value.duration
   video.value.play()
+  paused.value = false
   progressTimer = setInterval(changeProgress, 60)
   // 显示视频在播放的样式
   // ...

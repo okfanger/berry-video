@@ -1,5 +1,6 @@
-import vScroll from './vScroll'
-
+import vScroll from './Scroll'
+import vSlideIn from './slideIn'
 export {
-  vScroll
+  vScroll,
+  vSlideIn
 }
