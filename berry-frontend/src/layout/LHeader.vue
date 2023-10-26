@@ -10,14 +10,32 @@
           <img :src="avatar" alt="">
         </div>
       </div>
-      <div class="login">登录</div>
-      <div class="regiseter">注册</div>
+      <div class="login" @click="handlerLogin">登录</div>
     </div>
+
+     <!-- 登录框 -->
+     <el-dialog
+      v-model="LogindialogVisble"
+      title="登录"
+      width="30%"
+      align-center
+      :close-on-click-modal="false"
+    >
+      <LoginView v-if="LogindialogVisble" />
+    </el-dialog>
+   
  </div>
 </template>
 
 <script setup>
 import avatar from '@/assets/avatar-do.png'
+import LoginView from '@/views/User/LoginView.vue';
+import { ref } from 'vue'
+const LogindialogVisble = ref(false)
+
+const handlerLogin = () => {
+  LogindialogVisble.value = true
+}
 </script>
 
 <style scoped>

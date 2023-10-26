@@ -40,3 +40,16 @@ table {
 p {
   word-wrap: break-word;
 }
+
+video::-webkit-media-controls-fullscreen-button {
+  display: none;
+}
+video::-webkit-media-controls-play-button {
+  display: none;
+}
+video::-webkit-media-controls-volume-control-container {
+  display: none;
+}
+video::-webkit-media-controls-timeline {
+  display: none;
+}
