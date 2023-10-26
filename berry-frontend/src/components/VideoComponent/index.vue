@@ -54,8 +54,8 @@ import { continuous } from '@/utils'
 
 const props = defineProps(['videoSrc'])
 const volume = ref(1);
-const speed = ref(3);
-const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4, 5, 10])
+const speed = ref(1);
+const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2])
 
 const openPrintScreen = ref(false)
 // const videoSrc = ref("http://toffee-private-oss.akfang.cn/4585_1697538264.mp4")

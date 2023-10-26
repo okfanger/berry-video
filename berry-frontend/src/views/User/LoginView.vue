@@ -1,7 +1,20 @@
 <template>
   <div class="login-container" >
+    {{ LogindialogVisble }}
     <div class="qrcode" v-loading="loading">
-      <img :src="url" alt="">
+      <img :src="url || qrcodeImg" alt="" >
+    </div>
+    <div class="code" ref="inputs">
+      <input
+        v-for="(item, index) in 6"
+        :key="index"
+        ref="otpInput"
+        v-model="otpCodes[index]"
+        @input="handleInput($event, index)"
+        type="text"
+        maxlength="1"
+        class="otp-input"
+      />
     </div>
     <div class="message">
       <div >请使用微信扫描二维码登录</div>
@@ -11,55 +24,71 @@
 </template>
 
 <script setup>
-import { ref, onMounted} from 'vue'
-import { getQrCode, getLoginState } from '@/api/user'
+import { ref, onMounted, watchEffect, defineEmits, defineProps} from 'vue'
+import { getQrCode, login } from '@/api/user'
+import qrcodeImg from '@/assets/qrcode.png'
+import { setToken } from '@/utils'
+
+const props = defineProps(['LogindialogVisble'])
+const emits = defineEmits(['update:LogindialogVisble'])
+
 const url = ref("")
-const loading = ref(false)
-const id = ref("")
+const otpCodes = ref(Array(6).fill(''));
+const otpInput = ref([]);
+const loading = ref(true)
+const clientId = ref("")
+const inputs = ref()
+
 onMounted(() => {
+  fetchQrCode()  
+})
+
+const fetchQrCode = () => {
   getQrCode().then(res=>{
     const { data, status} = res;
     if(status === 200) {
       const str = `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=${data.ticket}`
-      id.value = data.id
       url.value = str
-      // loading.value = true
-      poll(fetchUserLoginState).then((res, rej)=>{
-        console.log(res);
-      })
+      clientId.value = data.id
+      loading.value = false;
+      inputs.value.children[0].focus()
     }
-  }).catch(e=>{
-    throw e;
-  })
-})
-
-function poll(fn, timeout = 30000, interval = 100) {
-  let startTime = Date.now();
-  return new Promise((resolve, reject) => {
-    const checkCondition = () => {
-      const result = fn();
-      if (result) {
-        resolve(result);
-      } else if (Date.now() - startTime >= timeout) {
-        reject("二维码已失效")
-      } else {
-        setTimeout(checkCondition, interval);
-      }
-    };
-    checkCondition();
-  });
-}
-
-const fetchUserLoginState = () => {
-  getLoginState(id.value).then(res=>{
-    return res;
-    /*
-      0: 用户未扫码
-      token: 用户已登录
-      -1: 二维码过期
-    */
   })
 }
+
+const handlerLogin = (code) => {
+  const loginForm = {
+    clientId:clientId.value,
+    code,
+  }
+  login(loginForm).then(res=>{
+    const {data, status} = res;
+    if(status == 200) {
+      setToken(data.token);
+      emits("update:LogindialogVisble", false)
+    }
+  })
+}
+
+// 输入验证码
+const handleInput = (event, index) => {
+  const input = event.target;
+  if (input.value) {
+    const nextInput = otpInput.value[index + 1];
+    nextInput && nextInput.focus();
+  }
+};
+
+const submitOTP = () => {
+  const otpValue = otpCodes.value.join('');
+  handlerLogin(otpValue)
+};
+
+watchEffect(() => {
+  if (otpCodes.value.every(code => code !== '')) {
+    submitOTP();
+  }
+});
 
 </script>
 
@@ -78,5 +107,17 @@ const fetchUserLoginState = () => {
 .qrcode img {
   height: 100%;
   width: 100%;
+}
+
+.otp-input { 
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  margin: 0 5px;
+  border: 1px solid #ccc;
+}
+.code  {
+  display: flex;
+  justify-content: space-around;
 }
 </style>

@@ -64,7 +64,7 @@ const currentIndex = ref(0)
 const cards = ref()
 // const current = cards.value[currentIndex.value]
 const test = (index) => {
-  console.log('当前视频', index, '     视频总数', list.value.length);
+  // console.log('当前视频', index, '     视频总数', list.value.length);
   // 如果当前视频位于倒数第二个 就再请求10个视频
   if(index == list.value.length -2 ){
     // 模拟请求数据

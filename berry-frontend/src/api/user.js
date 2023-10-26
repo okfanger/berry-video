@@ -10,10 +10,15 @@ export const getQrCode = () => request({
   method: 'get'
 })
 
-export const getLoginState = (id) => {
+export const login = (data) => {
   return request({
-    url: `/user/wx/ticket/${id}`,
-    method: 'get'
+    url: `/user/wx/login`,
+    method: 'post',
+    data
   })
 }
-// 
+
+export const getUserInfo = () => request({
+  url: "/user/info",
+  method: "get"
+})

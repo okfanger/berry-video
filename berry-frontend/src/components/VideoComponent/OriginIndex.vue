@@ -280,10 +280,10 @@ const videoEnd = () => {
   height: 40px;
   display: flex;
   flex-direction: column;
-  padding: 0 10px;
   user-select: none;
 }
 .controls .settings {
+  padding: 0 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;

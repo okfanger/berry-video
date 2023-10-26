@@ -21,14 +21,14 @@
       align-center
       :close-on-click-modal="false"
     >
-      <LoginView v-if="LogindialogVisble" />
+      <LoginView v-if="LogindialogVisble" v-model:LogindialogVisble="LogindialogVisble" />
     </el-dialog>
    
  </div>
 </template>
 
 <script setup>
-import avatar from '@/assets/avatar-do.png'
+import avatar from '@/assets/avatar-ddai.png'
 import LoginView from '@/views/User/LoginView.vue';
 import { ref } from 'vue'
 const LogindialogVisble = ref(false)
@@ -41,21 +41,36 @@ const handlerLogin = () => {
 <style scoped>
 .container-header {
   height: 80px;
-  background-color: #fe5c71;
+  background-color: #050505;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px
+  padding: 0 20px;
+  color: white;
 }
 
 .user {
   display: flex;
   align-items: center;
+  width: 150px;
+  justify-content: space-around;
 }
 .avatar img {
-  height: 70px;
-  width: 70px;
+  height: 50px;
+  width: 50px;
   border-radius: 50%;
 }
-
+.login {
+  background-color: #fe2c55;
+  height: 40px;
+  width: 70px;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  line-height: 40px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
 </style>
