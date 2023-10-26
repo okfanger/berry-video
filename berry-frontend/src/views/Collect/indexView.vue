@@ -1,7 +1,5 @@
 <template>
-  <div>
-    收藏
- </div>
+  <div></div>
 </template>
 
 <script setup>

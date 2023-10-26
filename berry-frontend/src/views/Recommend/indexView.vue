@@ -1,5 +1,5 @@
 <template>
-  <div class="video_list" @wheel="handlerScroll">
+  <div class="video_list" v-scroll>
     <VideoComponent v-for="item,index in list" 
     :key="index" class="videoComponent" ref="cards"/>
  </div>
@@ -26,16 +26,6 @@ const currentIndex = ref(0)
 const cards = ref()
 // const current = cards.value[currentIndex.value]
 
-const handlerScroll = (e) => {
-  // console.log(e, e.deltay);
-  // const direction = e.deltaY > 0 ? 1 : -1;
-  // currentIndex.value += direction;
-  // if (currentIndex.value < 0) currentIndex.value = 0;
-  // if (currentIndex.value >= list.value.length) currentIndex.value = list.value.length - 1;
-  // console.log(current);
-  // // container.style.transform = `translateY(-${currentIndex.value * 100}vh)`;
-  // e.preventDefault();
-}
 
 </script>
 
@@ -43,15 +33,12 @@ const handlerScroll = (e) => {
 .video_list {
   width: 100%;
   height: calc(100vh - 120px);
-  overflow-y: scroll;
-  position: relative;
+  overflow-y: hidden;
   transition: transform 0.3s ease;
 }
 .videoComponent {
   height: 100%; 
-  /* position: absolute;  */
   width: 100%;
-  top: 0;
 }
 
 </style>

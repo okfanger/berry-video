@@ -162,7 +162,7 @@ const handlerPrintscreen = () => {}
 .commonPane {
   height: 100%;
   width: 400px;
-  background-color: var(--bgColor);
+  background-color: #e2e2e2;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
 }
