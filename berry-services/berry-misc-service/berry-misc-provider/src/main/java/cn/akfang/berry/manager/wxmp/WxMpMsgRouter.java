@@ -51,14 +51,6 @@ public class WxMpMsgRouter {
                 .event(EventType.SUBSCRIBE)
                 .handler(subscribeHandler)
                 .end();
-        // 点击按钮
-        router.rule()
-                .async(false)
-                .msgType(XmlMsgType.EVENT)
-                .event(EventType.CLICK)
-                .eventKey(WxMpConstant.CLICK_MENU_KEY.getValue())
-                .handler(eventHandler)
-                .end();
 
         // 扫码登录
         router.rule()
@@ -67,8 +59,6 @@ public class WxMpMsgRouter {
                 .event(EventType.SCAN)
                 .handler(scanHandler)
                 .end();
-
-
         return router;
     }
 }

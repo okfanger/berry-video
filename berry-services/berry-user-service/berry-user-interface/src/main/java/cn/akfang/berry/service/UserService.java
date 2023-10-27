@@ -12,4 +12,5 @@ public interface UserService extends IService<UserPO> {
     String generateWxLoginClientId();
 
     UserTokenResponse wxLogin(WxLoginRequest request);
+
 }

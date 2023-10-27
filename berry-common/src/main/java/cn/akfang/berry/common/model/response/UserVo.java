@@ -1,17 +1,14 @@
-package cn.akfang.berry.common.model.entity;
+package cn.akfang.berry.common.model.response;
 
-import com.baomidou.mybatisplus.annotation.*;
-import lombok.Builder;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Data
-@TableName("t_user")
-@Builder
-public class UserPO implements Serializable {
-    @TableField(exist = false)
+public class UserVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -25,10 +22,6 @@ public class UserPO implements Serializable {
      */
     private String nickName;
 
-    /**
-     * 账号
-     */
-    private String userName;
 
     /**
      * 用户头像
@@ -46,11 +39,6 @@ public class UserPO implements Serializable {
     private String userRole;
 
     /**
-     * 密码
-     */
-    private String userPassword;
-
-    /**
      * 创建时间
      */
     private Date createTime;
@@ -59,11 +47,5 @@ public class UserPO implements Serializable {
      * 更新时间
      */
     private Date updateTime;
-
-    /**
-     * 是否删除
-     */
-    @TableLogic
-    private Integer isDelete;
 
 }
