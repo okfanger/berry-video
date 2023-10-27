@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication(
-        scanBasePackages = {"cn.akfang.berry.bootstrap", "cn.akfang.berry.consumer", "cn.akfang.berry.handler"},
+        scanBasePackages = {"cn.akfang.berry"},
         exclude = DataSourceAutoConfiguration.class)
 @EnableDiscoveryClient
 @DubboComponentScan(basePackages = {"cn.akfang.berry.consumer"})
