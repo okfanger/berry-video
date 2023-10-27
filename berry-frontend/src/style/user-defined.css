@@ -8,6 +8,8 @@
 
   --default-color: #ffffff;
   --default-hover-color: #eef2f5;
+
+  --font-color: #1c1f23;
 }
 
 .body {
@@ -47,7 +49,7 @@
 .button-default {
   padding: 10px 20px;
   background-color: var(--default-color);
-  color: #1c1f23;
+  color: var(--font-color);
   text-align: center;
   border: none;
   cursor: pointer;
@@ -65,7 +67,7 @@
 .button-plain {
   padding: 10px 20px;
   background-color: var(--plain-color);
-  color: #1c1f23;
+  color: var(--font-color);
   text-align: center;
   border: none;
   cursor: pointer;
@@ -82,9 +84,11 @@
 
 .card {
   background-color: #ffffff;
-  padding: 20px;
+  padding: 10px;
   border-radius: 12px;
   box-shadow: var(--soft-shadow);
+  height: 300px;
+  width: 200px;
 }
 
 /* 其他可爱的元素样式... */
@@ -95,3 +99,24 @@
 }
 
 /* 输入框 */
+.custom-input {
+  font-size: 16px;
+  height: 40px;
+  padding: 1px 0 1px 15px;
+  border-radius: 15px; /* 圆角 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 适当的阴影 */
+  transition: border 0.3s ease;
+
+  /* 树莓粉色背景 */
+  background-color: var(--plain-hover-color);
+  border: 1px solid var(--plain-color);
+  color: var(--font-color);
+}
+/* 聚焦时的效果 */
+.custom-input:focus-within {
+  outline: none;
+  border-color: var(--light-pink);
+}
+.custom-input:hover {
+  border-color: var(--light-pink);
+}
