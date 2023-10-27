@@ -1,11 +1,11 @@
 <template>
-  <div class="common-layout">
+  <div class="common-layout gradient-background">
     <el-container>
       <el-header style="padding: 0;height: 80px;">
         <LHeader  />
       </el-header>
       <el-container>
-        <el-aside width="200px" style="height: calc(100vh - 80px);background-color: aqua;">
+        <el-aside width="200px" style="height: calc(100vh - 80px);">
           <LAside />
         </el-aside>
         <el-main>
@@ -29,6 +29,5 @@ import LAside from '@/layout/LAside'
 <style scoped>
 .common-layout {
   height: 100vh;
-  background-color: rgb(250, 167, 115);
 }
 </style>

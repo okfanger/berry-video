@@ -17,14 +17,21 @@ const routes = [
         component: () => import("@/views/Classify/indexView.vue")
       },
       {
-        path: "collect",
-        name: 'collect',
-        component: () => import("@/views/Collect/indexView.vue")
-      },
-      {
-        path: "upvote",
-        name: 'upvote',
-        component: () => import("@/views/Upvote/indexView.vue")
+        path: "mine",
+        name: 'mine',
+        component: () => import("@/views/Mine/indexView.vue"),
+        children: [
+          {
+            path: "collect",
+            name: 'collect',
+            component: () => import("@/views/Collect/indexView.vue")
+          },
+          {
+            path: "upvote",
+            name: 'upvote',
+            component: () => import("@/views/Upvote/indexView.vue")
+          },
+        ]
       },
       {
         path: "/",

@@ -4,6 +4,7 @@
         :default-active="activate"
         class="el-menu-vertical-demo"
         @select="changeMenu"
+        height="100%"
       >
         <el-menu-item index="recommend">
           <el-icon><icon-menu /></el-icon>
@@ -13,16 +14,11 @@
           <el-icon><icon-menu /></el-icon>
           <span>分类</span>
         </el-menu-item>
-        <el-menu-item index="upvote">
+        <el-menu-item index="mine">
           <el-icon><icon-menu /></el-icon>
-          <span>喜欢</span>
-        </el-menu-item>
-        <el-menu-item index="collect">
-          <el-icon><icon-menu /></el-icon>
-          <span>收藏</span>
+          <span>我的</span>
         </el-menu-item>
       </el-menu>
-    
  </div>
 </template>
 
