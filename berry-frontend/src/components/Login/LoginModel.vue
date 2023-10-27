@@ -30,6 +30,7 @@ import { ref, onMounted, watchEffect, defineEmits, defineProps} from 'vue'
 import { getQrCode, login } from '@/api/user'
 import qrcodeImg from '@/assets/qrcode.png'
 import { setToken } from '@/utils'
+import { userStore } from '@/store'
 
 const props = defineProps(['LogindialogVisble'])
 const emits = defineEmits(['update:LogindialogVisble'])
@@ -68,9 +69,14 @@ const handlerLogin = (code) => {
     if(status == 200) {
       setToken(data.token);
       emits("update:LogindialogVisble", false)
+      userStore.fetchUserInfo().then(res=>{
+        
+      })
     }
   })
 }
+
+
 
 // 输入验证码
 const handleInput = (event, index) => {

@@ -34,5 +34,4 @@ const closeModel = () => {
   height: 480px;
   background-color: #fdfdfd;
 }
-
 </style>

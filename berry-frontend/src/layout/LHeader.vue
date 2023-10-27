@@ -3,7 +3,7 @@
   <div class="container-header">
     <div class="icon">树莓拍</div>
       <div class="search">
-        <el-input width="500px" />
+        <searchComponent />
       </div>
       <div class="user">
         <div class="userinfo">
@@ -27,6 +27,7 @@
 import avatar from '@/assets/avatar-ddai.png'
 import LoginModel from '@/components/Login/LoginModel'
 import Model from '@/components/Model/indexCom.vue'
+import searchComponent from '@/components/Search/searchComponent'
 import { ref } from 'vue'
 
 const LogindialogVisble = ref(false)

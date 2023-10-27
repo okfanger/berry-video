@@ -53,3 +53,9 @@ video::-webkit-media-controls-volume-control-container {
 video::-webkit-media-controls-timeline {
   display: none;
 }
+/* 清除input默认样式 */
+input {
+  border: none;
+  outline: none;
+  background-color: transparent;
+}
