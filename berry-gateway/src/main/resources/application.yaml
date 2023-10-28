@@ -1,0 +1,43 @@
+server:
+  port: 10010
+logging:
+  level:
+    cn.akfang.berry: debug
+spring:
+  application:
+    name: gateway
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+  cloud:
+    nacos:
+      discovery:
+        ephemeral: false
+        server-addr: 127.0.0.1:8848
+      config:
+        group: DEFAULT_GROUP
+        file-extension: yaml
+        server-addr: 127.0.0.1:8848
+      server-addr: 127.0.0.1:8848
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://berry-user-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - RewritePath=/user/(?<segment>.*), //$\{segment}
+
+        - id: video-service
+          uri: lb://berry-video-service
+          predicates:
+            - Path=/video/**
+          filters:
+            - RewritePath=/video/(?<segment>.*), //$\{segment}
+
+        - id: misc-service
+          uri: lb://berry-misc-service
+          predicates:
+            - Path=/misc/**
+          filters:
+            - RewritePath=/misc/(?<segment>.*), //$\{segment}

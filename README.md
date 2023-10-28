@@ -7,14 +7,8 @@
 ```config
 nacos=8848
 gateway=10010
-user-service-provider=10011
-user-service-consumer=10012
-
-video-service-provider=10013
-video-service-consumer=10014
-
-
-misc-service-provider=10015
-misc-service-consumer=10016
+user-service=10011
+video-service=10012
+misc-service=10013
 
 ```

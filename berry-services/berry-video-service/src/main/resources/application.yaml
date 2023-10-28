@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: berry-video-service
+  profiles:
+    active: prod
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        group: DEFAULT_GROUP
+        file-extension: yaml
+      discovery:
+        ephemeral: false
+        server-addr: 127.0.0.1:8848
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+server:
+  port: 10012
+logging:
+  level:
+    cn.akfang.berry: debug
+    com.alibaba.nacos: warn
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: isDelete
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+  configuration:
+    map-underscore-to-camel-case: false

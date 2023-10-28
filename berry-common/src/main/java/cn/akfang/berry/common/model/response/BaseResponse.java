@@ -1,11 +1,17 @@
 package cn.akfang.berry.common.model.response;
 
 import cn.akfang.berry.common.enums.ErrorCode;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BaseResponse<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -17,9 +23,6 @@ public class BaseResponse<T> implements Serializable {
 
     private boolean success = false;
 
-    public BaseResponse() {
-
-    }
     public BaseResponse(int status, T data, String message) {
         this.status = status;
         this.data = data;
