@@ -16,6 +16,7 @@
   display: flex;
   align-items: center;
   width: 400px;
+  padding: 0 1px 0 10px;
 }
 .input-box input {
   flex: 1;
@@ -28,11 +29,10 @@
 }
 .search {
   transform: none;
-  opacity: 0;    
-  visibility: hidden; 
+  opacity: 1;    
+  visibility: visible; 
   transition: opacity 0.1s, visibility 0.1s; 
   height: 36px;
   padding: 8px 20px;
-  
 }
 </style>
