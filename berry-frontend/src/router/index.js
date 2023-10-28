@@ -31,7 +31,21 @@ const routes = [
             name: 'upvote',
             component: () => import("@/views/Upvote/indexView.vue")
           },
+          {
+            path: "product",
+            name: "product",
+            component: () => import("@/views/Product/indexView.vue")
+          },
+          {
+            path: "/mine",
+            redirect: () => "/mine/upvote"
+          }
         ]
+      },
+      {
+        path: "create",
+        name: "create",
+        component: () => import("@/views/File/updateFile.vue")
       },
       {
         path: "/",

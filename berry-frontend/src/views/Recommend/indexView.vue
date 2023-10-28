@@ -11,7 +11,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import VideoComponent from '@/components/VideoComponent'
-import { onKeyStroke } from '@vueuse/core'
+import { getVideoFeed } from '@/api/video';
+
 const list = ref([
   {
     // 其他参数省略号
@@ -51,14 +52,15 @@ const list = ref([
 ])
 
 onMounted(() => {
-  onKeyStroke(['ArrowDown', 'ArrowUp'],(e)=>{
-    let type = e.key;
-    if(type == "ArrowDown") {
-      currentIndex.value++;
-    } else if(type == "ArrowUp" && currentIndex.value >= 1){
-      currentIndex.value--;
-    }
-  })
+  fetchVideoFeed()
+  // onKeyStroke(['ArrowDown', 'ArrowUp'],(e)=>{
+  //   let type = e.key;
+  //   if(type == "ArrowDown") {
+  //     currentIndex.value++;
+  //   } else if(type == "ArrowUp" && currentIndex.value >= 1){
+  //     currentIndex.value--;
+  //   }
+  // })
 })
 const currentIndex = ref(0)
 const cards = ref()
@@ -71,6 +73,12 @@ const test = (index) => {
     list.value = list.value.concat(list.value)
   }
     
+}
+
+const fetchVideoFeed = () => {
+  getVideoFeed().then(res=>{
+    console.log(res);
+  })
 }
 
 </script>

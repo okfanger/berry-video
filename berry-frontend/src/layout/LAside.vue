@@ -18,6 +18,10 @@
           <el-icon><icon-menu /></el-icon>
           <span>我的</span>
         </el-menu-item>
+        <el-menu-item index="create">
+          <el-icon><icon-menu /></el-icon>
+          <span>创作</span>
+        </el-menu-item>
       </el-menu>
  </div>
 </template>
