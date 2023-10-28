@@ -1,14 +1,20 @@
 package cn.akfang.berry.controller;
 
 
+import cn.akfang.berry.common.enums.ErrorCode;
 import cn.akfang.berry.common.enums.FeedTypeEnum;
+import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.feign.client.MiscService;
 import cn.akfang.berry.common.model.dto.FeedPage;
+import cn.akfang.berry.common.model.dto.VideoSaveDTO;
 import cn.akfang.berry.common.model.entity.VideoPO;
 import cn.akfang.berry.common.model.request.ClientUploadTokenRequest;
 import cn.akfang.berry.common.model.response.BaseResponse;
 import cn.akfang.berry.common.model.response.FileUploadToken;
+import cn.akfang.berry.common.model.response.VideoVO;
 import cn.akfang.berry.common.utils.ResultUtils;
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -51,7 +57,7 @@ public class VideoConsumer {
     }
 
     @GetMapping("/feed")
-    public BaseResponse<FeedPage<VideoPO>> getFeedListByCurrentUser(
+    public BaseResponse<FeedPage<VideoVO>> getFeedListByCurrentUser(
             @RequestParam(value = "type", required = false) String type) {
 
         FeedTypeEnum feedTypeEnum = Optional.ofNullable(type)
@@ -61,13 +67,41 @@ public class VideoConsumer {
 
         // fake data
         long offset = 5;
-        List<VideoPO> collect = videoService.list()
+        List<VideoVO> collect = videoService.list()
                 .stream()
                 .limit(offset)
+                .map(item -> {
+                    VideoVO videoVO = new VideoVO();
+                    BeanUtil.copyProperties(item, videoVO);
+                    videoVO.setUrl("http://berry-cdn.akfang.cn/" + item.getM3u8Key());
+                    return videoVO;
+                })
                 .collect(Collectors.toList());
-        FeedPage<VideoPO> videoPOFeedPage = new FeedPage<>();
+        FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
         videoPOFeedPage.setRecords(collect);
         videoPOFeedPage.setLastId(offset);
         return ResultUtils.success(videoPOFeedPage);
+    }
+
+    @GetMapping("/like")
+    public BaseResponse<String> doLike(@RequestParam("videoId") Long videoId) {
+        return ResultUtils.success(videoService.like(videoId));
+    }
+
+    @PostMapping("/")
+    public BaseResponse<Boolean> saveVideo(@RequestBody VideoSaveDTO dto) {
+        Optional<VideoPO> videoPO = new LambdaQueryChainWrapper<VideoPO>(videoService.getBaseMapper())
+                .eq(VideoPO::getSourceKey, dto.getKey())
+                .oneOpt();
+        if (videoPO.isPresent()) {
+            log.info("saveVideo: videoPO is present");
+            VideoPO videoSelf = videoPO.get();
+            videoSelf.setTitle(dto.getTitle());
+            videoSelf.setVisible(dto.getVisible());
+            return ResultUtils.success(videoService.updateById(videoSelf));
+        } else {
+            log.error("saveVideo: videoPO is not present");
+            throw new BerryRpcException(ErrorCode.QINIU_UPLOAD_ERROR);
+        }
     }
 }

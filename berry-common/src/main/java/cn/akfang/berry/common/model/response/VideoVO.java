@@ -1,9 +1,8 @@
-package cn.akfang.berry.common.model.entity;
+package cn.akfang.berry.common.model.response;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,12 +17,11 @@ import java.util.Date;
  *
  * @TableName t_video
  */
-@TableName(value = "t_video")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VideoPO implements Serializable {
+public class VideoVO implements Serializable {
     /**
      * id
      */
@@ -38,18 +36,7 @@ public class VideoPO implements Serializable {
     /**
      * 转码后地址
      */
-    private String mp4Key;
-
-    /**
-     * m3u8地址
-     */
-    private String m3u8Key;
-
-    /**
-     * 原地址
-     */
-
-    private String sourceKey;
+    private String url;
 
     /**
      * 视频封面

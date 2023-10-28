@@ -71,6 +71,7 @@ public class UserProvider extends ServiceImpl<UserMapper, UserPO> implements Use
             this.save(newUser);
             userPO = Optional.of(newUser);
         }
+        //
 
         String token = BerryJWTUtil.createToken(
                 MapUtil.builder()

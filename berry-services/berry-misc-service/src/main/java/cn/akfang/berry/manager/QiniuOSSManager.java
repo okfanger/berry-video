@@ -52,22 +52,19 @@ public class QiniuOSSManager implements InitializingBean {
         putPolicy.put("callbackBody", "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"bucket\":\"$(bucket)\",\"fsize\":$(fsize)}");
         putPolicy.put("callbackBodyType", "application/json");
         String fileName = IdUtil.simpleUUID() + "_" + RandomUtil.randomString(4);
-        //数据处理指令，支持多个指令
-        String saveMp4Entry = String.format("%s:%s.mp4", bucket, fileName);
-        String saveAsM3U8 = String.format("avthumb/m3u8/noDomain/1/vb/500k/t/", bucket, fileName);
-        //将多个数据处理指令拼接起来
+        String saveAsMp4 = "avthumb/mp4";
+        String saveAsM3U8 = "avthumb/m3u8/noDomain/1/segtime/15/vb/440k";
         String persistentOpfs = StringUtils.join(new String[]{
-                saveMp4Entry, saveAsM3U8
+                saveAsMp4, saveAsM3U8
         }, ";");
         putPolicy.put("persistentOps", persistentOpfs);
         //数据处理队列名称，必填
         putPolicy.put("persistentPipeline", "berry-pipeline1");
         //数据处理完成结果通知地址
-        putPolicy.put("persistentNotifyUrl", "http://berry-api.akfang.cn/misc/upload/callback");
+        putPolicy.put("persistentNotifyUrl", "http://berry-api.akfang.cn/misc/transform/callback");
 
         long expireSeconds = 3600;
-        String upToken = core.uploadToken(bucket, null, expireSeconds, putPolicy);
-        return upToken;
+        return core.uploadToken(bucket, null, expireSeconds, putPolicy);
     }
 
     public QiniuUploadDTO uploadFile(String upToken, File file) {

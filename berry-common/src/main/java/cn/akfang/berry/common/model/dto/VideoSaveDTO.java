@@ -6,15 +6,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class WxLoginTmpTicketDTO implements Serializable {
+public class VideoSaveDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String ticket;
-    private Integer expire_seconds;
-    private String url;
-    private String id;
+
+    String hash;
+    String key;
+    String title;
+    List<String> tags;
+    Long authorId;
+    Integer visible;
 }

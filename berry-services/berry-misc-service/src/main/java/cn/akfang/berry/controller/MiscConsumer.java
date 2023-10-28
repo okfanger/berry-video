@@ -3,8 +3,12 @@ package cn.akfang.berry.controller;
 import cn.akfang.berry.common.enums.ErrorCode;
 import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.feign.client.MiscService;
+import cn.akfang.berry.common.feign.client.VideoService;
+import cn.akfang.berry.common.model.dto.QiniuTransformCallBackDTO;
+import cn.akfang.berry.common.model.entity.VideoPO;
 import cn.akfang.berry.common.model.response.BaseResponse;
 import cn.akfang.berry.common.utils.ResultUtils;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,8 @@ public class MiscConsumer {
     @Autowired
     private MiscService miscService;
 
+    @Autowired
+    private VideoService videoService;
     @PostMapping(produces = "application/xml; charset=UTF-8", value = "/wx")
     public String receiveMessage(@RequestBody String requestBody,
                                  @RequestParam("signature") String signature,
@@ -53,6 +59,7 @@ public class MiscConsumer {
     @PostMapping("/upload/callback")
     public BaseResponse<Map<String, Object>> fileUploadCallBack(@RequestBody Map<String, Object> requestBody) {
         log.debug("fileUploadCallBack: {}", JSONUtil.toJsonStr(requestBody));
+//        videoService.saveVideo(requestBody);
 //        String accessKey = "your access key";
 //        String secretKey = "your secret key";
 //        /*
@@ -79,5 +86,22 @@ public class MiscConsumer {
 //            //这是哪里的请求，被劫持，篡改了吧？
 //        }
         return ResultUtils.success(requestBody);
+    }
+
+    @PostMapping("/transform/callback")
+    public BaseResponse<Boolean> transformCallBack(@RequestBody QiniuTransformCallBackDTO requestBody) {
+        log.debug("transformCallBack: {}", JSONUtil.toJsonStr(requestBody));
+        QiniuTransformCallBackDTO.Items mp4cmd = requestBody.getItems().stream()
+                .filter(item -> item.getCmd().equals("avthumb/mp4")).findFirst().get();
+        QiniuTransformCallBackDTO.Items m3u8cmd = requestBody.getItems().stream()
+                .filter(item -> item.getCmd().equals("avthumb/m3u8/noDomain/1/segtime/15/vb/440k")).findFirst().get();
+
+        return ResultUtils.success(videoService.saveVideo(VideoPO.builder()
+                .title(IdUtil.simpleUUID())
+                .sourceKey(requestBody.getInputKey())
+                .mp4Key(mp4cmd.getKey())
+                .m3u8Key(m3u8cmd.getKey())
+                .visible(0)
+                .build()));
     }
 }
