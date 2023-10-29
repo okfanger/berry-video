@@ -3,7 +3,7 @@
     <VideoComponent v-for="item,index in list" 
       v-slide-in="test"
       :key="index" class="videoComponent" ref="cards"
-        :videoSrc="item.src"
+        :videoSrc="item.url"
       />
  </div>
 </template>
@@ -13,43 +13,7 @@ import { ref, onMounted } from 'vue'
 import VideoComponent from '@/components/VideoComponent'
 import { getVideoFeed } from '@/api/video';
 
-const list = ref([
-  {
-    // 其他参数省略号
-    src: "sysndhy.flv",
-    pused: false,
-  },
-  {
-    // 其他参数省略号
-    src: "http://toffee-private-oss.akfang.cn/4585_1697538264.mp4",
-    pused: false,
-  },
-  {
-    // 其他参数省略号
-    src: "sysndhy.flv",
-    pused: false,
-  },
-  {
-    // 其他参数省略号
-    src: "http://toffee-private-oss.akfang.cn/4585_1697538264.mp4",
-    pused: false,
-  },
-  {
-    // 其他参数省略号
-    src: "sysndhy.flv",
-    pused: false,
-  },
-  {
-    // 其他参数省略号
-    src: "http://toffee-private-oss.akfang.cn/4585_1697538264.mp4",
-    pused: false,
-  },
-  {
-    // 其他参数省略号
-    src: "sysndhy.flv",
-    pused: false,
-  },
-])
+const list = ref([])
 
 onMounted(() => {
   fetchVideoFeed()
@@ -68,16 +32,19 @@ const cards = ref()
 const test = (index) => {
   // console.log('当前视频', index, '     视频总数', list.value.length);
   // 如果当前视频位于倒数第二个 就再请求10个视频
-  if(index == list.value.length -2 ){
-    // 模拟请求数据
-    list.value = list.value.concat(list.value)
-  }
+  // if(index == list.value.length -2 ){
+  //   // 模拟请求数据
+  //   list.value = list.value.concat(list.value)
+  // }
     
 }
 
 const fetchVideoFeed = () => {
   getVideoFeed().then(res=>{
-    console.log(res);
+    let {data, success} = res;
+    if(success) {
+      list.value = data.records;
+    }
   })
 }
 
@@ -89,7 +56,7 @@ const fetchVideoFeed = () => {
   height: calc(100vh - 120px);
   overflow-y: hidden;
   transition: transform 0.3s ease;
-  border-radius: 20px;
+  border-radius: 10px;
 }
 .videoComponent {
   height: 100%; 

@@ -28,7 +28,9 @@
 
 /* 按钮 */
 .button-primary {
-  padding: 10px 20px;
+  padding: 0px 20px;
+  height: 35px;
+  line-height: 35px;
   background-color: var(--raspberry-pink);
   color: #ffffff;
   text-align: center;
@@ -47,9 +49,11 @@
 }
 
 .button-default {
-  padding: 10px 20px;
+  padding: 0px 20px;
   background-color: var(--default-color);
   color: var(--font-color);
+  height: 35px;
+  line-height: 35px;
   text-align: center;
   border: none;
   cursor: pointer;
@@ -65,7 +69,9 @@
 }
 
 .button-plain {
-  padding: 10px 20px;
+  padding: 0px 20px;
+  height: 35px;
+  line-height: 35px;
   background-color: var(--plain-color);
   color: var(--font-color);
   text-align: center;

@@ -11,13 +11,51 @@
           </div>
         </div>
         <div class="progress-bar">
-            <div class="progress" style="width: 50%;"></div> <!-- For demonstration, it's set to 50%. In a real scenario, it should reflect the video's playback progress -->
+          <div class="progress" :style="{width: progress * 100 + '%'}"></div>
+          <div class="draggable-point" :style="{left: progress * 100 + '%'}" @mousedown="handleMousedown"></div>
         </div>
     </div>
  </div>
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted, defineEmits, defineProps } from 'vue'
+const emits = defineEmits([])
+const props = defineProps([])
+
+const progress = ref(0.5) // 初始进度设置为50%
+const dragging = ref(false)
+
+// 处理拖拽开始
+const handleMousedown = () => {
+  dragging.value = true
+}
+
+// 处理拖拽结束
+const handleMouseup = () => {
+  dragging.value = false
+}
+
+// 处理拖拽
+const handleMousemove = (e) => {
+  if (!dragging.value) return
+
+  const progressBar = document.querySelector('.progress-bar')
+  const rect = progressBar.getBoundingClientRect()
+  const newProgress = (e.clientX - rect.left) / rect.width
+
+  progress.value = Math.min(Math.max(newProgress, 0), 1) // 保证进度在0-1之间
+}
+
+onMounted(() => {
+  window.addEventListener('mousemove', handleMousemove)
+  window.addEventListener('mouseup', handleMouseup)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', handleMousemove)
+  window.removeEventListener('mouseup', handleMouseup)
+})
 
 </script>
 
@@ -29,8 +67,8 @@
 
 
   --style-color: #fbfcfd;
-  --back-color: #ff4349;
-  --progress-color: #c03035;
+  --back-color: #ec656b;
+  --progress-color: #ee7b87;
 }
 </style>
 
@@ -103,5 +141,17 @@
   background: var(--style-color);
   border-radius: 2px;
 }
+
+.draggable-point {
+  width: 12px;
+  height: 12px;
+  background-color: var(--style-color);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
 
 </style>

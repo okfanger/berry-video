@@ -1,15 +1,15 @@
 <template>
   <div class="classify-container">
     <div class="card" v-for="item in 12" :key="item">
-      <VideoNext />
+      <!-- <VideoNext /> -->
     </div>
     <!-- <controlsBar /> -->
  </div>
 </template>
 
 <script setup>
-import VideoNext from '@/components/VideoComponent/OriginNext.vue'
-import controlsBar from '@/components/VideoComponent/controlsBar.vue';
+// import VideoNext from '@/components/VideoComponent/OriginNext.vue'
+// import controlsBar from '@/components/VideoComponent/controlsBar.vue';
 </script>
 
 <style scoped>

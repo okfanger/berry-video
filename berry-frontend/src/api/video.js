@@ -1,10 +1,5 @@
 import { request } from '@/utils'
 
-export const uploadVideo = (data) => request({
-  url: "",
-  method: "post",
-  data,
-})
 
 export const getVideoListByType = (type) => request({
   url: "",
@@ -26,6 +21,30 @@ export const getUpTokenApi = (uuid) => {
     method: "post",
     data: {
       uuid
+    }
+  })
+}
+
+
+
+// 点赞
+export const like = (videoId) => {
+  return request({
+    url: "video/like",
+    method: "get",
+    params: {
+      videoId
+    }
+  })
+}
+
+// 取消点赞
+export const unLike = (videoId) => {
+  return request({
+    url: "video/unLike",
+    method: "get",
+    params: {
+      videoId
     }
   })
 }

@@ -49,9 +49,9 @@
           <span style="color:#f49598; marginLeft: 6px; user-select:none">默认是对外公开的</span>
         </el-form-item>
         <el-form-item>
-          <el-space>
-            <div class="button-primary">发布</div>
-            <div class="button-plain">重置</div>
+          <el-space class="form-buttons">
+            <div class="button-primary" @click="publish">发布</div>
+            <div class="button-plain" @click="resetForm">重置</div>
           </el-space>
         </el-form-item>
       </el-form>
@@ -75,7 +75,7 @@ const tagInput = ref("")
 const visble = ref(false)
 
 
-const submitForm = () => {}
+const publish = () => {}
 const resetForm = () => {}
 const showModel = () => {
   visble.value = true;
@@ -112,6 +112,11 @@ const getFileInfo = (info) => {
 }
 .tags-input {
   background-color: #fdebef;
+}
+.form-buttons {
+  display:flex;
+  justify-content: end;
+  width: 100%;
 }
 </style>
 

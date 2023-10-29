@@ -2,7 +2,7 @@
   <div class="vedio-container">
     <div class="dplayer-container">
       <!-- 视频 -->
-      <OriginVideo 
+      <OriginVideo
         @play="handlerPlay"
         @mute="handlerMute"
         v-model:volume="volume"
@@ -113,7 +113,7 @@ const handlerPrintscreen = () => {}
   height: calc(100vh - 120px);
   width: 100%;
   display: flex;
-  border-radius: 20px;
+  border-radius: 10px;
   overflow: hidden;
   min-width: 700px;
 }

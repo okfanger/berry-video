@@ -61,8 +61,5 @@ const handlerLogin = () => {
   width: 50px;
   border-radius: 50%;
 }
-.login {
-  height: 40px;
-  width: 80px;
-}
+
 </style>

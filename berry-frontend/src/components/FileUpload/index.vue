@@ -19,8 +19,6 @@
           </div>
         </template>
     </el-upload>
-
-
     <!-- 视频预览 -->
     <video v-if="videoUrl" controls width="320" :src="videoUrl"></video>
   </div>
@@ -40,7 +38,7 @@ const videoUrl = ref('');
 let observable = null;
 
 onMounted(()=>{
-  fetchUpToken();
+  // fetchUpToken();
 })
 
 onBeforeUnmount(()=>{
@@ -48,18 +46,29 @@ onBeforeUnmount(()=>{
 })
 
 const fetchUpToken = () => {
-  const uuid = createUuid()
-  getUpTokenApi(uuid).then(res=>{
-    const {data, status} = res;
-    if(status === 200) {
-      setUpToken(data.upToken)
-    }
-  }) 
+  return new Promise((resolve)=>{
+    const uuid = createUuid()
+    getUpTokenApi(uuid).then(res=>{
+      const {data, status} = res;
+      if(status === 200) {
+        setUpToken(data.upToken)
+        resolve(true)
+      } else {
+        resolve(false)
+      }
+    })
+  })
+  
+  
 }
 
 
 const handleUpload = (file) => {
-  upVideo(file)
+  fetchUpToken().then(res=>{
+    if(res) {
+      upVideo(file)
+    }
+  })
 }
 
 
