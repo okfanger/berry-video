@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Service
 @FeignClient(value = "berry-misc-service")
-public interface MiscService {
+public interface MiscClient {
     @GetMapping("/media/ticket")
     WxLoginTmpTicketDTO getWxLoginTicketInfo(@RequestParam("sceneStr") String sceneStr,
                                              @RequestParam("expireTime") Integer expireTime);

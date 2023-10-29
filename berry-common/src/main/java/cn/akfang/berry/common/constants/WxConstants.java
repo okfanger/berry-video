@@ -1,4 +1,4 @@
-package cn.akfang.berry.common.enums;
+package cn.akfang.berry.common.constants;
 
 import java.io.Serializable;
 

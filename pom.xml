@@ -11,6 +11,7 @@
         <module>berry-gateway</module>
         <module>berry-common</module>
         <module>berry-client</module>
+
         <module>berry-services/berry-user-service</module>
         <module>berry-services/berry-video-service</module>
         <module>berry-services/berry-misc-service</module>
@@ -109,4 +110,17 @@
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>aliyun_maven_public</id>
+            <name>阿里云公共仓库</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+        </repository>
+        <repository>
+            <id>aliyun_maven_central</id>
+            <name>阿里云central仓库</name>
+            <url>https://maven.aliyun.com/repository/central</url>
+        </repository>
+    </repositories>
 </project>

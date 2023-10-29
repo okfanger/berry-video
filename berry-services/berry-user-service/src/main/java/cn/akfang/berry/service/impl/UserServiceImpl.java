@@ -1,48 +1,39 @@
-package cn.akfang.berry.controller;
+package cn.akfang.berry.service.impl;
 
+import cn.akfang.berry.common.constants.WxConstants;
 import cn.akfang.berry.common.enums.ErrorCode;
 import cn.akfang.berry.common.enums.UserGenderEnum;
 import cn.akfang.berry.common.enums.UserRoleEnum;
-import cn.akfang.berry.common.enums.WxConstants;
 import cn.akfang.berry.common.exception.BerryRpcException;
-import cn.akfang.berry.common.feign.client.UserService;
 import cn.akfang.berry.common.model.entity.UserPO;
 import cn.akfang.berry.common.model.request.WxLoginRequest;
 import cn.akfang.berry.common.model.response.UserTokenResponse;
 import cn.akfang.berry.common.utils.BerryJWTUtil;
 import cn.akfang.berry.mapper.UserMapper;
+import cn.akfang.berry.service.UserService;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+@Service
 @Slf4j
-@RestController
-public class UserProvider extends ServiceImpl<UserMapper, UserPO> implements UserService, IService<UserPO> {
+public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements UserService {
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public UserPO getUserByUsername(String username) throws BerryRpcException {
-        Optional<UserPO> user = new LambdaQueryChainWrapper<>(baseMapper)
-                .eq(UserPO::getUserName, username)
-                .select()
-                .oneOpt();
-        return user.orElse(null);
-    }
-
-    public String generateWxLoginClientId() throws BerryRpcException {
+    public String generateWxLoginClientId() {
         String nanoId = IdUtil.fastUUID();
         String code = RandomUtil.randomNumbers(6);
         redisTemplate.opsForValue().set(WxConstants.KEY + ":" + nanoId, code.trim(), WxConstants.EXPIRE_TIME, TimeUnit.SECONDS);
@@ -51,7 +42,7 @@ public class UserProvider extends ServiceImpl<UserMapper, UserPO> implements Use
     }
 
     @Override
-    public UserTokenResponse wxLogin(WxLoginRequest request) throws BerryRpcException {
+    public UserTokenResponse wxLogin(WxLoginRequest request) {
         String openId = (String) redisTemplate.opsForValue().get(WxConstants.FROM_USER_OPENID2CLIENT_ID_KEY + ":" + request.getClientId());
         if (StrUtil.isBlank(openId)) {
             throw new BerryRpcException(ErrorCode.SYSTEM_ERROR, "openId为空");
@@ -88,4 +79,10 @@ public class UserProvider extends ServiceImpl<UserMapper, UserPO> implements Use
                 .build();
     }
 
+    @Override
+    public UserPO getByUserId(Long userId) {
+        return new LambdaQueryChainWrapper<>(baseMapper)
+                .eq(UserPO::getId, userId)
+                .oneOpt().orElse(null);
+    }
 }

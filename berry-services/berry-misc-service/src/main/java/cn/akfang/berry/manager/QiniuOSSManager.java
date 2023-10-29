@@ -1,10 +1,9 @@
 package cn.akfang.berry.manager;
 
+import cn.akfang.berry.common.constants.GlobalConstants;
 import cn.akfang.berry.common.enums.ErrorCode;
 import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.model.dto.QiniuUploadDTO;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
@@ -36,8 +35,14 @@ public class QiniuOSSManager implements InitializingBean {
     @Value("${qiniu.oss.bucket}")
     private String bucket;
 
-//    @Value("expireTime")
-//    private Long expireTime;
+    @Value("${qiniu.oss.pipeline}")
+    private String pipeline;
+
+    @Value("${qiniu.oss.persistentOps}")
+    String[] persistentOps;
+
+    @Value("${qiniu.oss.expireSeconds}")
+    private Long expireSeconds;
 
     private Auth core;
 
@@ -48,22 +53,12 @@ public class QiniuOSSManager implements InitializingBean {
 
     public String getUploadToken() {
         StringMap putPolicy = new StringMap();
-        putPolicy.put("callbackUrl", "http://berry-api.akfang.cn/misc/upload/callback");
+        putPolicy.put("callbackUrl", GlobalConstants.GATEWAY_URL + "/misc/oss/upload/callback");
         putPolicy.put("callbackBody", "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"bucket\":\"$(bucket)\",\"fsize\":$(fsize)}");
         putPolicy.put("callbackBodyType", "application/json");
-        String fileName = IdUtil.simpleUUID() + "_" + RandomUtil.randomString(4);
-        String saveAsMp4 = "avthumb/mp4";
-        String saveAsM3U8 = "avthumb/m3u8/noDomain/1/segtime/15/vb/440k";
-        String persistentOpfs = StringUtils.join(new String[]{
-                saveAsMp4, saveAsM3U8
-        }, ";");
-        putPolicy.put("persistentOps", persistentOpfs);
-        //数据处理队列名称，必填
-        putPolicy.put("persistentPipeline", "berry-pipeline1");
-        //数据处理完成结果通知地址
-        putPolicy.put("persistentNotifyUrl", "http://berry-api.akfang.cn/misc/transform/callback");
-
-        long expireSeconds = 3600;
+        putPolicy.put("persistentOps", StringUtils.join(persistentOps, ";"));
+        putPolicy.put("persistentPipeline", pipeline);
+        putPolicy.put("persistentNotifyUrl", GlobalConstants.GATEWAY_URL + "/misc/oss/transform/callback");
         return core.uploadToken(bucket, null, expireSeconds, putPolicy);
     }
 
@@ -74,7 +69,7 @@ public class QiniuOSSManager implements InitializingBean {
         UploadManager uploadManager = new UploadManager(cfg);
         try {
             Response response = uploadManager.put(file, null, upToken);
-            //解析上传成功的结果
+            // 解析上传成功的结果
             DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
             return QiniuUploadDTO.builder()
                     .key(putRet.key)
@@ -84,8 +79,5 @@ public class QiniuOSSManager implements InitializingBean {
             log.error("uploadFile: {}", String.valueOf(ex.response));
             throw new BerryRpcException(ErrorCode.QINIU_UPLOAD_ERROR, ex.getMessage());
         }
-
     }
-
-
 }

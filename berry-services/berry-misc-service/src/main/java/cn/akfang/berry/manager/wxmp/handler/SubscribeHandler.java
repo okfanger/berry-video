@@ -1,6 +1,6 @@
 package cn.akfang.berry.manager.wxmp.handler;
 
-import cn.akfang.berry.common.enums.WxConstants;
+import cn.akfang.berry.common.constants.WxConstants;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;

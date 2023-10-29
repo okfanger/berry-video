@@ -1,9 +1,14 @@
 package cn.akfang.berry.gateway;
 
+import cn.akfang.berry.common.constants.AuthConstants;
+import cn.akfang.berry.common.utils.BerryJWTUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -23,7 +28,9 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
     private static final List<String> whiteList = Arrays.asList(
             "/misc/wx",
             "/user/wx/ticket",
-            "/user/wx/login"
+            "/user/wx/login",
+            "/misc/oss/upload/callback",
+            "/misc/oss/transform/callback"
     );
 
     private boolean checkPathInWhiteList(String path) {
@@ -32,44 +39,29 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        //1. 获取请求
         ServerHttpRequest request = exchange.getRequest();
-        //2. 则获取响应
         ServerHttpResponse response = exchange.getResponse();
-        //3. 如果是登录请求则放行
-        log.info("gateway: uri={}", request.getURI().getPath());
-
         if (checkPathInWhiteList(request.getURI().getPath())) {
             return chain.filter(exchange);
         }
-        //4. 获取请求头
-//        HttpHeaders headers = request.getHeaders();
-//        //5. 请求头中获取令牌
-//        String token = headers.getFirst(AUTHORIZE_TOKEN);
-//
-//        //6. 判断请求头中是否有令牌
-//        if (StringUtils.isEmpty(token)) {
-//            //7. 响应中放入返回的状态吗, 没有权限访问
-//            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-//            //8. 返回
-//            return response.setComplete();
-//        }
-
-        //9. 如果请求头中有令牌则解析令牌
-//        try {
-//            token = StringUtils.replace(token, "Bearer ", "");
-//            token = token.trim();
-//            Map map = BerryJWTUtil.parseToken(token);
-
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            //10. 解析jwt令牌出错, 说明令牌过期或者伪造等不合法情况出现
-//            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-//            //11. 返回
-//            return response.setComplete();
-//        }
-        //12. 放行
-        return chain.filter(exchange);
+        HttpHeaders headers = request.getHeaders();
+        String token = headers.getFirst(AUTHORIZE_TOKEN);
+        if (StrUtil.isEmpty(token)) {
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            return response.setComplete();
+        }
+        try {
+            ServerHttpRequest host = exchange.getRequest()
+                    .mutate()
+                    .header(AuthConstants.EXCHANGE_AUTH_HEADER,
+                            String.valueOf(BerryJWTUtil.parseHeaderToken(token)
+                                    .get("id"))).build();
+            ServerWebExchange build = exchange.mutate().request(host).build();
+            return chain.filter(build);
+        } catch (Exception e) {
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            return response.setComplete();
+        }
     }
 
     @Override

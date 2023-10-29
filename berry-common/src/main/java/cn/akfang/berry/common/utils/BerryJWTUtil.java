@@ -11,8 +11,6 @@ public class BerryJWTUtil {
 
 
     private static final String SECRET_KEY = "berry";
-    public static final String INNER_HEADER_NAME = "X-GATEWAY-AUTH-ID";
-    public static final String OUTER_HEADER_NAME = "Authorization";
 
     public static String createToken(Map payload) {
         return JWTUtil.createToken(payload, SECRET_KEY.getBytes(StandardCharsets.UTF_8));

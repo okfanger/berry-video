@@ -1,60 +1,35 @@
 package cn.akfang.berry.controller;
 
-import cn.akfang.berry.common.enums.ErrorCode;
-import cn.akfang.berry.common.exception.BerryRpcException;
-import cn.akfang.berry.common.feign.client.MiscService;
-import cn.akfang.berry.common.feign.client.VideoService;
+import cn.akfang.berry.common.feign.client.VideoClient;
 import cn.akfang.berry.common.model.dto.QiniuTransformCallBackDTO;
 import cn.akfang.berry.common.model.entity.VideoPO;
+import cn.akfang.berry.common.model.request.ClientUploadTokenRequest;
 import cn.akfang.berry.common.model.response.BaseResponse;
+import cn.akfang.berry.common.model.response.FileUploadToken;
 import cn.akfang.berry.common.utils.ResultUtils;
+import cn.akfang.berry.manager.QiniuOSSManager;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.Map;
 
-
-@Slf4j
+@RequestMapping("/oss")
 @RestController
-public class MiscConsumer {
+@Slf4j
+public class OssController {
 
     @Autowired
-    private MiscService miscService;
+    QiniuOSSManager qiniuOSSManager;
 
     @Autowired
-    private VideoService videoService;
-    @PostMapping(produces = "application/xml; charset=UTF-8", value = "/wx")
-    public String receiveMessage(@RequestBody String requestBody,
-                                 @RequestParam("signature") String signature,
-                                 @RequestParam("timestamp") String timestamp,
-                                 @RequestParam("nonce") String nonce,
-                                 @RequestParam("openid") String openid,
-                                 @RequestParam(name = "encrypt_type", required = false) String encType,
-                                 @RequestParam(name = "msg_signature", required = false) String msgSignature
-    ) throws BerryRpcException {
-        log.info("\n接收微信请求：[openid=[{}], [signature=[{}], encType=[{}], msgSignature=[{}],"
-                        + " timestamp=[{}], nonce=[{}], requestBody=[\n{}\n] ",
-                openid, signature, encType, msgSignature, timestamp, nonce, requestBody);
-
-        // 校验消息签名，判断是否为公众平台发的消息
-        if (!miscService.checkSignature(timestamp, nonce, signature)) {
-            log.error("receiveMessage: 非法请求, time={}, no={}, sign={}", timestamp, nonce, signature);
-            throw new BerryRpcException(ErrorCode.PARAMS_ERROR);
-        }
-        return miscService.reply(requestBody);
-    }
-
-    @GetMapping("/wx")
-    public String check(String timestamp, String nonce, String signature, String echostr) {
-        if (miscService.checkSignature(timestamp, nonce, signature)) {
-            return echostr;
-        } else {
-            return "";
-        }
-    }
+    VideoClient videoClient;
 
     @PostMapping("/upload/callback")
     public BaseResponse<Map<String, Object>> fileUploadCallBack(@RequestBody Map<String, Object> requestBody) {
@@ -96,7 +71,7 @@ public class MiscConsumer {
         QiniuTransformCallBackDTO.Items m3u8cmd = requestBody.getItems().stream()
                 .filter(item -> item.getCmd().equals("avthumb/m3u8/noDomain/1/segtime/15/vb/440k")).findFirst().get();
 
-        return ResultUtils.success(videoService.saveVideo(VideoPO.builder()
+        return ResultUtils.success(videoClient.saveVideo(VideoPO.builder()
                 .title(IdUtil.simpleUUID())
                 .sourceKey(requestBody.getInputKey())
                 .mp4Key(mp4cmd.getKey())
@@ -104,4 +79,22 @@ public class MiscConsumer {
                 .visible(0)
                 .build()));
     }
+
+
+    /**
+     * 客户端上传
+     *
+     * @param request uuid
+     * @return 上传凭证 upToken
+     */
+    @PostMapping("/upload/token")
+    public BaseResponse<FileUploadToken> clientUploadToken(@Valid @RequestBody ClientUploadTokenRequest request) {
+        synchronized (request.getUuid().intern()) {
+            String uploadToken = qiniuOSSManager.getUploadToken();
+            return ResultUtils.success(FileUploadToken.builder()
+                    .upToken(uploadToken)
+                    .build());
+        }
+    }
+
 }
