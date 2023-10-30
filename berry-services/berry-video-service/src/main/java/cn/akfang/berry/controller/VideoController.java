@@ -128,4 +128,16 @@ public class VideoController implements VideoClient {
             return ResultUtils.success(o);
         }
     }
+
+    @DeleteMapping("/{videoId}")
+    public BaseResponse<Boolean> deleteVideo(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId,
+                                             @PathVariable("videoId") String videoIdStr) {
+        // 判断是否有权限
+        Long videoId = NumberUtil.parseLong(videoIdStr);
+        if (!videoService.isOwner(Long.parseLong(userId), videoId)) {
+            throw new BerryRpcException(ErrorCode.NO_AUTH_ERROR, "no auth to delete video.");
+        } else {
+            return ResultUtils.success(videoService.removeById(videoId));
+        }
+    }
 }

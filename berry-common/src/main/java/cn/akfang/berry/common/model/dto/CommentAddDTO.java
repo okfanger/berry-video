@@ -3,12 +3,10 @@ package cn.akfang.berry.common.model.dto;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
-public class FeedPage<T> implements Serializable {
+public class CommentAddDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    private Long lastId;
-    private List<T> records;
+    private String content;
+    private Long videoId;
 }

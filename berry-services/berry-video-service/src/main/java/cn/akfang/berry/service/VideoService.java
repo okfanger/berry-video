@@ -5,4 +5,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface VideoService extends IService<VideoPO> {
 
+    Boolean isOwner(Long userId, Long videoId);
 }

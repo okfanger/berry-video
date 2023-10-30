@@ -30,7 +30,8 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
             "/user/wx/ticket",
             "/user/wx/login",
             "/misc/oss/upload/callback",
-            "/misc/oss/transform/callback"
+            "/misc/oss/transform/callback",
+            "/video/channel/list"
     );
 
     private boolean checkPathInWhiteList(String path) {
