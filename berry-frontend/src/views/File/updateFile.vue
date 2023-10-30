@@ -13,9 +13,6 @@
         status-icon
         :rules="rules"
         label-width="60px"
-        class="upload-demo"
-        accept="png"
-        :limit="1"
       >
         <el-form-item label="视频">
           <file-upload @getFileInfo="getFileInfo" v-if="visble"></file-upload>
@@ -26,12 +23,17 @@
         <el-form-item label="标签" prop="tags">
           <!-- <el-input v-model.number="form.tags" /> -->
           <div>
-            <div class="custom-input tags-input">
-              <div v-for="tag in form.tags" :key="tag" class="tag">
-                {{ tag }}
-                <el-button size="mini" @click="removeTag(tag)">删除</el-button>
+            <div>
+              <div class="tags">
+                <div v-for="tag in form.tags" :key="tag" class="tag">
+                  {{ tag }}
+                  <span class="delete" @click="removeTag(tag)">x</span>
+                </div>
               </div>
-              <input type="text" @keyup.enter="addTag" placeholder="请输入标签名" v-model="tagInput">
+              <div style="display: flex; align-items: center;">
+                <input type="text" class="custom-input tags-input" placeholder="请输入标签名" v-model="tagInput">
+                <div class="button-primary" @click="addTag" style="width: 80px;margin-left: 10px;">添加</div>
+              </div>
             </div>
           </div>
         </el-form-item>
@@ -66,13 +68,13 @@ import { Check, Close } from '@element-plus/icons-vue'
 import {ref, reactive} from 'vue'
 const form = reactive({
   title: "",
-  tags: [],
+  tags: ["大学生", "大学生", "大学生","大学生","大学","大学生","大学生","大学生","大学生","大学"],
   key: "",
   hash: "",
   visible: 1, // 0私密 1公开
 })
 const tagInput = ref("")
-const visble = ref(false)
+const visble = ref(true)
 
 
 const publish = () => {}
@@ -81,12 +83,12 @@ const showModel = () => {
   visble.value = true;
 }
 const removeTag = (tag) => {
-  form.tags.value = form.tags.value.filter(t => t !== tag);
+  form.tags = form.tags.filter(t => t !== tag);
 }
 const addTag = () => {
   console.log(tagInput);
-  if (tagInput.value && !form.tags.value.includes(tagInput.value)) {
-    form.tags.value.push(tagInput.value);
+  if (tagInput.value && !form.tags.includes(tagInput.value)) {
+    form.tags.push(tagInput.value);
     tagInput.value = "";
   }
 }
@@ -105,13 +107,34 @@ const getFileInfo = (info) => {
 }
 .tag {
   display: inline-block;
-  padding: 5px 10px;
-  margin: 5px;
-  background-color: #f0f0f0;
+  padding: 1px 3px;
+  margin: 1px 2px;
+  background-color: #ff8e8e;
   border-radius: 5px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
+.delete {
+  color: white;
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+  background-color: rgb(207, 91, 91);
+  border-radius: 50%;
+  display: inline-block;
+  text-align: center;
+  line-height: 20px;
+  opacity: 0;
+  transition: opacity .4s;
+}
+.tag:hover .delete{
+  opacity: 1;
 }
 .tags-input {
   background-color: #fdebef;
+  flex: 1;
 }
 .form-buttons {
   display:flex;

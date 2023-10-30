@@ -3,7 +3,10 @@
     <VideoComponent v-for="item,index in list" 
       v-slide-in="test"
       :key="index" class="videoComponent" ref="cards"
-        :videoSrc="item.url"
+      :videoSrc="item.url"
+      :likeCount="item.likeCount"
+      :id="item.id"
+      :liked="item.liked"
       />
  </div>
 </template>
@@ -14,6 +17,19 @@ import VideoComponent from '@/components/VideoComponent'
 import { getVideoFeed } from '@/api/video';
 
 const list = ref([])
+// const item = {
+//   authorId
+//   commentCount
+//   cover
+//   createTime
+//   id
+//   likeCount
+//   liked
+//   title
+//   updateTime
+//   url
+//   visible
+// }
 
 onMounted(() => {
   fetchVideoFeed()
@@ -64,3 +80,4 @@ const fetchVideoFeed = () => {
 }
 
 </style>
+

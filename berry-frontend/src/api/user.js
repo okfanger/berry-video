@@ -6,7 +6,7 @@ import { request } from "@/utils"
  * @returns 
  */
 export const getQrCode = () => request({
-  url: '/user/wx/ticket',
+  url: '/misc/wx/ticket',
   method: 'get'
 })
 

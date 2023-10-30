@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="initial-video">
+    <div class="initial-video" ref="videoBox">
       <video ref="video"
         webkit-playsinline="true"
         playsinline="true"
@@ -37,7 +37,6 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-
           </div>
           <div>
             <button v-if="openPrintScreen" @click="openPrintScreen">截图</button>
@@ -60,7 +59,7 @@ const emits = defineEmits(['play', 'mute', 'update:speed',
 
 const props = defineProps(['volume', 'speed', 'speedList',
    'continuous', 'openPrintScreen', 'videoSrc', 'coverSrc',
-    'bgImg', 'streamLoad', ])
+    'bgImg', 'streamLoad', 'id' ])
 
 const video = ref()
 const progressBox = ref()
@@ -71,11 +70,18 @@ let progressTimer = null // 进度 timer
 
 const paused = ref(true) // true 暂停  false 播放
 const muted = ref(false) // true 静音  false 开启声音
+const videoBox = ref()
 const progressTime = ref("00:00 / 00:00")
 let hls;
 let clickTimer = null;
 onMounted(() => {
+
   initVideo();
+  if (video.value.videoWidth > video.value.videoHeight) {
+      video.value.classList.add('widthGreaterThanHeight');
+  } else {
+    video.value.classList.add('heightGreaterThanWidth');
+  }
   window.addEventListener('mousemove', handleMousemove)
   window.addEventListener('mouseup', handleMouseup)
   // 监听视频进度条拖拽 全屏后进度条拖拽,自定义进度条也要到同样位置
@@ -83,19 +89,18 @@ onMounted(() => {
     changeProgress()
   })
   // 单点视频 播放/暂停
-  video.value.addEventListener("click", ()=>{
+  videoBox.value.addEventListener("click", ()=>{
     clickTimer && clearTimeout(clickTimer);
     clickTimer = setTimeout(()=>{
       play()
     }, 300)
   })
-  // 双击视频 点赞/取消点赞
-  video.value.addEventListener("dblclick", ()=>{
+  // 双击视频 点赞
+  videoBox.value.addEventListener("dblclick", (e)=>{
     clickTimer && clearTimeout(clickTimer);
+    // showHeart(e)
     emits("likeOrDisLike")
   })
-  // video.value
-  // window.addEventListener("keyup", )
 });
 
 const initVideo = () => {
@@ -107,6 +112,27 @@ const initVideo = () => {
   video.value.playbackRate = props.speed;
 }
 
+const showHeart = (event) => {
+  console.log(event);
+  const heart = document.createElement('div');
+  heart.innerHTML = "asdasd"
+  heart.className = 'heart';  // 使用 CSS 类来绘制爱心
+  heart.style.left = `${event.clientX}px`;
+  heart.style.top = `${event.clientY}px`;
+  heart.style.opacity = '1';
+  heart.style.transition = 'opacity 0.5s ease-out';
+console.log(heart);
+  document.body.appendChild(heart);
+
+//   requestAnimationFrame(() => {
+//     heart.style.opacity = '0';
+//   });
+
+//   setTimeout(() => {
+//     document.body.removeChild(heart);
+//   }, 500);
+}
+
 const parseTime = (value) => {
     if (!value) return '00:00'
     let interval = Math.floor(value)
@@ -116,15 +142,17 @@ const parseTime = (value) => {
 }
 // 推进进度条
 function changeProgress() {
-  var timeStr = parseTime(video.value.currentTime)  + '/' + parseTime(video.value.duration)
-  progressTime.value = timeStr
-  var percent = video.value.currentTime / video.value.duration
-  if(!dragging.value)
-    progress.value = Math.min(Math.max(percent, 0), 1); // 让进度条在0-1之间
-  if(progress.value >= 1) {
-    videoEnd();
+  if(video.value) {
+    var timeStr = parseTime(video.value.currentTime)  + '/' + parseTime(video.value.duration)
+    progressTime.value = timeStr
+    var percent = video.value.currentTime / video.value.duration
+    if(!dragging.value)
+      progress.value = Math.min(Math.max(percent, 0), 1); // 让进度条在0-1之间
+    if(progress.value >= 1) {
+      videoEnd();
+    }
+    progressLine.value.style.width = percent * 100 + '%'
   }
-  progressLine.value.style.width = percent * 100 + '%'
 }
 // 点击进度条的任意地方
 const checkAnyTime = (e) => {
@@ -311,19 +339,26 @@ onBeforeUnmount(() => {
   background: url('https://t7.baidu.com/it/u=3908717,2002330211&fm=193&f=GIF') center center  no-repeat;
   background-size: 100% 100%;
   flex: 1;
-}
-.initial-video video {
-  height: 100%;
-  width: 100%;
-  object-fit: fill;
+  display: flex;   
+  justify-content: center; 
+  align-items: center; 
 }
 
+
+video.widthGreaterThanHeight {
+  height: auto;
+  width: 100%;
+}
+video.heightGreaterThanWidth {
+  height: 100%;
+  width: auto;
+}
 
 .blur {    
     -webkit-filter: blur(10px);
        -moz-filter: blur(10px);
         -ms-filter: blur(10px);    
-            filter: blur(10px);    
+            filter: blur(10px);  
 }
 </style>
 <!-- 定义颜色 -->
@@ -352,7 +387,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   justify-content: space-between;
   flex-wrap: nowrap;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 0px 8px;
   opacity: 1;
   visibility: visible;
   transition: opacity 0.3s, visibility 0.3s;
@@ -459,6 +494,38 @@ onBeforeUnmount(() => {
 ::v-deep .el-tooltip__trigger {
   color: white;
 }
+</style>
+
+
+<style scoped>
+.heart {
+  position: relative;
+  width: 30px;
+  height: 24px;
+  background-color: #ff6b81;  /* 你可以选择你喜欢的颜色 */
+  transform: rotate(-45deg);
+  margin-top: 15px;
+}
+
+.heart::before,
+.heart::after {
+  content: "";
+  position: absolute;
+  top: -15px;
+  width: 30px;
+  height: 30px;
+  background-color: #ff6b81;  /* 与爱心的其他部分颜色相同 */
+  border-radius: 50%;
+}
+
+.heart::before {
+  left: -15px;
+}
+
+.heart::after {
+  right: -15px;
+}
+
 </style>
 
 

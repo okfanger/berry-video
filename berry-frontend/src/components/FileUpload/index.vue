@@ -1,32 +1,32 @@
 <template>
   <div>
-    <!-- 上传组件 -->
-    <el-upload
-        class="raspberry-upload"
-        drag
-        :auto-upload="false"
-        :accept="'video/*'"
-        :on-change="handleUpload"
-        :file-list="fileList"
-    >
-        <el-icon class="el-icon--upload"><upload-filled style="height: 30px; width: 30px;" /></el-icon>
-        <div class="el-upload__text">
-          拖拽 或 <em>点击这里上传</em>
+    <div class="upload" ref="upload">
+      <input type="file" ref="fileInput" accept="video/*">
+    </div>
+    <div class="icon center" v-if="!beginUpload">
+      <el-icon> <Plus /> </el-icon>
+    </div>
+    <div class="progress center" v-else>
+      <div class="bar">
+        <div class="progress-bar" ref="progressBox">
+          <div class="progressLine" ref="progressLine" :style="{width: percent + '%' }"></div>
         </div>
-        <template #tip>
-          <div class="el-upload__tip">
-            视频最大限制为100MB
-          </div>
-        </template>
-    </el-upload>
-    <!-- 视频预览 -->
-    <video v-if="videoUrl" controls width="320" :src="videoUrl"></video>
+        <div class="percent">{{ percent }}%</div>
+        <div class="result" v-show="haveResult">
+          <span v-if="result">✅</span>
+          <span v-else>❌</span>
+        </div>
+      </div>
+      <div style="width: 100px;text-align: center;cursor: pointer;margin: 0 auto;" 
+        class="button-plain"
+        @click="reUpload">重新上传</div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, defineEmits } from 'vue';
-import { UploadFilled } from '@element-plus/icons-vue'
+import { Plus } from '@element-plus/icons-vue'
 import { getUpTokenApi } from '@/api/video.js'
 import { createUuid, getUpToken, setUpToken, clearUpToken } from '@/utils'
 import * as qiniu from 'qiniu-js'
@@ -35,10 +35,41 @@ const emits = defineEmits(['getFileInfo'])
 
 const fileList = ref([]);
 const videoUrl = ref('');
-let observable = null;
+const percent = ref(0)
+const haveResult = ref(false)
+const result = ref(false)
+const beginUpload = ref(false)
 
+const upload = ref()
+const fileInput = ref()
 onMounted(()=>{
   // fetchUpToken();
+  upload.value.addEventListener("click", () => {
+    fileInput.value.click();
+  })
+  upload.value.ondragenter = (e) => {
+    e.preventDefault()
+    e.target.classList.add("drag")
+  }
+  upload.value.ondragover = (e) => {
+    e.preventDefault()
+  }
+  upload.value.ondrop = (e) => {
+    e.preventDefault()
+    const files = e.dataTransfer.files;
+    if(files.length >1) {
+      console.log('只能上传一个文件');
+    } else {
+      fileInput.value.files = files;
+      handleUpload()
+    }
+  }
+  upload.value.ondragleave = (e) => {
+    e.target.classList.remove("drag")
+  }
+  fileInput.value.onchange = ()=>{
+    handleUpload()
+  }
 })
 
 onBeforeUnmount(()=>{
@@ -62,21 +93,26 @@ const fetchUpToken = () => {
   
 }
 
-
-const handleUpload = (file) => {
+const handleUpload = () => {
+  beginUpload.value = true
+  let file = fileInput.value.files[0]
   fetchUpToken().then(res=>{
     if(res) {
       upVideo(file)
     }
   })
 }
-
-
+const reUpload = () => {
+  beginUpload.value = false;
+  haveResult.value = false;
+  result.value = false;
+  percent.value = 0;
+}
 const upVideo = (file) => {
   const putExtra = {
     fname: "",
     params: {},
-    mimeType: ["video/mp4", "video/avi", "video/flv"],
+    mimeType: file.type
   };
   const upToken = getUpToken()
   const config = {
@@ -85,7 +121,7 @@ const upVideo = (file) => {
   };
 
   const observable = qiniu.upload(
-    file.raw,
+    file,
     null, // 使用文件hash作为 key
     upToken,
     putExtra,
@@ -94,68 +130,97 @@ const upVideo = (file) => {
 
   const observer = {
     next(res) {
-      console.log(res);
+      let number = res.total.percent;
+      if(number!==100)
+        percent.value = number.toFixed(2);
+      else {
+        percent.value = 100;
+      }
     },
     error(err) {
       // 上传失败
-      console.error("Upload error:", err);
-      fileList.value = []; // 清除文件列表
+      haveResult.value = true;
+      result.value = false;
     },
     complete(res) {
       // 上传成功
+      haveResult.value = true;
+      result.value = true;
       emits("getFileInfo", res.data)
     },
   };
-
   observable.subscribe(observer);
 }
 </script>
 
+
+<style>
+:root {
+--style-color: #fbfcfd;
+--back-color: #ec656b;
+--progress-color: #d78d8d;
+}
+</style>
+
 <style scoped>
 /* 树莓风格样式 */
-.raspberry-upload {
-    border: 2px dashed #ec656b;
-    border-radius: 12px;
-    background-color: rgba(236, 101, 107, 0.05); /* 树莓色的淡化版本作为背景 */
-    transition: background-color 0.3s ease;
-    padding: 10px 20px;
-    text-align: center;
-    user-select: none;
+.upload {
+  border: 2px dashed #ec656b;
+  height: 200px;
+  width: 200px;
+  border-radius: 12px;
+  background-color: rgba(79, 5, 8, 0.05); /* 树莓色的淡化版本作为背景 */
+  transition: background-color 0.3s ease;
+  text-align: center;
+  user-select: none;
+  position: relative;  
+  cursor: pointer;
+}
+.upload input {
+  /* height: 100%;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer; */
+ opacity: 0;
+}
+div.icon {
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  color: #ec656b;
+  font-weight: bold;
+  user-select: none;
+}
+.center {
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  transform: translate(-50%, -50%);
 }
 
-.raspberry-upload:hover {
-    background-color: rgba(236, 101, 107, 0.1);
+/* 上传进度条 */
+.progress-bar {
+  height: 5px;
+  width: 140px;
+  background: var(--progress-color);
+  opacity: 1;
+  position: relative;
+  
+}
+.bar {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
-.el-upload__text {
-    color: #f3777d;
-    font-weight: 500;
+.progress-bar .progressLine {
+  position: absolute;
+  height: 100%;
+  background: var(--back-color);
 }
-        
-.el-upload.is-drag {
-  height: 125px;
-}
-.el-upload__text em {
-    text-decoration: underline;
-    cursor: pointer;
-    color: #ed656c;
-}
-
-.el-upload__tip {
-    margin-top: 20px;
-    font-size: 12px;
-    color: rgba(236, 101, 107, 0.7);
-}
-
-/* 树莓风格的icon样式 */
-.el-icon--upload {
-    font-size: 24px;
-    color: #ec656b;
-    margin-bottom: 16px;
-}
-
-::v-deep .el-upload-dragger {
-  background-color: transparent;
-  border: none;
+.drag {
+  background-color: #ffe0e2;
 }
 </style>

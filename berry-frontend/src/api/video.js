@@ -17,7 +17,7 @@ export const getVideoFeed = () => request({
 
 export const getUpTokenApi = (uuid) => {
   return request({
-    url: "/video/upload/token",
+    url: "/misc/oss/upload/token",
     method: "post",
     data: {
       uuid
@@ -28,9 +28,9 @@ export const getUpTokenApi = (uuid) => {
 
 
 // 点赞
-export const like = (videoId) => {
+export const doLikeApi = (videoId) => {
   return request({
-    url: "video/like",
+    url: "/video/doLike",
     method: "get",
     params: {
       videoId
@@ -39,9 +39,9 @@ export const like = (videoId) => {
 }
 
 // 取消点赞
-export const unLike = (videoId) => {
+export const unLikeApi = (videoId) => {
   return request({
-    url: "video/unLike",
+    url: "/video/unLike",
     method: "get",
     params: {
       videoId

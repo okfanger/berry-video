@@ -48,4 +48,10 @@ const changeMenu = (pathName) => {
 .aside-container {
   height: 100%;
 }
+::v-deep .is-active {
+  color: #ec656b;
+}
+::v-deep .el-menu-item:hover {
+  background-color: #f9b7be;
+}
 </style>
