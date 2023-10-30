@@ -12,69 +12,49 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.Date;
 
-
 /**
- * 短视频表
- *
- * @TableName t_video
+ * @TableName t_file
  */
-@TableName(value = "t_video")
+@TableName(value = "t_file")
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class VideoPO implements Serializable {
+@NoArgsConstructor
+@Builder
+public class FilePO implements Serializable {
     /**
-     * id
+     *
      */
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
-     * 对应用户表id，视频发布者
+     *
      */
-    private Long authorId;
+    @TableField(value = "`key`")
+    private String key;
 
     /**
-     * 视频封面
+     *
      */
-    private String cover;
+    @TableField(value = "`hash`")
+    private String hash;
+    /**
+     *
+     */
+    private String bucket;
 
     /**
-     * 默认播放地址
+     *
      */
-    private String defaultUrl;
+    private String fsize;
 
     /**
-     * 文件地址
+     *
      */
-    private Long fileId;
-
-    /**
-     * 视频标题，可以为空
-     */
-    private String content;
-
-
-    /**
-     * 点赞总数
-     */
-    private Integer likeCount;
-
-    /**
-     * 评论总数
-     */
-    private Integer commentCount;
-
-    /**
-     * 分享总数
-     */
-    private Integer shareCount;
-
-    /**
-     * 是否私密，用户可以设置私密，如此可以不公开给比人看
-     */
-    private Integer visible;
+//    @TableField(value = "metadata",
+//            typeHandler = JacksonTypeHandler.class)
+//    private Map<String, String> metadata;
+    private String metadata;
 
     /**
      * 创建时间

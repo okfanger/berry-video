@@ -15,6 +15,7 @@
         <module>berry-services/berry-user-service</module>
         <module>berry-services/berry-video-service</module>
         <module>berry-services/berry-misc-service</module>
+        <module>berry-message</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -41,10 +42,16 @@
         <qiniu.version>7.13.0</qiniu.version>
         <mysql.version>8.0.33</mysql.version>
         <wx-sdk.version>4.5.0</wx-sdk.version>
+        <rocketmq.version>2.2.2</rocketmq.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocketmq.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-bootstrap</artifactId>
@@ -111,16 +118,4 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>aliyun_maven_public</id>
-            <name>阿里云公共仓库</name>
-            <url>https://maven.aliyun.com/repository/public</url>
-        </repository>
-        <repository>
-            <id>aliyun_maven_central</id>
-            <name>阿里云central仓库</name>
-            <url>https://maven.aliyun.com/repository/central</url>
-        </repository>
-    </repositories>
 </project>

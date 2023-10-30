@@ -1,6 +1,7 @@
 package cn.akfang.berry.controller;
 
 
+import cn.akfang.berry.common.constants.AuthConstants;
 import cn.akfang.berry.common.enums.ErrorCode;
 import cn.akfang.berry.common.enums.FeedTypeEnum;
 import cn.akfang.berry.common.exception.BerryRpcException;
@@ -8,16 +9,19 @@ import cn.akfang.berry.common.feign.client.MiscClient;
 import cn.akfang.berry.common.feign.client.VideoClient;
 import cn.akfang.berry.common.model.dto.FeedPage;
 import cn.akfang.berry.common.model.dto.VideoSaveDTO;
-import cn.akfang.berry.common.model.entity.VideoPO;
+import cn.akfang.berry.common.model.entity.FilePO;
 import cn.akfang.berry.common.model.response.BaseResponse;
 import cn.akfang.berry.common.model.response.VideoVO;
 import cn.akfang.berry.common.utils.ResultUtils;
+import cn.akfang.berry.constant.VideoMessageConstants;
+import cn.akfang.berry.service.ChannelService;
 import cn.akfang.berry.service.LikeRedisService;
 import cn.akfang.berry.service.VideoService;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import cn.hutool.core.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
@@ -37,22 +41,20 @@ public class VideoController implements VideoClient {
     @Autowired
     VideoService videoService;
 
+    @Autowired
+    ChannelService channelService;
+
     @Qualifier("videoLikeRedisService")
     @Autowired
     LikeRedisService<Long, Long> likeRedisService;
 
-    @GetMapping("/debug")
-    public BaseResponse<String> debug() {
-        miscClient.uploadFile(miscClient.getUploadToken().getUpToken());
-        return ResultUtils.success(null);
-    }
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     @GetMapping("/feed")
     public BaseResponse<FeedPage<VideoVO>> getFeedListByCurrentUser(
+            @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
             @RequestParam(value = "type", required = false) String type) {
-
-        Long currentUserId = 1717564636153798658L;
-
         FeedTypeEnum feedTypeEnum = Optional.ofNullable(type)
                 .filter(StringUtils::hasText)
                 .map(FeedTypeEnum::valueOf)
@@ -62,13 +64,17 @@ public class VideoController implements VideoClient {
         long offset = 5;
         List<VideoVO> collect = videoService.list()
                 .stream()
+                .filter((item) -> ObjectUtil.equal(item.getVisible(), 1))
                 .limit(offset)
                 .map(item -> {
                     VideoVO videoVO = new VideoVO();
                     BeanUtil.copyProperties(item, videoVO);
-                    videoVO.setUrl("http://berry-cdn.akfang.cn/" + item.getM3u8Key());
                     videoVO.setLikeCount(likeRedisService.getLikedCount(videoVO.getId()));
-                    videoVO.setLiked(likeRedisService.isLiked(currentUserId, videoVO.getId()));
+                    videoVO.setLiked(likeRedisService.isLiked(NumberUtil.parseLong(userIdStr), videoVO.getId()));
+                    videoVO.setChannelId(channelService.getByVideoId(videoVO.getId()).getId());
+                    videoVO.setCover("http://berry-cdn.akfang.cn/" + item.getCover());
+                    videoVO.setUrl("http://berry-cdn.akfang.cn/" + item.getDefaultUrl());
+//                    videoVO.setFile(miscClient.getFileById(item.getFileId()));
                     return videoVO;
                 })
                 .collect(Collectors.toList());
@@ -78,9 +84,10 @@ public class VideoController implements VideoClient {
         return ResultUtils.success(videoPOFeedPage);
     }
 
-    @GetMapping("/like")
-    public BaseResponse<Boolean> doLike(@RequestParam("videoId") String videoIdStr) {
-        Long userId = 1717564636153798658L;
+    @GetMapping("/doLike")
+    public BaseResponse<Boolean> doLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
+                                        @RequestParam("videoId") String videoIdStr) {
+        Long userId = NumberUtil.parseLong(userIdStr);
         synchronized (userId.toString().intern()) {
             Long videoId = NumberUtil.parseLong(videoIdStr);
             if (!likeRedisService.isLiked(userId, videoId)) {
@@ -92,8 +99,9 @@ public class VideoController implements VideoClient {
     }
 
     @GetMapping("/unLike")
-    public BaseResponse<Boolean> doUnLike(@RequestParam("videoId") String videoIdStr) {
-        Long userId = 1717564636153798658L;
+    public BaseResponse<Boolean> doUnLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
+                                          @RequestParam("videoId") String videoIdStr) {
+        Long userId = NumberUtil.parseLong(userIdStr);
         synchronized (userId.toString().intern()) {
             Long videoId = NumberUtil.parseLong(videoIdStr);
             if (likeRedisService.isLiked(userId, videoId)) {
@@ -103,26 +111,21 @@ public class VideoController implements VideoClient {
             return ResultUtils.success(null);
         }
     }
-    @PostMapping("/")
-    public BaseResponse<Boolean> saveVideo(@RequestBody VideoSaveDTO dto) {
-        Optional<VideoPO> videoPO = new LambdaQueryChainWrapper<>(videoService.getBaseMapper())
-                .eq(VideoPO::getSourceKey, dto.getKey())
-                .oneOpt();
 
-        if (videoPO.isPresent()) {
-            log.info("saveVideo: videoPO is present");
-            VideoPO videoSelf = videoPO.get();
-            videoSelf.setTitle(dto.getTitle());
-            videoSelf.setVisible(dto.getVisible());
-            return ResultUtils.success(videoService.updateById(videoSelf));
+    @PostMapping("/publish")
+    public BaseResponse<Boolean> publishVideo(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId, @RequestBody VideoSaveDTO dto) {
+        FilePO fileById = miscClient.getFileById(dto.getFileId());
+        if (ObjectUtil.isNull(fileById)) {
+            log.error("publishVideo: fileById is null");
+            throw new BerryRpcException(ErrorCode.PARAMS_ERROR, "filePO not exists.");
         } else {
-            log.error("saveVideo: videoPO is not present");
-            throw new BerryRpcException(ErrorCode.QINIU_UPLOAD_ERROR);
+            dto.setAuthorId(Long.parseLong(userId));
+            Boolean o = (Boolean) rabbitTemplate.convertSendAndReceive(VideoMessageConstants.VIDEO_EXCHANGE,
+                    VideoMessageConstants.VIDEO_SAVE_ROUTING_KEY, dto);
+            if (ObjectUtil.isNull(o)) {
+                throw new BerryRpcException(ErrorCode.SYSTEM_ERROR, "publish video failed.");
+            }
+            return ResultUtils.success(o);
         }
-    }
-
-    @Override
-    public boolean saveVideo(VideoPO dto) {
-        return videoService.save(dto);
     }
 }

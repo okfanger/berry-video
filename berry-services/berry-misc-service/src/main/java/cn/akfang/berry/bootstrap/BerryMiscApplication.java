@@ -13,6 +13,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients(basePackages = {"cn.akfang.berry.common.feign.client"})
 public class BerryMiscApplication {
     public static void main(String[] args) {
+        System.setProperty("rocketmq.client.logUseSlf4j", "true");
         SpringApplication.run(BerryMiscApplication.class, args);
     }
 }

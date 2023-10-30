@@ -1,5 +1,9 @@
 package cn.akfang.berry.common.model.dto;
 
-public class QiniuM3U8Opts {
+import java.io.Serializable;
+
+public class QiniuM3U8Opts implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
 }

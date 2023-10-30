@@ -1,5 +1,6 @@
 package cn.akfang.berry.common.model.response;
 
+import cn.akfang.berry.common.model.entity.FilePO;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -69,6 +70,13 @@ public class VideoVO implements Serializable {
     private Date createTime;
 
     private boolean liked;
+
+    private Long channelId;
+
+    /**
+     * 文件地址
+     */
+    private FilePO file;
 
     /**
      * 更新时间

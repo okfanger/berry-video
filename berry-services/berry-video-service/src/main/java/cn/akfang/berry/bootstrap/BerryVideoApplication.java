@@ -15,6 +15,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableDiscoveryClient
 public class BerryVideoApplication {
     public static void main(String[] args) {
+        System.setProperty("rocketmq.client.logUseSlf4j", "true");
         SpringApplication.run(BerryVideoApplication.class, args);
     }
 }

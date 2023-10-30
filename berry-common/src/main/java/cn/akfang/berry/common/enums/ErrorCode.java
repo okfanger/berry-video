@@ -14,8 +14,8 @@ public enum ErrorCode {
     SYSTEM_ERROR(50000, "系统内部异常"),
     OPERATION_ERROR(50001, "操作失败"),
     WX_SERVER_ERROR(50002, "微信服务器异常"),
-    QINIU_UPLOAD_ERROR(50002, "七牛-文件上传错误");
-
+    QINIU_UPLOAD_ERROR(50002, "七牛-文件上传错误"),
+    VIDEO_NOT_EXIST_OR_VISIBLE(50003, "视频不存在或不可见");
     /**
      * 状态码
      */

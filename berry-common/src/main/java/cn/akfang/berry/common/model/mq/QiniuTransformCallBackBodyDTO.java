@@ -1,4 +1,4 @@
-package cn.akfang.berry.common.model.dto;
+package cn.akfang.berry.common.model.mq;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class QiniuTransformCallBackDTO implements Serializable {
+public class QiniuTransformCallBackBodyDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private String id;
     private String pipeline;
@@ -19,6 +19,7 @@ public class QiniuTransformCallBackDTO implements Serializable {
 
     @Data
     public static class Items implements Serializable {
+        private static final long serialVersionUID = 1L;
         private String cmd;
         private int code;
         private String desc;
