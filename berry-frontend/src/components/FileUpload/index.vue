@@ -3,7 +3,7 @@
     <div class="upload" ref="upload">
       <input type="file" ref="fileInput" accept="video/*">
     </div>
-    <div class="icon center" v-if="!beginUpload">
+    <div class="icon center" v-if="!beginUpload" ref="icon">
       <el-icon> <Plus /> </el-icon>
     </div>
     <div class="progress center" v-else>
@@ -33,8 +33,6 @@ import * as qiniu from 'qiniu-js'
 
 const emits = defineEmits(['getFileInfo'])
 
-const fileList = ref([]);
-const videoUrl = ref('');
 const percent = ref(0)
 const haveResult = ref(false)
 const result = ref(false)
@@ -42,8 +40,17 @@ const beginUpload = ref(false)
 
 const upload = ref()
 const fileInput = ref()
+const icon = ref()
 onMounted(()=>{
-  // fetchUpToken();
+  initDragMethods()
+})
+
+onBeforeUnmount(()=>{
+  clearUpToken()
+})
+
+
+const initDragMethods = () => {
   upload.value.addEventListener("click", () => {
     fileInput.value.click();
   })
@@ -56,13 +63,7 @@ onMounted(()=>{
   }
   upload.value.ondrop = (e) => {
     e.preventDefault()
-    const files = e.dataTransfer.files;
-    if(files.length >1) {
-      console.log('只能上传一个文件');
-    } else {
-      fileInput.value.files = files;
-      handleUpload()
-    }
+    handlerFiles(e)
   }
   upload.value.ondragleave = (e) => {
     e.target.classList.remove("drag")
@@ -70,11 +71,29 @@ onMounted(()=>{
   fileInput.value.onchange = ()=>{
     handleUpload()
   }
-})
+  icon.value.addEventListener("click", () => {
+    fileInput.value.click();
+  })
+  icon.value.ondragenter = (e) => {
+    e.preventDefault()
+  }
+  icon.value.ondragover = (e) => {
+    e.preventDefault()
+  }
+  icon.value.ondrop = (e)=> {
+    handlerFiles(e)
+  }
+}
+const handlerFiles = (e) =>{
+  const files = e.dataTransfer.files;
+    if(files.length >1) {
+      console.log('只能上传一个文件');
+    } else {
+      fileInput.value.files = files;
+      handleUpload()
+    }
+}
 
-onBeforeUnmount(()=>{
-  clearUpToken()
-})
 
 const fetchUpToken = () => {
   return new Promise((resolve)=>{
@@ -192,6 +211,7 @@ div.icon {
   color: #ec656b;
   font-weight: bold;
   user-select: none;
+  cursor: pointer;
 }
 .center {
   position: absolute;

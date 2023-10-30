@@ -48,3 +48,17 @@ export const unLikeApi = (videoId) => {
     }
   })
 }
+
+
+// 频道分类列表
+export const getChannelList = () => request({
+  url: "/video/channel/list",
+  method: "get"
+})
+
+// 发布视频
+export const publishVideo = (data) => request({
+  url: "/video/publish",
+  method: "post",
+  data
+})

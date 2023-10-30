@@ -5,7 +5,7 @@
       
     </div>
 
-
+    <!-- 发布视频模态框 -->
     <Model v-model:visble="visble">
       <el-form
         ref="ruleFormRef"
@@ -17,8 +17,8 @@
         <el-form-item label="视频">
           <file-upload @getFileInfo="getFileInfo" v-if="visble"></file-upload>
         </el-form-item>
-        <el-form-item label="文案" prop="title">
-          <textarea class="textarea-raspberry" placeholder="给视频搭配一个文案" v-model="form.title"></textarea>
+        <el-form-item label="文案" prop="content">
+          <textarea class="textarea-raspberry" placeholder="给视频搭配一个文案" v-model="form.content"></textarea>
         </el-form-item>
         <el-form-item label="标签" prop="tags">
           <!-- <el-input v-model.number="form.tags" /> -->
@@ -36,6 +36,18 @@
               </div>
             </div>
           </div>
+        </el-form-item>
+        <el-form-item label="频道">
+          <el-select v-model="form.channelId" placeholder="请选择一个分类" size="large">
+            <el-option
+              v-for="item in channelList"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
+            />
+          </el-select>
+          <el-icon name="el-icon-edit">
+          </el-icon>
         </el-form-item>
         <el-form-item label="私密性" prop="visible">
           <el-switch
@@ -65,19 +77,41 @@
 import Model from '@/components/Model/indexCom'
 import FileUpload from '@/components/FileUpload/index'
 import { Check, Close } from '@element-plus/icons-vue'
-import {ref, reactive} from 'vue'
+import { getChannelList, publishVideo } from '@/api/video'
+import {ref, reactive, onMounted} from 'vue'
+// import {Aim} from '@element-plus/icons-vue'
 const form = reactive({
-  title: "",
-  tags: ["大学生", "大学生", "大学生","大学生","大学","大学生","大学生","大学生","大学生","大学"],
-  key: "",
-  hash: "",
+  content: "",
+  tags: [],
   visible: 1, // 0私密 1公开
+  channelId: null,
+  fileId: ""
 })
 const tagInput = ref("")
-const visble = ref(true)
+const visble = ref(false)
+const channelList = ref([])
 
 
-const publish = () => {}
+onMounted(()=>{
+  fetchChannelList()
+})
+const fetchChannelList = async () => {
+  try {
+    let res = await getChannelList()
+    const { data, status } = res;
+    if (status == 200) {
+      channelList.value = data
+    }
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+const publish = () => {
+  publishVideo(form).then(res=>{
+    console.log(res);
+  })
+}
 const resetForm = () => {}
 const showModel = () => {
   visble.value = true;
@@ -94,10 +128,8 @@ const addTag = () => {
 }
 
 const getFileInfo = (info) => {
-  const {hash, key} = info
-  form.hash = hash;
-  form.key = key;
-  console.log(form);
+  const { fileId } = info;
+  form.fileId = fileId
 }
 </script>
 
@@ -141,6 +173,14 @@ const getFileInfo = (info) => {
   justify-content: end;
   width: 100%;
 }
+</style>
+
+
+<style scoped>
+::v-deep .select-trigger:active {
+  border: pink;
+}
+
 </style>
 
 
