@@ -11,6 +11,7 @@ const observer = new IntersectionObserver((entries) => {
       let index = Array.from(map.keys()).findIndex(item => item === e.target)
       let func = map.get(e.target)
       func(index)
+      console.log(e.target)
     }
   })
 }, observerOptions)

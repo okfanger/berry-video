@@ -1,4 +1,4 @@
-import { muted, continuous } from './videoConfig'
+import { muted, continuous, isCommoning } from './videoConfig'
 import request from './request'
 import { getToken, setToken, clearToken } from './token'
 import { createUuid } from './createUuid'
@@ -8,6 +8,7 @@ import { getUpToken, setUpToken, clearUpToken } from './upToken'
 export {
   continuous,
   muted,
+  isCommoning,
   request,
   getToken,
   setToken,

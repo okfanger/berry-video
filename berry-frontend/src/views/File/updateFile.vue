@@ -5,7 +5,7 @@
       
     </div>
 
-
+    <!-- 发布视频模态框 -->
     <Model v-model:visble="visble">
       <el-form
         ref="ruleFormRef"
@@ -13,27 +13,41 @@
         status-icon
         :rules="rules"
         label-width="60px"
-        class="upload-demo"
-        accept="png"
-        :limit="1"
       >
         <el-form-item label="视频">
           <file-upload @getFileInfo="getFileInfo" v-if="visble"></file-upload>
         </el-form-item>
-        <el-form-item label="文案" prop="title">
-          <textarea class="textarea-raspberry" placeholder="给视频搭配一个文案" v-model="form.title"></textarea>
+        <el-form-item label="文案" prop="content">
+          <textarea class="textarea-raspberry" placeholder="给视频搭配一个文案" v-model="form.content"></textarea>
         </el-form-item>
         <el-form-item label="标签" prop="tags">
           <!-- <el-input v-model.number="form.tags" /> -->
           <div>
-            <div class="custom-input tags-input">
-              <div v-for="tag in form.tags" :key="tag" class="tag">
-                {{ tag }}
-                <el-button size="mini" @click="removeTag(tag)">删除</el-button>
+            <div>
+              <div class="tags">
+                <div v-for="tag in form.tags" :key="tag" class="tag">
+                  {{ tag }}
+                  <span class="delete" @click="removeTag(tag)">x</span>
+                </div>
               </div>
-              <input type="text" @keyup.enter="addTag" placeholder="请输入标签名" v-model="tagInput">
+              <div style="display: flex; align-items: center;">
+                <input type="text" class="custom-input tags-input" placeholder="请输入标签名" v-model="tagInput">
+                <div class="button-primary" @click="addTag" style="width: 80px;margin-left: 10px;">添加</div>
+              </div>
             </div>
           </div>
+        </el-form-item>
+        <el-form-item label="频道">
+          <el-select v-model="form.channelId" placeholder="请选择一个分类" size="large">
+            <el-option
+              v-for="item in channelList"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
+            />
+          </el-select>
+          <el-icon name="el-icon-edit">
+          </el-icon>
         </el-form-item>
         <el-form-item label="私密性" prop="visible">
           <el-switch
@@ -63,39 +77,59 @@
 import Model from '@/components/Model/indexCom'
 import FileUpload from '@/components/FileUpload/index'
 import { Check, Close } from '@element-plus/icons-vue'
-import {ref, reactive} from 'vue'
+import { getChannelList, publishVideo } from '@/api/video'
+import {ref, reactive, onMounted} from 'vue'
+// import {Aim} from '@element-plus/icons-vue'
 const form = reactive({
-  title: "",
+  content: "",
   tags: [],
-  key: "",
-  hash: "",
   visible: 1, // 0私密 1公开
+  channelId: null,
+  fileId: ""
 })
 const tagInput = ref("")
 const visble = ref(false)
+const channelList = ref([])
 
 
-const publish = () => {}
+onMounted(()=>{
+  fetchChannelList()
+})
+const fetchChannelList = async () => {
+  try {
+    let res = await getChannelList()
+    const { data, status } = res;
+    if (status == 200) {
+      channelList.value = data
+    }
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+const publish = () => {
+  publishVideo(form).then(res=>{
+    console.log(res);
+  })
+}
 const resetForm = () => {}
 const showModel = () => {
   visble.value = true;
 }
 const removeTag = (tag) => {
-  form.tags.value = form.tags.value.filter(t => t !== tag);
+  form.tags = form.tags.filter(t => t !== tag);
 }
 const addTag = () => {
   console.log(tagInput);
-  if (tagInput.value && !form.tags.value.includes(tagInput.value)) {
-    form.tags.value.push(tagInput.value);
+  if (tagInput.value && !form.tags.includes(tagInput.value)) {
+    form.tags.push(tagInput.value);
     tagInput.value = "";
   }
 }
 
 const getFileInfo = (info) => {
-  const {hash, key} = info
-  form.hash = hash;
-  form.key = key;
-  console.log(form);
+  const { fileId } = info;
+  form.fileId = fileId
 }
 </script>
 
@@ -105,19 +139,48 @@ const getFileInfo = (info) => {
 }
 .tag {
   display: inline-block;
-  padding: 5px 10px;
-  margin: 5px;
-  background-color: #f0f0f0;
+  padding: 1px 3px;
+  margin: 1px 2px;
+  background-color: #ff8e8e;
   border-radius: 5px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
+.delete {
+  color: white;
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+  background-color: rgb(207, 91, 91);
+  border-radius: 50%;
+  display: inline-block;
+  text-align: center;
+  line-height: 20px;
+  opacity: 0;
+  transition: opacity .4s;
+}
+.tag:hover .delete{
+  opacity: 1;
 }
 .tags-input {
   background-color: #fdebef;
+  flex: 1;
 }
 .form-buttons {
   display:flex;
   justify-content: end;
   width: 100%;
 }
+</style>
+
+
+<style scoped>
+::v-deep .select-trigger:active {
+  border: pink;
+}
+
 </style>
 
 

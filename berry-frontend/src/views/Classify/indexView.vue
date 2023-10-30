@@ -3,13 +3,10 @@
     <div class="card" v-for="item in 12" :key="item">
       <!-- <VideoNext /> -->
     </div>
-    <!-- <controlsBar /> -->
  </div>
 </template>
 
 <script setup>
-// import VideoNext from '@/components/VideoComponent/OriginNext.vue'
-// import controlsBar from '@/components/VideoComponent/controlsBar.vue';
 </script>
 
 <style scoped>

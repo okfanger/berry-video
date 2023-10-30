@@ -21,7 +21,7 @@ const vScroll = {
       lock = true
       setTimeout(() => {
         lock = false
-      }, 800)
+      }, 400)
     }
 
     // 滚动事件

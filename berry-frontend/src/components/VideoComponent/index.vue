@@ -3,6 +3,7 @@
     <div class="dplayer-container">
       <!-- 视频 -->
       <OriginVideo
+        :id="props.id"
         @play="handlerPlay"
         @mute="handlerMute"
         v-model:volume="volume"
@@ -16,16 +17,16 @@
         @printscreen="handlerPrintscreen"
         :openPrintScreen="openPrintScreen"
         @videoEnd="videoEnd"
-        @likeOrDisLike="liked"
+        @likeOrDisLike="handlerLiked"
       />
       <!-- 点赞,评论,收藏,分享 -->
       <div class="func">
-        <div class="like" @click="liked()">
-          <div class="heart" :style="{'--bgColor': funcInfo.like.value ? '#ff2e56': '#fff'}"></div>
+        <div class="like" @click="handlerLiked()">
+          <i class="iconfont icon-aixin1" :style="{color: funcInfo.like.value ?  '#ff2e56' : '#fff'}"></i>
           <div>{{ funcInfo.like.num }}</div>
         </div>
         <div class="common">
-          <i class="iconfont icon-pinglun1" @click="changeCommonState"></i>
+          <i class="iconfont icon-pinglun1" @click="changeCommentState"></i>
           <div>{{ funcInfo.common.num }}</div>
         </div>
         <div class="collect" @click="collected">
@@ -41,8 +42,8 @@
     </div>
     
     <!-- 评论面板 -->
-    <div class="commonPane" v-if="isCommoning">
-
+    <div v-if="isCommoning">
+      <commentPanel />
     </div>
  </div>
 </template>
@@ -50,42 +51,55 @@
 <script setup>
 import { ref, onMounted, reactive, defineProps } from 'vue'
 import OriginVideo from './OriginIndex.vue';
-import { continuous } from '@/utils'
+import { continuous, isCommoning } from '@/utils'
+import { doLikeApi,unLikeApi } from '@/api/video'
+import commentPanel from '@/components/Comment/commentPanel'
 
-const props = defineProps(['videoSrc'])
+const props = defineProps(['videoSrc', 'id', 'likeCount', 'liked'])
 const volume = ref(1);
 const speed = ref(1);
 const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2])
 
 const openPrintScreen = ref(false)
-// const videoSrc = ref("http://toffee-private-oss.akfang.cn/4585_1697538264.mp4")
-// const videoSrc = ref("sysndhy.flv")
 const coverSrc = ref("coverSrc")
 const streamLoad = ref(false)
 
 const funcInfo = reactive({
   like: {
-    value: true,
-    num: "5.8万"
+    value: props.liked,
+    num: props.likeCount
   },
   common: {
-    num: '2800'
+    num: 0
   },
   collect: {
     value: false,
-    num: 1760,
+    num: 0,
   },
   transpond: {
-    num: 7434
+    num: 0
   }
 })
 
 
-const isCommoning = ref(false)
-const liked = () => {
-  funcInfo.like.value = !funcInfo.like.value;
+const handlerLiked = () => {
+  let liked = funcInfo.like.value;
+  if(liked) {
+    unLikeApi(props.id).then(res=>{
+      if(res.status === 200) {
+        funcInfo.like.num--;
+      }
+    }) 
+  } else {
+    doLikeApi(props.id).then(res=>{
+      if(res.status === 200) {
+        funcInfo.like.num++;
+      }
+    })
+  }
+  funcInfo.like.value = !liked;
 }
-const changeCommonState = () => {
+const changeCommentState = () => {
   isCommoning.value = !isCommoning.value
 }
 const collected = () => {
@@ -151,74 +165,11 @@ const handlerPrintscreen = () => {}
 
 
 /* 爱心点击效果 */
-
-
 .func i:hover {
   font-size: 35px;
 }
 
-
-
-
-
-.commonPane {
-  height: 100%;
-  width: 400px;
-  background-color: #e2e2e2;
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
-}
-
-
-.heart {
-  position: relative;
-  width: 30px;
-  height: 30px;
-}
-.heart:before,
-.heart:after {
-  content: "";
-  position: absolute;
-  background-color: white;
-  width: 20px;
-  height:29px;
-  left: 20px;
-  border-radius: 20px 20px 0 0 ;
-  transform: rotate(-45deg);
-  transform-origin: 0 100%;
-}
-.heart:after {
-  left: 0;
-  transform: rotate(45deg);
-  transform-origin: 100% 100%;
-}
-.heart:hover {
-  animation: heart 1s forwards;
-}
-@keyframes heart {
-  0% {
-    transform: scale(.95);
-  }
-  20% {
-    transform: scale(1);
-  }
-  40% {
-    transform: scale(1.15);
-  }
-  60% {
-    transform: scale(1.20);
-  }
-  80% {
-    transform: scale(1.15);
-  }
-  90% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
 </style>
+
 
 
