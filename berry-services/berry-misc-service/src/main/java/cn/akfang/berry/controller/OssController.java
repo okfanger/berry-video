@@ -1,5 +1,8 @@
 package cn.akfang.berry.controller;
 
+import cn.akfang.berry.common.constants.AuthConstants;
+import cn.akfang.berry.common.feign.client.UserClient;
+import cn.akfang.berry.common.model.dto.QiniuUploadDTO;
 import cn.akfang.berry.common.model.mq.QiniuTransformCallBackBodyDTO;
 import cn.akfang.berry.common.model.mq.VideoUploadedCallbackBodyDTO;
 import cn.akfang.berry.common.model.request.ClientUploadTokenRequest;
@@ -8,14 +11,13 @@ import cn.akfang.berry.common.model.response.FileUploadToken;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.constant.QiniuMessageConstants;
 import cn.akfang.berry.manager.QiniuOSSManager;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
@@ -29,6 +31,9 @@ public class OssController {
 
     @Autowired
     RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    UserClient userClient;
 
     @PostMapping("/upload/callback")
     public BaseResponse<VideoUploadedCallbackBodyDTO> fileUploadCallBack(@RequestBody VideoUploadedCallbackBodyDTO requestBody) {
@@ -55,10 +60,18 @@ public class OssController {
     @PostMapping("/upload/token")
     public BaseResponse<FileUploadToken> clientUploadToken(@Valid @RequestBody ClientUploadTokenRequest request) {
         synchronized (request.getUuid().intern()) {
-            String uploadToken = qiniuOSSManager.getUploadToken();
+            String uploadToken = qiniuOSSManager.getVideoUploadToken();
             return ResultUtils.success(FileUploadToken.builder()
                     .upToken(uploadToken)
                     .build());
         }
+    }
+
+    @PostMapping("/upload/avatar")
+    public BaseResponse<Boolean> uploadAvatar(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId,
+                                              @RequestParam("file") MultipartFile file) throws Exception {
+        String avatarUploadToken = qiniuOSSManager.getAvatarUploadToken(NumberUtil.parseLong(userId));
+        QiniuUploadDTO qiniuUploadDTO = qiniuOSSManager.uploadFileByInputStream(avatarUploadToken, file.getInputStream());
+        return ResultUtils.success(userClient.updateAvatar(Long.valueOf(userId), qiniuUploadDTO.getKey()));
     }
 }

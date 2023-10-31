@@ -1,6 +1,7 @@
 package cn.akfang.berry.controller;
 
 import cn.akfang.berry.common.constants.AuthConstants;
+import cn.akfang.berry.common.constants.GlobalConstants;
 import cn.akfang.berry.common.feign.client.MiscClient;
 import cn.akfang.berry.common.feign.client.UserClient;
 import cn.akfang.berry.common.model.entity.UserPO;
@@ -11,6 +12,7 @@ import cn.akfang.berry.common.model.response.UserVo;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.service.UserService;
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +27,13 @@ public class UserController implements UserClient {
     @Autowired
     MiscClient miscClient;
 
+
     @GetMapping("/info")
     public BaseResponse<UserVo> userInfo(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId) {
         UserPO byId = userService.getById(Long.valueOf(userId));
         UserVo userVo = new UserVo();
         BeanUtil.copyProperties(byId, userVo);
+        userVo.setUserAvatar(GlobalConstants.OSS_URL + "/" + byId.getUserAvatar());
         return ResultUtils.success(userVo);
     }
 
@@ -41,5 +45,13 @@ public class UserController implements UserClient {
     @Override
     public String generateWxLoginClientId() {
         return userService.generateWxLoginClientId();
+    }
+
+    @Override
+    public Boolean updateAvatar(Long userId, String ossKey) {
+        return new LambdaUpdateChainWrapper<>(userService.getBaseMapper())
+                .eq(UserPO::getId, userId)
+                .set(UserPO::getUserAvatar, ossKey)
+                .update();
     }
 }

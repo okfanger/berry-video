@@ -19,6 +19,7 @@ public class FileVideoUploadedCallbackReceiver {
 
     @Autowired
     RabbitTemplate rabbitTemplate;
+
     @Autowired
     FileService fileService;
 
