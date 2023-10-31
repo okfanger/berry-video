@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service("videoLikeRedisService")
-public class VideoLikeLikeRedisServiceImpl implements LikeRedisService<Long, Long> {
+public class VideoLikeRedisServiceImpl implements LikeRedisService<Long, Long> {
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -49,7 +49,7 @@ public class VideoLikeLikeRedisServiceImpl implements LikeRedisService<Long, Lon
     @Override
     public void incrementLikedCount(Long toId) {
         redisTemplate.opsForHash().increment(
-                LikeTypeEnum.VIDEO.getRedisCountKey(),
+                LikeTypeEnum.VIDEO.getRedisHashCountKey(),
                 String.valueOf(toId),
                 1
         );
@@ -58,7 +58,7 @@ public class VideoLikeLikeRedisServiceImpl implements LikeRedisService<Long, Lon
     @Override
     public void decrementLikedCount(Long toId) {
         redisTemplate.opsForHash().increment(
-                LikeTypeEnum.VIDEO.getRedisCountKey(),
+                LikeTypeEnum.VIDEO.getRedisHashCountKey(),
                 String.valueOf(toId),
                 -1
         );
@@ -68,7 +68,7 @@ public class VideoLikeLikeRedisServiceImpl implements LikeRedisService<Long, Lon
     public Integer getLikedCount(Long toId) {
         return Optional.ofNullable(
                 (Integer) redisTemplate.opsForHash().get(
-                        LikeTypeEnum.VIDEO.getRedisCountKey(),
+                        LikeTypeEnum.VIDEO.getRedisHashCountKey(),
                         String.valueOf(toId)
                 )
         ).orElse(0);

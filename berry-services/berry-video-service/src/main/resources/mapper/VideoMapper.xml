@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.akfang.berry.mapper.VideoMapper">
+
+    <resultMap id="videoVO" type="cn.akfang.berry.common.model.response.VideoVO">
+        <result property="id" column="id"/>
+        <result property="content" column="content"/>
+        <result property="cover" column="cover"/>
+        <result property="url" column="defaultUrl"/>
+        <result property="visible" column="visible"/>
+        <result property="authorId" column="authorId"/>
+        <result property="channelId" column="channelId"/>
+    </resultMap>
+
+    <select id="selectVideoVOPage">
+        select
+        v.id as id,
+        v.content as content,
+        v.defaultUrl as defaultUrl,
+        v.visible as visible,
+        v.authorId as authorId,
+        v.cover as cover,
+        cv.channelId as channelId
+        from t_video v
+        left join t_channel_video cv on v.id = cv.videoId
+        <where>
+            isDelete = 0
+            <if test="params.channelId != null">and channelId = #{params.channelId}</if>
+            <if test="params.authorId != null">and authorId = #{params.authorId}</if>
+        </where>
+    </select>
+</mapper>

@@ -3,9 +3,9 @@ package cn.akfang.berry.controller;
 
 import cn.akfang.berry.common.constants.AuthConstants;
 import cn.akfang.berry.common.enums.ErrorCode;
-import cn.akfang.berry.common.enums.FeedTypeEnum;
 import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.feign.client.MiscClient;
+import cn.akfang.berry.common.feign.client.UserClient;
 import cn.akfang.berry.common.feign.client.VideoClient;
 import cn.akfang.berry.common.model.dto.FeedPage;
 import cn.akfang.berry.common.model.dto.VideoSaveDTO;
@@ -24,11 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -48,20 +46,23 @@ public class VideoController implements VideoClient {
     @Autowired
     LikeRedisService<Long, Long> likeRedisService;
 
+    @Qualifier("avatarRedisService")
+    @Autowired
+    LikeRedisService<Long, Long> avatarRedisService;
+
+    @Autowired
+    UserClient userClient;
+
     @Autowired
     RabbitTemplate rabbitTemplate;
 
     @GetMapping("/feed")
     public BaseResponse<FeedPage<VideoVO>> getFeedListByCurrentUser(
             @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
-            @RequestParam(value = "type", required = false) String type) {
-        FeedTypeEnum feedTypeEnum = Optional.ofNullable(type)
-                .filter(StringUtils::hasText)
-                .map(FeedTypeEnum::valueOf)
-                .orElse(FeedTypeEnum.PRODUCE);
-
-        // fake data
-        long offset = 5;
+            @RequestParam(value = "channelId", required = false) String channelIdStr
+    ) {
+        Long channelId = NumberUtil.parseLong(channelIdStr);
+        int offset = 5;
         List<VideoVO> collect = videoService.list()
                 .stream()
                 .filter((item) -> ObjectUtil.equal(item.getVisible(), 1))
@@ -80,7 +81,6 @@ public class VideoController implements VideoClient {
                 .collect(Collectors.toList());
         FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
         videoPOFeedPage.setRecords(collect);
-        videoPOFeedPage.setLastId(offset);
         return ResultUtils.success(videoPOFeedPage);
     }
 
@@ -100,6 +100,34 @@ public class VideoController implements VideoClient {
 
     @GetMapping("/unLike")
     public BaseResponse<Boolean> doUnLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
+                                          @RequestParam("videoId") String videoIdStr) {
+        Long userId = NumberUtil.parseLong(userIdStr);
+        synchronized (userId.toString().intern()) {
+            Long videoId = NumberUtil.parseLong(videoIdStr);
+            if (avatarRedisService.isLiked(userId, videoId)) {
+                avatarRedisService.unlikeFromRedis(userId, videoId);
+                avatarRedisService.decrementLikedCount(videoId);
+            }
+            return ResultUtils.success(null);
+        }
+    }
+
+    @GetMapping("/doFavor")
+    public BaseResponse<Boolean> doFavor(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
+                                         @RequestParam("videoId") String videoIdStr) {
+        Long userId = NumberUtil.parseLong(userIdStr);
+        synchronized (userId.toString().intern()) {
+            Long videoId = NumberUtil.parseLong(videoIdStr);
+            if (!avatarRedisService.isLiked(userId, videoId)) {
+                avatarRedisService.saveLiked2Redis(userId, videoId);
+                avatarRedisService.incrementLikedCount(videoId);
+            }
+            return ResultUtils.success(null);
+        }
+    }
+
+    @GetMapping("/unFavor")
+    public BaseResponse<Boolean> doUnFavor(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                           @RequestParam("videoId") String videoIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
         synchronized (userId.toString().intern()) {

@@ -16,4 +16,12 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, VideoPO> implemen
                 .eq(VideoPO::getId, videoId)
                 .exists();
     }
+
+//    @Override
+//    public IPage<VideoVO> selectVideoVOPage(IPage<VideoVO> page, Long userId, Long channelId) {
+//        QueryWrapper<VideoVO> qw = new QueryWrapper<>();
+//        qw.eq("userId", userId);
+//        qw.eq("channelId", channelId);
+//        return baseMapper.selectVideoVOPage(page, );
+//    }
 }

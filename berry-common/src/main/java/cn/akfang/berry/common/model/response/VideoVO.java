@@ -4,6 +4,7 @@ import cn.akfang.berry.common.model.entity.FilePO;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,7 +33,11 @@ public class VideoVO implements Serializable {
     /**
      * 对应用户表id，视频发布者
      */
+
+    @JsonIgnore
     private Long authorId;
+
+    private UserBaseVO author;
 
     /**
      * 转码后地址
@@ -47,7 +52,7 @@ public class VideoVO implements Serializable {
     /**
      * 视频标题，可以为空
      */
-    private String title;
+    private String content;
 
     /**
      * 点赞总数
@@ -85,4 +90,5 @@ public class VideoVO implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
 }
