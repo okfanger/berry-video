@@ -1,16 +1,17 @@
 <template>
   <div class="comment-item">
     <div class="avatar">
-      <img :src="props.avatar" alt="User Avatar" />
+      <img :src="props.userAvatar" alt="User Avatar" />
     </div>
     <div class="content">
       <div class="username">{{ props.username }}</div>
       <div class="text">{{ props.content }}</div>
       <div class="date">{{ props.datetime }}</div>
-      <button @click="showReplyBox = !showReplyBox">Reply</button>
-      <div v-if="showReplyBox">
-        <textarea v-model="replyText"></textarea>
-        <button @click="submitReply">Submit</button>
+      <div>
+        <div>
+          <i class="iconfont icon-aixin" style="cursor: pointer;"></i> 
+          <span>0</span>
+        </div>
       </div>
     </div>
   </div>
@@ -20,7 +21,7 @@
 import { defineProps, ref } from 'vue';
 // import avatar from '@/assets/avatar-ddai.png'
 const props = defineProps({
-  avatar: String,
+  userAvatar: String,
   username: String,
   content: String,
   datetime: String,
@@ -36,19 +37,34 @@ function submitReply() {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .comment-item {
   display: flex;
-  /* Add more styles... */
+  flex-direction: row;
+
+  .avatar img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+  }
+  .content {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+
+    .username {
+      font-size: 13px;
+    }
+    .text {
+      font-size: 16px;
+    }
+    .date{
+      font-size: 12px;
+    }
+  }
 }
 
-.avatar img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-}
 
-.content {
-  margin-left: 10px;
-}
+
+
 </style>

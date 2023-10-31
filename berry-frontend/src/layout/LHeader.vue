@@ -34,7 +34,7 @@ import { isLogin } from '@/utils'
 import { userStore } from '@/store'
 
 const LogindialogVisble = ref(false)
-const avatar = userStore.userInfo.avatar;
+const avatar = userStore.userInfo.userAvatar;
 const handlerLogin = () => {
   LogindialogVisble.value = true
 }

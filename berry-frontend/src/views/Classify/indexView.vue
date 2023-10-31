@@ -1,29 +1,24 @@
 <template>
   <div class="classify-container">
-    <div class="card" v-for="item in 12" :key="item" @click="showVideo(item)">
-      <!-- <VideoNext /> -->
-      分类视频 {{ route.meta.MenuName }}
-    </div>
-    <Modal v-mode:visble="open">
-      <videoCom v-if="open" />
-    </Modal>
+    <VideoList :list="channelList" />
  </div>
 </template>
 
 <script setup>
-import videoCom from '@/components/VideoComponent/index.vue'
-
 import { onMounted, watch,ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { getChannelList } from '@/api/video'
+import { getChannelList, getChannelFeedByChannelIdApi } from '@/api/video'
+import VideoList from '@/components/VideoComponent/VideoList.vue'
+
 const route = useRoute()
 
 const channelList = ref([])
+const channelVideoList = ref([])
 const channelId = ref(0)
-const open = ref(false)
 
 onMounted(() => {
-  fetchChannelList()
+  fetchChannelList();
+  fetchChannelVideoList();
 })
 
 watch(() => route, (value) =>{
@@ -36,12 +31,6 @@ watch(() => route, (value) =>{
   deep: true
 })
 
-const showVideo = (item) => {
-  console.log(item);
-  open.value = true;
-}
-
-
 
 const fetchChannelList = () => {
   getChannelList(channelId.value).then(res=>{
@@ -52,19 +41,13 @@ const fetchChannelList = () => {
   })
 }
 
+const fetchChannelVideoList = async () => {
+  let res = await getChannelFeedByChannelIdApi(channelId.value)
+  console.log(res);
+}
+
 </script>
 
 <style scoped>
-.classify-container {
-  height: calc(100vh - 120px);
-  width: 100%;
-  display: flex;
-  overflow-y: scroll;
-  flex-wrap: wrap;
-  position: relative;
-}
-.card {
-  height: 380px;
-  width: 260px;
-}
+
 </style>

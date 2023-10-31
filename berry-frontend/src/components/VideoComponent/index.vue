@@ -29,7 +29,7 @@
           <i class="iconfont icon-pinglun1" @click="changeCommentState"></i>
           <div>{{ funcInfo.common.num }}</div>
         </div>
-        <div class="collect" @click="collected">
+        <div class="collect" @click="handlerCollected()">
           <i class="iconfont icon-shoucangfill" v-if="!funcInfo.collect.value"></i>
           <i class="iconfont icon-jiaxingshoucangtianchong" style="color: #feba28;" v-else></i>
           <div>{{ funcInfo.collect.num }}</div>
@@ -43,7 +43,7 @@
     
     <!-- 评论面板 -->
     <div v-if="isCommoning">
-      <commentPanel />
+      <commentPanel :videoId="props.id" />
     </div>
  </div>
 </template>
@@ -52,10 +52,12 @@
 import { ref, onMounted, reactive, defineProps } from 'vue'
 import OriginVideo from './OriginIndex.vue';
 import { continuous, isCommoning } from '@/utils'
-import { doLikeApi,unLikeApi } from '@/api/video'
+import { doLikeApi,unLikeApi, doCollectApi, unCollectApi } from '@/api/video'
 import commentPanel from '@/components/Comment/commentPanel'
 
-const props = defineProps(['videoSrc', 'id', 'likeCount', 'liked'])
+const props = defineProps(['videoSrc', 'id', 'likeCount', 
+  'liked', 'favorCount', 'isFavored',
+  'commentCount'])
 const volume = ref(1);
 const speed = ref(1);
 const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2])
@@ -70,11 +72,11 @@ const funcInfo = reactive({
     num: props.likeCount
   },
   common: {
-    num: 0
+    num: props.commentCount
   },
   collect: {
-    value: false,
-    num: 0,
+    value: props.isFavored,
+    num: props.favorCount,
   },
   transpond: {
     num: 0
@@ -102,9 +104,26 @@ const handlerLiked = () => {
 const changeCommentState = () => {
   isCommoning.value = !isCommoning.value
 }
-const collected = () => {
-  funcInfo.collect.value = !funcInfo.collect.value;
+const handlerCollected = () => {
+  let collectValue = funcInfo.collect.value;
+  if(collectValue) {
+    // 如果已经收藏 就取消收藏
+    unCollectApi(props.id).then(res=>{
+      if(res.status == 200) {
+        funcInfo.collect.num--;
+        funcInfo.collect.value = !collectValue;
+      }
+    })
+  } else {
+    doCollectApi(props.id).then(res=>{
+      if(res.status==200) {
+        funcInfo.collect.num++;
+        funcInfo.collect.value = !collectValue;
+      }
+    })
+  }
 }
+
 onMounted(()=>{
   // loadVedio()
 })

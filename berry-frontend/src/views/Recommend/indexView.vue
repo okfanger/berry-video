@@ -7,6 +7,10 @@
       :likeCount="item.likeCount"
       :id="item.id"
       :liked="item.liked"
+      :favorCount="item.favorCount"
+      :isFavored="item.isFavored"
+      :commentCount="item.commentCount"
+      
       />
  </div>
 </template>
@@ -17,41 +21,14 @@ import VideoComponent from '@/components/VideoComponent'
 import { getVideoFeed } from '@/api/video';
 
 const list = ref([])
-// const item = {
-//   authorId
-//   commentCount
-//   cover
-//   createTime
-//   id
-//   likeCount
-//   liked
-//   title
-//   updateTime
-//   url
-//   visible
-// }
 
 onMounted(() => {
   fetchVideoFeed()
-  // onKeyStroke(['ArrowDown', 'ArrowUp'],(e)=>{
-  //   let type = e.key;
-  //   if(type == "ArrowDown") {
-  //     currentIndex.value++;
-  //   } else if(type == "ArrowUp" && currentIndex.value >= 1){
-  //     currentIndex.value--;
-  //   }
-  // })
 })
 const currentIndex = ref(0)
 const cards = ref()
-// const current = cards.value[currentIndex.value]
 const test = (index) => {
-  // console.log('当前视频', index, '     视频总数', list.value.length);
-  // 如果当前视频位于倒数第二个 就再请求10个视频
-  // if(index == list.value.length -2 ){
-  //   // 模拟请求数据
-  //   list.value = list.value.concat(list.value)
-  // }
+ 
     
 }
 
