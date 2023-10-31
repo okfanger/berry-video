@@ -3,7 +3,8 @@ import request from './request'
 import { getToken, setToken, clearToken } from './token'
 import { createUuid } from './createUuid'
 import { getUpToken, setUpToken, clearUpToken } from './upToken'
-
+import { getUserInfoStorage, setUserInfoStorage, clearUserInfoStorage } from './userInfo'
+import { isLogin } from './validate'
 // 统一导出
 export {
   continuous,
@@ -16,5 +17,9 @@ export {
   createUuid,
   getUpToken,
   setUpToken,
-  clearUpToken
+  clearUpToken,
+  getUserInfoStorage,
+  setUserInfoStorage,
+  clearUserInfoStorage,
+  isLogin
 }

@@ -6,34 +6,29 @@
         @select="changeMenu"
         height="100%"
       >
-        <el-menu-item index="recommend">
+        <el-menu-item  v-for="item in routes" 
+          :key="item.name"
+          :index="item.name"
+          >
           <el-icon><icon-menu /></el-icon>
-          <span>推荐</span>
-        </el-menu-item>
-        <el-menu-item index="classify">
-          <el-icon><icon-menu /></el-icon>
-          <span>分类</span>
-        </el-menu-item>
-        <el-menu-item index="mine">
-          <el-icon><icon-menu /></el-icon>
-          <span>我的</span>
-        </el-menu-item>
-        <el-menu-item index="create">
-          <el-icon><icon-menu /></el-icon>
-          <span>创作</span>
+          <span>{{ item.meta.MenuName }}</span>
         </el-menu-item>
       </el-menu>
  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
 
 const activate = ref(route.name)
+
+const routes = computed(()=>{
+  return router.getRoutes().filter(route=>route.meta.isMenu)
+})
 
 // const path = 
 const changeMenu = (pathName) => {

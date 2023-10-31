@@ -22,3 +22,11 @@ export const getUserInfo = () => request({
   url: "/user/info",
   method: "get"
 })
+
+export const updateAvatar = (formData) => {
+  return request({
+    url: "/misc/oss/upload/avatar",
+    method: 'post',
+    data: formData
+  })
+}

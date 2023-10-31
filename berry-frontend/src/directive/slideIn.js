@@ -17,7 +17,8 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions)
 
 const slideIn = {
-  mounted (el, binding) {
+  mounted (el, binding, vnode) {
+    console.log(vnode)
     observer.observe(el)
     map.set(el, binding.value)
   },

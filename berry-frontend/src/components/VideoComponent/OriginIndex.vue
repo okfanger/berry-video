@@ -336,7 +336,8 @@ onBeforeUnmount(() => {
   height: calc(100% - 40px);
   background-repeat: no-repeat;
   background-position: center center;
-  background: url('https://t7.baidu.com/it/u=3908717,2002330211&fm=193&f=GIF') center center  no-repeat;
+  /* background: url('https://t7.baidu.com/it/u=3908717,2002330211&fm=193&f=GIF') center center  no-repeat; */
+  background-color: black;
   background-size: 100% 100%;
   flex: 1;
   display: flex;   

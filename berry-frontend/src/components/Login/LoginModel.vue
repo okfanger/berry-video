@@ -69,9 +69,7 @@ const handlerLogin = (code) => {
     if(status == 200) {
       setToken(data.token);
       emits("update:LogindialogVisble", false)
-      userStore.fetchUserInfo().then(res=>{
-        
-      })
+      userStore.fetchUserInfo();
     }
   })
 }

@@ -30,7 +30,7 @@ const closeModel = () => {
 <style scoped>
 ::v-deep .el-dialog{
   border-radius: 12px;
-  width: 489px;
+  min-width: 489px;
   min-height: 480px;
   background-color: #fdfdfd;
 }

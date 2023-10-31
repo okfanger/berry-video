@@ -1,7 +1,16 @@
 <template>
   <div class="mine-container"> 
    
-    <div class="info"></div>
+    <div class="info">
+      <el-row>
+        <el-col :span="4">
+          <userAvatar />
+        </el-col>
+        <el-col>
+
+        </el-col>
+      </el-row>
+    </div>
 
     <div class="tabs">
       <div class="tab" v-for="item in tabList" 
@@ -16,7 +25,6 @@
     <upvote  v-if="currentTab == 'upvote'"/>
     <collect  v-if="currentTab == 'collect'"/>
    </div>
-   
  </div>
 </template>
 
@@ -26,7 +34,7 @@ import { useRoute, useRouter } from 'vue-router'
 import product from '@/views/Product/indexView.vue'
 import upvote from '@/views/Upvote/indexView.vue'
 import collect from '@/views/Collect/indexView.vue'
-import create from '@/views/File/updateFile.vue'
+import userAvatar from '@/components/User/userAvatar'
 
 const route = useRoute()
 const router = useRouter()
@@ -45,10 +53,8 @@ const tabList = ref([
     name:"收藏"
   },
 ])
-const currentTab = ref(route.name || 'upvote') // 默认是喜欢列表
-
+const currentTab = ref(route.name !== 'mine' ? route.name : 'upvote' || 'upvote') // 默认是喜欢列表
 const VideoList = ref([])
-
 const changeTab = (e) => {
   router.push({
     name: e.key
@@ -59,7 +65,7 @@ const changeTab = (e) => {
   }
 }
 
-const fetchVideoList = () => {
+const fetchVideoListByType = () => {
 
 }
 
