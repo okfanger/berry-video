@@ -7,6 +7,7 @@ import cn.akfang.berry.common.feign.client.UserClient;
 import cn.akfang.berry.common.model.entity.UserPO;
 import cn.akfang.berry.common.model.request.WxLoginRequest;
 import cn.akfang.berry.common.model.response.BaseResponse;
+import cn.akfang.berry.common.model.response.UserBaseVO;
 import cn.akfang.berry.common.model.response.UserTokenResponse;
 import cn.akfang.berry.common.model.response.UserVo;
 import cn.akfang.berry.common.utils.ResultUtils;
@@ -16,6 +17,8 @@ import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWra
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -53,5 +56,20 @@ public class UserController implements UserClient {
                 .eq(UserPO::getId, userId)
                 .set(UserPO::getUserAvatar, ossKey)
                 .update();
+    }
+
+    @Override
+    public UserBaseVO getUserBaseVOById(Long authorId) {
+        Optional<UserPO> userPO = Optional.ofNullable(userService.getByUserId(authorId));
+        if (!userPO.isPresent()) {
+            return null;
+        } else {
+            UserBaseVO userBaseVO = new UserBaseVO();
+            userBaseVO.setAuthorAvatar(GlobalConstants.OSS_URL + "/" + userPO.get().getUserAvatar());
+            userBaseVO.setAuthorId(userPO.get().getId());
+            userBaseVO.setAuthorNickName(userPO.get().getNickName());
+            return userBaseVO;
+        }
+
     }
 }

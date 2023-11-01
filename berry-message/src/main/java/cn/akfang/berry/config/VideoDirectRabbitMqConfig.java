@@ -21,10 +21,22 @@ public class VideoDirectRabbitMqConfig {
     }
 
     @Bean
+    Queue videoTransformQueue() {
+        return new Queue(VideoMessageConstants.VIDEO_TRANSFORM_QUEUE, true, false, false);
+    }
+
+    @Bean
     Binding videoSaveBinding() {
         return BindingBuilder.bind(videoSaveQueue())
                 .to(videoExchange())
                 .with(VideoMessageConstants.VIDEO_SAVE_ROUTING_KEY);
+    }
+
+    @Bean
+    Binding videoTransformBinding() {
+        return BindingBuilder.bind(videoTransformQueue())
+                .to(videoExchange())
+                .with(VideoMessageConstants.VIDEO_TRANSFORM_ROUTING_KEY);
     }
 
 }

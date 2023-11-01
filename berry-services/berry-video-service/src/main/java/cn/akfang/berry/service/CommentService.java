@@ -1,6 +1,11 @@
 package cn.akfang.berry.service;
 
+import cn.akfang.berry.common.model.dto.CommentAddDTO;
 import cn.akfang.berry.common.model.entity.CommentPO;
+import cn.akfang.berry.common.model.entity.VideoPO;
+import cn.akfang.berry.common.model.response.CommentVo;
+import cn.akfang.berry.common.model.response.UserBaseVO;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -9,6 +14,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @createDate 2023-10-30 17:53:47
  */
 public interface CommentService extends IService<CommentPO> {
+    CommentVo buildCommonVO(CommentPO commentPO, UserBaseVO userBaseVO, Long userId);
 
+    boolean addComment(VideoPO videoPO, Long userId, CommentAddDTO commentAddDTO);
 
+    boolean doLike(Long userId, Long commentId);
+
+    Boolean doUnLike(Long userId, Long commentId);
+
+    Wrapper<CommentPO> getFeedQueryWrapper(Long videoId, String orderBy);
 }

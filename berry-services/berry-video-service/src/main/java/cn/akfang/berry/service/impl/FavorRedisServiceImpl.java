@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service("avatarRedisService")
-public class AvatarRedisServiceImpl implements LikeRedisService<Long, Long> {
+@Service("favorRedisService")
+public class FavorRedisServiceImpl implements LikeRedisService<Long, Long> {
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -23,7 +23,7 @@ public class AvatarRedisServiceImpl implements LikeRedisService<Long, Long> {
     @Override
     public void saveLiked2Redis(Long fromId, Long toId) {
         redisTemplate.opsForHash().put(
-                LikeTypeEnum.COMMENT.getRedisKey(),
+                LikeTypeEnum.FAVOR.getRedisKey(),
                 buildKey(fromId, toId),
                 LikeStatusEnum.LIKE.getCode()
         );
@@ -32,7 +32,7 @@ public class AvatarRedisServiceImpl implements LikeRedisService<Long, Long> {
     @Override
     public void unlikeFromRedis(Long fromId, Long toId) {
         redisTemplate.opsForHash().put(
-                LikeTypeEnum.COMMENT.getRedisKey(),
+                LikeTypeEnum.FAVOR.getRedisKey(),
                 buildKey(fromId, toId),
                 LikeStatusEnum.UNLIKE.getCode()
         );
@@ -41,7 +41,7 @@ public class AvatarRedisServiceImpl implements LikeRedisService<Long, Long> {
     @Override
     public void deleteLikedFromRedis(Long fromId, Long toId) {
         redisTemplate.opsForHash().delete(
-                LikeTypeEnum.COMMENT.getRedisKey(),
+                LikeTypeEnum.FAVOR.getRedisKey(),
                 buildKey(fromId, toId)
         );
     }
@@ -49,12 +49,12 @@ public class AvatarRedisServiceImpl implements LikeRedisService<Long, Long> {
     @Override
     public void incrementLikedCount(Long toId) {
         redisTemplate.opsForHash().increment(
-                LikeTypeEnum.COMMENT.getRedisHashCountKey(),
+                LikeTypeEnum.FAVOR.getRedisHashCountKey(),
                 String.valueOf(toId),
                 1
         );
         redisTemplate.opsForZSet().incrementScore(
-                LikeTypeEnum.COMMENT.getRedisHashCountKey(),
+                LikeTypeEnum.FAVOR.getRedisZSetCountKey(),
                 String.valueOf(toId),
                 1
         );
@@ -63,12 +63,12 @@ public class AvatarRedisServiceImpl implements LikeRedisService<Long, Long> {
     @Override
     public void decrementLikedCount(Long toId) {
         redisTemplate.opsForZSet().incrementScore(
-                LikeTypeEnum.COMMENT.getRedisHashCountKey(),
+                LikeTypeEnum.FAVOR.getRedisHashCountKey(),
                 String.valueOf(toId),
                 -1
         );
         redisTemplate.opsForZSet().incrementScore(
-                LikeTypeEnum.COMMENT.getRedisHashCountKey(),
+                LikeTypeEnum.FAVOR.getRedisZSetCountKey(),
                 String.valueOf(toId),
                 -1
         );
@@ -79,7 +79,7 @@ public class AvatarRedisServiceImpl implements LikeRedisService<Long, Long> {
     public Integer getLikedCount(Long toId) {
         return Optional.ofNullable(
                 (Integer) redisTemplate.opsForHash().get(
-                        LikeTypeEnum.COMMENT.getRedisHashCountKey(),
+                        LikeTypeEnum.FAVOR.getRedisHashCountKey(),
                         String.valueOf(toId)
                 )
         ).orElse(0);
@@ -89,7 +89,7 @@ public class AvatarRedisServiceImpl implements LikeRedisService<Long, Long> {
     public Boolean isLiked(Long fromId, Long toId) {
         Optional<Integer> valueOpt = Optional.ofNullable(
                 (Integer) redisTemplate.opsForHash().get(
-                        LikeTypeEnum.COMMENT.getRedisKey(),
+                        LikeTypeEnum.FAVOR.getRedisKey(),
                         buildKey(fromId, toId)
                 )
         );

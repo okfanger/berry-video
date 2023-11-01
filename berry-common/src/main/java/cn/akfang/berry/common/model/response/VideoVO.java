@@ -60,6 +60,11 @@ public class VideoVO implements Serializable {
     private Integer likeCount;
 
     /**
+     * 收藏总数
+     */
+    private Integer favorCount;
+
+    /**
      * 评论总数
      */
     private Integer commentCount;
@@ -74,7 +79,9 @@ public class VideoVO implements Serializable {
      */
     private Date createTime;
 
-    private boolean liked;
+    private Boolean liked;
+
+    private Boolean favored;
 
     private Long channelId;
 

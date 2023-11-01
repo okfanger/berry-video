@@ -10,16 +10,19 @@ import cn.akfang.berry.common.feign.client.VideoClient;
 import cn.akfang.berry.common.model.dto.FeedPage;
 import cn.akfang.berry.common.model.dto.VideoSaveDTO;
 import cn.akfang.berry.common.model.entity.FilePO;
+import cn.akfang.berry.common.model.entity.VideoPO;
 import cn.akfang.berry.common.model.response.BaseResponse;
+import cn.akfang.berry.common.model.response.UserBaseVO;
 import cn.akfang.berry.common.model.response.VideoVO;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.constant.VideoMessageConstants;
 import cn.akfang.berry.service.ChannelService;
 import cn.akfang.berry.service.LikeRedisService;
 import cn.akfang.berry.service.VideoService;
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +49,13 @@ public class VideoController implements VideoClient {
     @Autowired
     LikeRedisService<Long, Long> likeRedisService;
 
-    @Qualifier("avatarRedisService")
+    @Qualifier("favorRedisService")
     @Autowired
-    LikeRedisService<Long, Long> avatarRedisService;
+    LikeRedisService<Long, Long> favorRedisService;
+
+    @Qualifier("commentLikeRedisService")
+    @Autowired
+    LikeRedisService<Long, Long> commentRedisService;
 
     @Autowired
     UserClient userClient;
@@ -56,28 +63,44 @@ public class VideoController implements VideoClient {
     @Autowired
     RabbitTemplate rabbitTemplate;
 
+    @GetMapping("/my")
+    public BaseResponse<Page<VideoVO>> getPersonalVideo(
+            @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
+            @RequestParam(value = "current", defaultValue = "1") String pageStr,
+            @RequestParam(value = "channelId", required = false) String channelIdStr
+    ) {
+        Long userId = NumberUtil.parseLong(userIdStr);
+        int currentPage = NumberUtil.parseInt(pageStr);
+
+        UserBaseVO userBaseVO = userClient.getUserBaseVOById(userId);
+
+        Page<VideoVO> videoVOPage = videoService.selectVideoVOPageByAuthorId(userId, userBaseVO, new Page<>(currentPage, 10));
+        return ResultUtils.success(videoVOPage);
+    }
+
+    @GetMapping("/my/{type}")
+    public BaseResponse<FeedPage<VideoVO>> getFeedListByType(
+            @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
+            @RequestParam(value = "channelId", required = false) String channelIdStr,
+            @PathVariable(value = "type", required = false) String typeStr
+    ) {
+        return getFeedListByCurrentUser(userIdStr, channelIdStr);
+    }
+
+
     @GetMapping("/feed")
     public BaseResponse<FeedPage<VideoVO>> getFeedListByCurrentUser(
             @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
             @RequestParam(value = "channelId", required = false) String channelIdStr
     ) {
         Long channelId = NumberUtil.parseLong(channelIdStr);
-        int offset = 5;
-        List<VideoVO> collect = videoService.list()
+        Long currentUserId = NumberUtil.parseLong(userIdStr);
+        QueryWrapper<VideoPO> qw = new QueryWrapper<>();
+        qw.orderByDesc("createTime");
+        List<VideoVO> collect = videoService.getBaseMapper().selectList(qw)
                 .stream()
                 .filter((item) -> ObjectUtil.equal(item.getVisible(), 1))
-                .limit(offset)
-                .map(item -> {
-                    VideoVO videoVO = new VideoVO();
-                    BeanUtil.copyProperties(item, videoVO);
-                    videoVO.setLikeCount(likeRedisService.getLikedCount(videoVO.getId()));
-                    videoVO.setLiked(likeRedisService.isLiked(NumberUtil.parseLong(userIdStr), videoVO.getId()));
-                    videoVO.setChannelId(channelService.getByVideoId(videoVO.getId()).getId());
-                    videoVO.setCover("http://berry-cdn.akfang.cn/" + item.getCover());
-                    videoVO.setUrl("http://berry-cdn.akfang.cn/" + item.getDefaultUrl());
-//                    videoVO.setFile(miscClient.getFileById(item.getFileId()));
-                    return videoVO;
-                })
+                .map(item -> videoService.buildVideoVO(item, userClient.getUserBaseVOById(item.getAuthorId()), currentUserId))
                 .collect(Collectors.toList());
         FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
         videoPOFeedPage.setRecords(collect);
@@ -104,9 +127,9 @@ public class VideoController implements VideoClient {
         Long userId = NumberUtil.parseLong(userIdStr);
         synchronized (userId.toString().intern()) {
             Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (avatarRedisService.isLiked(userId, videoId)) {
-                avatarRedisService.unlikeFromRedis(userId, videoId);
-                avatarRedisService.decrementLikedCount(videoId);
+            if (likeRedisService.isLiked(userId, videoId)) {
+                likeRedisService.unlikeFromRedis(userId, videoId);
+                likeRedisService.decrementLikedCount(videoId);
             }
             return ResultUtils.success(null);
         }
@@ -118,9 +141,9 @@ public class VideoController implements VideoClient {
         Long userId = NumberUtil.parseLong(userIdStr);
         synchronized (userId.toString().intern()) {
             Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (!avatarRedisService.isLiked(userId, videoId)) {
-                avatarRedisService.saveLiked2Redis(userId, videoId);
-                avatarRedisService.incrementLikedCount(videoId);
+            if (!favorRedisService.isLiked(userId, videoId)) {
+                favorRedisService.saveLiked2Redis(userId, videoId);
+                favorRedisService.incrementLikedCount(videoId);
             }
             return ResultUtils.success(null);
         }
@@ -132,16 +155,17 @@ public class VideoController implements VideoClient {
         Long userId = NumberUtil.parseLong(userIdStr);
         synchronized (userId.toString().intern()) {
             Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (likeRedisService.isLiked(userId, videoId)) {
-                likeRedisService.unlikeFromRedis(userId, videoId);
-                likeRedisService.decrementLikedCount(videoId);
+            if (favorRedisService.isLiked(userId, videoId)) {
+                favorRedisService.unlikeFromRedis(userId, videoId);
+                favorRedisService.decrementLikedCount(videoId);
             }
             return ResultUtils.success(null);
         }
     }
 
     @PostMapping("/publish")
-    public BaseResponse<Boolean> publishVideo(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId, @RequestBody VideoSaveDTO dto) {
+    public BaseResponse<Boolean> publishVideo(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId,
+                                              @RequestBody VideoSaveDTO dto) {
         FilePO fileById = miscClient.getFileById(dto.getFileId());
         if (ObjectUtil.isNull(fileById)) {
             log.error("publishVideo: fileById is null");

@@ -9,6 +9,5 @@ import java.util.List;
 public class FeedPage<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long lastId;
     private List<T> records;
 }

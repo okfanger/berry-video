@@ -81,12 +81,13 @@ public class QiniuOSSManager implements InitializingBean {
         return core.uploadToken(bucket, null, expireSeconds, putPolicy);
     }
 
-    public String getAvatarUploadToken(Long userId) {
+    public String getAvatarUploadToken(String avatarKey) {
         StringMap putPolicy = new StringMap();
-        String avatarKey = "user_" + userId + ".avatar";
+//        String avatarKey = "user_" + userId + ".avatar";
         putPolicy.put("returnBody", "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"bucket\":\"$(bucket)\",\"fsize\":$(fsize)}");
         putPolicy.put("saveKey", avatarKey);
-        return core.uploadToken(bucket, null, expireSeconds, putPolicy);
+        return core.uploadToken(bucket, avatarKey, expireSeconds, putPolicy);
+//        return core.uploadToken(bucket);
     }
 
 
@@ -109,13 +110,13 @@ public class QiniuOSSManager implements InitializingBean {
         }
     }
 
-    public QiniuUploadDTO uploadFileByInputStream(String upToken, InputStream inputStream) {
+    public QiniuUploadDTO uploadFileByInputStream(String upToken, String key, InputStream inputStream) {
         Configuration cfg = new Configuration(Region.huabei());
         cfg.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
         cfg.useHttpsDomains = false;
         UploadManager uploadManager = new UploadManager(cfg);
         try {
-            Response response = uploadManager.put(inputStream, null, upToken, null, null);
+            Response response = uploadManager.put(inputStream, key, upToken, null, null);
             // 解析上传成功的结果
             DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
             return QiniuUploadDTO.builder()

@@ -10,4 +10,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface FileService extends IService<FilePO> {
 
+    FilePO getByKey(String sourceKey);
 }

@@ -23,7 +23,7 @@ public class CommentLikeRedisServiceImpl implements LikeRedisService<Long, Long>
     @Override
     public void saveLiked2Redis(Long fromId, Long toId) {
         redisTemplate.opsForHash().put(
-                LikeTypeEnum.FAVOR.getRedisKey(),
+                LikeTypeEnum.COMMENT.getRedisKey(),
                 buildKey(fromId, toId),
                 LikeStatusEnum.LIKE.getCode()
         );
@@ -32,7 +32,7 @@ public class CommentLikeRedisServiceImpl implements LikeRedisService<Long, Long>
     @Override
     public void unlikeFromRedis(Long fromId, Long toId) {
         redisTemplate.opsForHash().put(
-                LikeTypeEnum.FAVOR.getRedisKey(),
+                LikeTypeEnum.COMMENT.getRedisKey(),
                 buildKey(fromId, toId),
                 LikeStatusEnum.UNLIKE.getCode()
         );
@@ -41,7 +41,7 @@ public class CommentLikeRedisServiceImpl implements LikeRedisService<Long, Long>
     @Override
     public void deleteLikedFromRedis(Long fromId, Long toId) {
         redisTemplate.opsForHash().delete(
-                LikeTypeEnum.FAVOR.getRedisKey(),
+                LikeTypeEnum.COMMENT.getRedisKey(),
                 buildKey(fromId, toId)
         );
     }
@@ -49,12 +49,12 @@ public class CommentLikeRedisServiceImpl implements LikeRedisService<Long, Long>
     @Override
     public void incrementLikedCount(Long toId) {
         redisTemplate.opsForHash().increment(
-                LikeTypeEnum.FAVOR.getRedisHashCountKey(),
+                LikeTypeEnum.COMMENT.getRedisHashCountKey(),
                 String.valueOf(toId),
                 1
         );
         redisTemplate.opsForZSet().incrementScore(
-                LikeTypeEnum.COMMENT.getRedisHashCountKey(),
+                LikeTypeEnum.COMMENT.getRedisZSetCountKey(),
                 String.valueOf(toId),
                 1
         );
@@ -63,12 +63,12 @@ public class CommentLikeRedisServiceImpl implements LikeRedisService<Long, Long>
     @Override
     public void decrementLikedCount(Long toId) {
         redisTemplate.opsForZSet().incrementScore(
-                LikeTypeEnum.FAVOR.getRedisHashCountKey(),
+                LikeTypeEnum.COMMENT.getRedisHashCountKey(),
                 String.valueOf(toId),
                 -1
         );
         redisTemplate.opsForZSet().incrementScore(
-                LikeTypeEnum.FAVOR.getRedisHashCountKey(),
+                LikeTypeEnum.COMMENT.getRedisZSetCountKey(),
                 String.valueOf(toId),
                 -1
         );
@@ -79,7 +79,7 @@ public class CommentLikeRedisServiceImpl implements LikeRedisService<Long, Long>
     public Integer getLikedCount(Long toId) {
         return Optional.ofNullable(
                 (Integer) redisTemplate.opsForHash().get(
-                        LikeTypeEnum.FAVOR.getRedisHashCountKey(),
+                        LikeTypeEnum.COMMENT.getRedisHashCountKey(),
                         String.valueOf(toId)
                 )
         ).orElse(0);
@@ -89,7 +89,7 @@ public class CommentLikeRedisServiceImpl implements LikeRedisService<Long, Long>
     public Boolean isLiked(Long fromId, Long toId) {
         Optional<Integer> valueOpt = Optional.ofNullable(
                 (Integer) redisTemplate.opsForHash().get(
-                        LikeTypeEnum.FAVOR.getRedisKey(),
+                        LikeTypeEnum.COMMENT.getRedisKey(),
                         buildKey(fromId, toId)
                 )
         );

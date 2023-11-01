@@ -27,18 +27,16 @@ public class FileDirectRabbitMqConfig {
 
 
     @Bean
-    Binding videoUploadBinding() {
+    Binding fileVideoUploadBinding() {
         return BindingBuilder.bind(qiniuCallbackUploadedQueue())
                 .to(qiniuCallbackExchange())
                 .with(QiniuMessageConstants.QINIU_CALLBACK_UPLOADED_ROUTING_KEY);
     }
 
     @Bean
-    Binding videoTransformBinding() {
+    Binding fileVideoTransformBinding() {
         return BindingBuilder.bind(qiniuCallbackTransformQueue())
                 .to(qiniuCallbackExchange())
                 .with(QiniuMessageConstants.QINIU_CALLBACK_TRANSFORM_ROUTING_KEY);
     }
-
-
 }

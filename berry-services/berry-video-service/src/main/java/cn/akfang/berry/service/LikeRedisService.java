@@ -14,4 +14,8 @@ public interface LikeRedisService<T, K> {
     Integer getLikedCount(K toId);
 
     Boolean isLiked(T fromId, K toId);
+
+//    LikeRedisHotPage<K, T, E> getLikedCountTop(Integer page, Integer size);
+
+//    List<E> rankPage(LikeRedisHotPage<K, T, E> page);
 }

@@ -11,7 +11,6 @@ import cn.akfang.berry.common.model.response.FileUploadToken;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.constant.QiniuMessageConstants;
 import cn.akfang.berry.manager.QiniuOSSManager;
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -70,8 +69,10 @@ public class OssController {
     @PostMapping("/upload/avatar")
     public BaseResponse<Boolean> uploadAvatar(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId,
                                               @RequestParam("file") MultipartFile file) throws Exception {
-        String avatarUploadToken = qiniuOSSManager.getAvatarUploadToken(NumberUtil.parseLong(userId));
-        QiniuUploadDTO qiniuUploadDTO = qiniuOSSManager.uploadFileByInputStream(avatarUploadToken, file.getInputStream());
+        String avatarKey = "user_" + userId + ".avatar";
+        String avatarUploadToken = qiniuOSSManager.getAvatarUploadToken(avatarKey);
+        QiniuUploadDTO qiniuUploadDTO = qiniuOSSManager.uploadFileByInputStream(avatarUploadToken, avatarKey
+                , file.getInputStream());
         return ResultUtils.success(userClient.updateAvatar(Long.valueOf(userId), qiniuUploadDTO.getKey()));
     }
 }

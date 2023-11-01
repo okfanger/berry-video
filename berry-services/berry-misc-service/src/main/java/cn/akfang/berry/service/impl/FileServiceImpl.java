@@ -15,6 +15,10 @@ import org.springframework.stereotype.Service;
 public class FileServiceImpl extends ServiceImpl<FileMapper, FilePO>
         implements FileService {
 
+    @Override
+    public FilePO getByKey(String sourceKey) {
+        return this.lambdaQuery().eq(FilePO::getKey, sourceKey).one();
+    }
 }
 
 
