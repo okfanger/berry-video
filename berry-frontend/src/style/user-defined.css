@@ -1,0 +1,157 @@
+:root {
+  --raspberry-pink: #ec656b;
+  --light-pink: #ee7b87;
+  --soft-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+
+  --plain-color: #f7f9fa;
+  --plain-hover-color: #eef2f5;
+
+  --default-color: #ffffff;
+  --default-hover-color: #eef2f5;
+
+  --font-color: #1c1f23;
+}
+
+.body {
+  font-family: 'Arial', sans-serif;
+  background-color: var(--light-pink);
+  color: var(--raspberry-pink);
+}
+
+.rounded {
+  border-radius: 12px;
+}
+
+.shadow {
+  box-shadow: var(--soft-shadow);
+}
+
+/* 按钮 */
+.button-primary {
+  padding: 0px 20px;
+  height: 35px;
+  line-height: 35px;
+  background-color: var(--raspberry-pink);
+  color: #ffffff;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px; /* 更大的圆角使按钮看起来更加可爱 */
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.button-primary:hover {
+  transform: translateY(-1px);
+  /* box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2); */
+  background-color: var(--light-pink);
+}
+
+.button-default {
+  padding: 0px 20px;
+  background-color: var(--default-color);
+  color: var(--font-color);
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px; /* 更大的圆角使按钮看起来更加可爱 */
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.button-default:hover {
+  transform: translateY(-1px);
+  background-color: var(--default-hover-color);
+}
+
+.button-plain {
+  padding: 0px 20px;
+  height: 35px;
+  line-height: 35px;
+  background-color: var(--plain-color);
+  color: var(--font-color);
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px; /* 更大的圆角使按钮看起来更加可爱 */
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.button-plain:hover {
+  transform: translateY(-1px);
+  background-color: var(--plain-hover-color);
+}
+
+.card {
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: var(--soft-shadow);
+  height: 300px;
+  width: 200px;
+}
+
+/* 其他可爱的元素样式... */
+
+/* 背景 */
+.gradient-background {
+  background: linear-gradient(135deg, #feffff 0%, #fff7fe 100%);
+}
+
+/* 输入框 */
+.custom-input {
+  font-size: 16px;
+  height: 40px;
+  padding: 1px 0 1px 15px;
+  border-radius: 15px; /* 圆角 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 适当的阴影 */
+  transition: border 0.3s ease;
+
+  /* 树莓粉色背景 */
+  background-color: var(--plain-hover-color);
+  border: 1px solid var(--plain-color);
+  color: var(--font-color);
+}
+/* 聚焦时的效果 */
+.custom-input:focus-within {
+  outline: none;
+  border-color: var(--light-pink);
+}
+.custom-input:hover {
+  border-color: var(--light-pink);
+}
+
+/* textarea */
+.textarea-raspberry {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(236, 101, 107, 0.1);
+  transition: box-shadow 0.3s ease;
+  outline: none;
+  color: var(--font-color);
+  background-color: #fff;
+  resize: vertical; /* 只允许垂直调整大小 */
+  width: 100%; /* 默认宽度 */
+  min-height: 100px; /* 最小高度 */
+}
+
+.textarea-raspberry:focus {
+  box-shadow: 0 6px 10px rgba(236, 101, 107, 0.2);
+}
+
+.textarea-raspberry::placeholder {
+  color: #ec656b;
+  opacity: 0.7;
+}
+
+.textarea-raspberry:hover {
+  box-shadow: 0 6px 10px rgba(236, 101, 107, 0.15);
+}
