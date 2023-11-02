@@ -62,7 +62,7 @@ public class CommentLikeRedisServiceImpl implements LikeRedisService<Long, Long>
 
     @Override
     public void decrementLikedCount(Long toId) {
-        redisTemplate.opsForZSet().incrementScore(
+        redisTemplate.opsForHash().increment(
                 LikeTypeEnum.COMMENT.getRedisHashCountKey(),
                 String.valueOf(toId),
                 -1

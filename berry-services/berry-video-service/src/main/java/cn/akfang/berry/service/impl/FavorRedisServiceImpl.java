@@ -62,7 +62,7 @@ public class FavorRedisServiceImpl implements LikeRedisService<Long, Long> {
 
     @Override
     public void decrementLikedCount(Long toId) {
-        redisTemplate.opsForZSet().incrementScore(
+        redisTemplate.opsForHash().increment(
                 LikeTypeEnum.FAVOR.getRedisHashCountKey(),
                 String.valueOf(toId),
                 -1
