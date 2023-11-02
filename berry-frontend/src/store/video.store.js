@@ -1,24 +1,33 @@
 import { defineStore } from 'pinia'
-import { getChannelList } from '@/api/video'
+import { getChannelList, getVideoFeedByTypeApi } from '@/api/video'
+import { getChannelListStroge, setChannelListStroge } from '@/utils'
 export const useVideoStore = defineStore('video', {
   state: () => ({
-    channelList: [],
-    aa: '',
-    bb: ''
+    channelList: getChannelListStroge() || [],
   }),
   actions: {
-
     async fetchChannelList () {
       try {
         let res = await getChannelList()
         const { data, status } = res
         if (status == 200) {
           this.channelList = data
+          setChannelListStroge(this.channelList)
         }
       } catch (e) {
         console.log(e)
       }
     },
+
+    async fetchVideoFeedByType (type) {
+      return new Promise(resolve => {
+        getVideoFeedByTypeApi(type).then(res => {
+          const { success, data } = res
+          resolve(success ? data.records : [])
+        })
+      })
+
+    }
 
   },
   getters: {}

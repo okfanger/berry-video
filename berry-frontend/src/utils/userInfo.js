@@ -5,8 +5,6 @@ export const getUserInfoStorage = () => {
   let result = {}
   if (UserInfoStr) {
     result = JSON.parse(UserInfoStr)
-  } else {
-    result = {}
   }
   return result
 }

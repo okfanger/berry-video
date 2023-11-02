@@ -5,6 +5,9 @@ import { createUuid } from './createUuid'
 import { getUpToken, setUpToken, clearUpToken } from './upToken'
 import { getUserInfoStorage, setUserInfoStorage, clearUserInfoStorage } from './userInfo'
 import { isLogin } from './validate'
+import { parseTime } from './parseTime'
+import { getChannelListStroge, setChannelListStroge } from './channelList'
+
 // 统一导出
 export {
   continuous,
@@ -21,5 +24,8 @@ export {
   getUserInfoStorage,
   setUserInfoStorage,
   clearUserInfoStorage,
-  isLogin
+  isLogin,
+  parseTime,
+  getChannelListStroge,
+  setChannelListStroge
 }

@@ -11,7 +11,7 @@
             <img :src="isLogin() ? avatar : avatarBoy" alt="">
           </div>
         </div>
-        <div class="button-primary login" @click="handlerLogin">登录</div>
+        <div class="button-primary login" v-if="!isLogin()" @click="handlerLogin">登录</div>
       </div>
   </div>
   <!-- 登录框 -->
@@ -34,7 +34,7 @@ import { isLogin } from '@/utils'
 import { userStore } from '@/store'
 
 const LogindialogVisble = ref(false)
-const avatar = userStore.userInfo.userAvatar;
+const avatar = `${userStore.userInfo.userAvatar}?t=${new Date().getTime()}`;
 const handlerLogin = () => {
   LogindialogVisble.value = true
 }
@@ -48,6 +48,8 @@ const handlerLogin = () => {
   align-items: center;
   padding: 0 20px;
   color: white;
+  z-index: 99999;
+  background-color: #fefafe;
 }
 
 .icon {
@@ -56,13 +58,14 @@ const handlerLogin = () => {
 .user {
   display: flex;
   align-items: center;
-  width: 150px;
+  min-width: 70px;
   justify-content: space-around;
 }
 .avatar img {
   height: 50px;
   width: 50px;
   border-radius: 50%;
+  cursor: pointer;
 }
 
 </style>

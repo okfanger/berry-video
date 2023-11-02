@@ -1,23 +1,23 @@
 <template>
   <div class="classify-container">
-    <VideoList :list="channelList" />
+    <VideoList :list="channelVideoList" />
  </div>
 </template>
 
 <script setup>
 import { onMounted, watch,ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { getChannelList, getChannelFeedByChannelIdApi } from '@/api/video'
+import { getVideoFeed } from '@/api/video'
+import { videoStore } from '@/store'
 import VideoList from '@/components/VideoComponent/VideoList.vue'
 
 const route = useRoute()
 
-const channelList = ref([])
+const channelList = ref(videoStore.channelList || [])
 const channelVideoList = ref([])
 const channelId = ref(0)
 
 onMounted(() => {
-  fetchChannelList();
   fetchChannelVideoList();
 })
 
@@ -26,24 +26,22 @@ watch(() => route, (value) =>{
   let icon = value.meta.MenuIcon
   let channel = channelList.value.find(item => item.icon == icon) || {}
   channelId.value =  channel.id
+  fetchChannelVideoList()
 }, {
-  immediate: true,
   deep: true
 })
 
 
-const fetchChannelList = () => {
-  getChannelList(channelId.value).then(res=>{
-    const {status, data} = res;
-    if(status) {
-      channelList.value = data;
-    }
-  })
-}
+
 
 const fetchChannelVideoList = async () => {
-  let res = await getChannelFeedByChannelIdApi(channelId.value)
-  console.log(res);
+  console.log(channelList);
+  console.log(channelId.value);
+  let res = await getVideoFeed(channelId.value)
+  const { success, data} = res;
+  if(success) {
+    channelVideoList.value = data.records;
+  }
 }
 
 </script>

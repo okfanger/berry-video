@@ -8,6 +8,8 @@ import '@/style/reset-theme.scss'
 import '@/style/reset.css'
 import '@/style/user-defined.css'
 
+
+
 import router from './router'
 import { createPinia } from 'pinia'
 import { vScroll, vSlideIn } from '@/directive'

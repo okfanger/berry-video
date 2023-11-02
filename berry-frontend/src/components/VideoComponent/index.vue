@@ -10,7 +10,7 @@
         v-model:speed="speed"
         :speedList="speedList"
         :videoSrc="props.videoSrc"
-        :coverSrc="coverSrc"
+        :cover="cover"
         :streamLoad="streamLoad"
 
         :continuous="continuous"
@@ -43,7 +43,12 @@
     
     <!-- 评论面板 -->
     <div v-if="isCommoning">
-      <commentPanel :videoId="props.id" />
+      <commentPanel 
+        :videoId="props.id" 
+        v-model:commentList="commentList"
+        :total="funcInfo.common.num"
+        v-model:isComming="isCommoning"
+      />
     </div>
  </div>
 </template>
@@ -51,21 +56,21 @@
 <script setup>
 import { ref, onMounted, reactive, defineProps } from 'vue'
 import OriginVideo from './OriginIndex.vue';
-import { continuous, isCommoning } from '@/utils'
-import { doLikeApi,unLikeApi, doCollectApi, unCollectApi } from '@/api/video'
+import { continuous } from '@/utils'
+import { doLikeApi,unLikeApi, doCollectApi, unCollectApi, getVideoCommentList } from '@/api/video'
 import commentPanel from '@/components/Comment/commentPanel'
 
 const props = defineProps(['videoSrc', 'id', 'likeCount', 
-  'liked', 'favorCount', 'isFavored',
+  'liked', 'favorCount', 'isFavored', 'cover',
   'commentCount'])
 const volume = ref(1);
 const speed = ref(1);
 const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2])
 
 const openPrintScreen = ref(false)
-const coverSrc = ref("coverSrc")
 const streamLoad = ref(false)
-
+const isCommoning = ref(false)
+const commentList = ref([])
 const funcInfo = reactive({
   like: {
     value: props.liked,
@@ -125,7 +130,8 @@ const handlerCollected = () => {
 }
 
 onMounted(()=>{
-  // loadVedio()
+  commentList.value = []
+  fetchCommentList()
 })
 
 const handlerPlay = (e) => {
@@ -136,9 +142,20 @@ const handlerMute = (e) => {
 }
 const videoEnd = () => {
   console.log("end 父组件");
-
 }
 const handlerPrintscreen = () => {}
+
+const fetchCommentList = () => {
+  getVideoCommentList({
+    videoId: props.id,
+    current: 1,
+  }).then(res=>{
+    if(res.success) {
+      commentList.value = commentList.value.concat(res.data.records);
+      funcInfo.common.num = res.data.total;
+    }
+  })
+}
 </script>
 
 <style scoped>

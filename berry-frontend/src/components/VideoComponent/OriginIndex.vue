@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="initial-video" ref="videoBox">
+    <div class="initial-video" ref="videoBox" :style="{backgroundImage: `url(${props.cover})` }">
       <video ref="video"
         webkit-playsinline="true"
         playsinline="true"
@@ -58,8 +58,8 @@ const emits = defineEmits(['play', 'mute', 'update:speed',
   'upadte:volume'])
 
 const props = defineProps(['volume', 'speed', 'speedList',
-   'continuous', 'openPrintScreen', 'videoSrc', 'coverSrc',
-    'bgImg', 'streamLoad', 'id' ])
+   'continuous', 'openPrintScreen', 'videoSrc', 'cover',
+    'streamLoad', 'id' ])
 
 const video = ref()
 const progressBox = ref()
@@ -75,7 +75,6 @@ const progressTime = ref("00:00 / 00:00")
 let hls;
 let clickTimer = null;
 onMounted(() => {
-
   initVideo();
   if (video.value.videoWidth > video.value.videoHeight) {
       video.value.classList.add('widthGreaterThanHeight');
@@ -98,7 +97,6 @@ onMounted(() => {
   // 双击视频 点赞
   videoBox.value.addEventListener("dblclick", (e)=>{
     clickTimer && clearTimeout(clickTimer);
-    // showHeart(e)
     emits("likeOrDisLike")
   })
 });
@@ -110,27 +108,6 @@ const initVideo = () => {
   video.value.currentTime = 0;
   muted.value = video.value.muted = props.volume == 0 ? true : false;
   video.value.playbackRate = props.speed;
-}
-
-const showHeart = (event) => {
-  console.log(event);
-  const heart = document.createElement('div');
-  heart.innerHTML = "asdasd"
-  heart.className = 'heart';  // 使用 CSS 类来绘制爱心
-  heart.style.left = `${event.clientX}px`;
-  heart.style.top = `${event.clientY}px`;
-  heart.style.opacity = '1';
-  heart.style.transition = 'opacity 0.5s ease-out';
-console.log(heart);
-  document.body.appendChild(heart);
-
-//   requestAnimationFrame(() => {
-//     heart.style.opacity = '0';
-//   });
-
-//   setTimeout(() => {
-//     document.body.removeChild(heart);
-//   }, 500);
 }
 
 const parseTime = (value) => {
@@ -246,11 +223,6 @@ const videoEnd = () => {
 }
 
 
-
-//拖拽进度条
-
-
-
 // 处理拖拽开始
 const handleMousedown = () => {
   dragging.value = true
@@ -281,11 +253,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('mousemove', handleMousemove)
   window.removeEventListener('mouseup', handleMouseup)
 });
-
-
-
-
-
 </script>
 
 <style>
@@ -333,16 +300,16 @@ onBeforeUnmount(() => {
 }
 .initial-video {
   width: 100%;
-  height: calc(100% - 40px);
+  height: 100%;
   background-repeat: no-repeat;
   background-position: center center;
-  /* background: url('https://t7.baidu.com/it/u=3908717,2002330211&fm=193&f=GIF') center center  no-repeat; */
-  background-color: black;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
   background-size: 100% 100%;
   flex: 1;
   display: flex;   
   justify-content: center; 
   align-items: center; 
+  backdrop-filter: blur(30px);
 }
 
 
@@ -425,10 +392,6 @@ video.heightGreaterThanWidth {
   padding: 6px 12px;
   transition: background-color 0.3s;
 }
-
-/* .video-controls button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-} */
 
 /* 进度条 */
 .video-controls .progress-bar {

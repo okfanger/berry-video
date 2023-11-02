@@ -1,7 +1,9 @@
 <template>
   <div>
-    <div class="user-info-head" @click="editCropper()"><img v-bind:src="options.img" title="点击上传头像" class="img-circle img-lg" /></div>
-    <Model v-model:visble="open" >
+    <div class="user-info-head" @click="editCropper()">
+      <img v-bind:src="isLogin() ? avatar : avatarBoy" title="点击上传头像" class="img-circle img-lg" />
+    </div>
+    <Model v-model:visble="open" v-loading="loading">
       <el-row>
         <el-col :xs="24" :md="12" :style="{height: '350px'}">
           <vue-cropper
@@ -63,12 +65,14 @@ import { VueCropper } from "vue-cropper";
 import 'vue-cropper/dist/index.css'
 import { updateAvatar } from '@/api/user.js'
 import Model from '@/components/Model/indexCom'
-import img from '@/assets/avatar-ddai.png'
 import { Plus, Minus,RefreshRight, RefreshLeft, UploadFilled } from '@element-plus/icons-vue'
-import { userStore } from '@/store/user.store.js'
+import { userStore } from '@/store'
 import { isLogin } from '@/utils'
+import avatarBoy from '@/assets/avatar-boy.png'
+import router from '@/router'
+const avatar = `${userStore.userInfo.userAvatar}?t=${new Date().getTime()}`;
 const options = reactive({
-  img, // 从store.user中读取
+  img: isLogin() ? avatar : avatarBoy, 
   autoCrop: true, // 是否默认生成截图框
   autoCropWidth: 200, // 默认生成截图框宽度
   autoCropHeight: 200, // 默认生成截图框高度
@@ -79,6 +83,7 @@ const open = ref(false)
 const visible = ref(false)
 const previews = ref({})
 const cropper = ref() 
+const loading = ref(false)
 
 const editCropper = () => {
   open.value = true;
@@ -111,13 +116,16 @@ const beforeUpload = (file) => {
   }
 }
 const uploadImg = () => {
+  loading.value = true;
   cropper.value.getCropBlob(data => {
     let formData = new FormData();
     formData.append("file", data);
     updateAvatar(formData).then(res=>{
       if(res.status === 200) {
-        // 
-        userStore.fetchUserInfo()
+        open.value = false;
+        visible.value = false;
+        loading.value = false;
+        router.go(0)
       }
     })
   });

@@ -1,16 +1,18 @@
 <template>
   <div class="comment-item">
     <div class="avatar">
-      <img :src="props.userAvatar" alt="User Avatar" />
+      <img :src="props.authorAvatar" alt="User Avatar" />
     </div>
     <div class="content">
-      <div class="username">{{ props.username }}</div>
+      <div class="username">{{ props.authorNickName }}</div>
       <div class="text">{{ props.content }}</div>
-      <div class="date">{{ props.datetime }}</div>
+      <div class="date">{{ parseTime(props.createTime) }}</div>
       <div>
         <div>
-          <i class="iconfont icon-aixin" style="cursor: pointer;"></i> 
-          <span>0</span>
+          <i class="iconfont icon-aixin" style="cursor: pointer;" v-if="!likeInfo.isLiked" @click="handlerLike()"></i> 
+          <i class="iconfont icon-aixin1" style="cursor: pointer;color:#ff2f57" v-else
+             @click="handlerLike()"></i> 
+          <span>{{ likeInfo.likeCount }}</span>
         </div>
       </div>
     </div>
@@ -18,22 +20,39 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from 'vue';
-// import avatar from '@/assets/avatar-ddai.png'
+import { defineProps, ref, reactive } from 'vue';
+import { doLikeForCommentApi, unLikeForCommentApi } from '@/api/video'
+import { parseTime } from '@/utils'
 const props = defineProps({
-  userAvatar: String,
-  username: String,
-  content: String,
-  datetime: String,
+  authorNickName: String,
+  authorAvatar: String,
+  isLiked: String,
+  likeCount: Number,
+  createTime: String,
   id: String,
+  content: String
 });
-const showReplyBox = ref(false);
-const replyText = ref('');
+const likeInfo = reactive({
+  isLiked: props.isLiked,
+  likeCount: props.likeCount
+})
 
-function submitReply() {
-  // Handle reply submission
-  console.log(replyText.value);
-  showReplyBox.value = false;
+const handlerLike = () => {
+  if(likeInfo.isLiked) {
+    unLikeForCommentApi(props.id).then(res=>{
+      if(res.success) {
+        likeInfo.isLiked = false;
+        likeInfo.likeCount--;
+      }
+    })
+  } else {
+    doLikeForCommentApi(props.id).then(res=>{
+      if(res.success) {
+        likeInfo.isLiked = true;
+        likeInfo.likeCount++;
+      }
+    })
+  }
 }
 </script>
 

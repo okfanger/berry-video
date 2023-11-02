@@ -17,16 +17,6 @@ const routes = [
         component: () => import("@/views/Recommend/indexView.vue")
       },
       {
-        path: "classify",
-        name: 'classify',
-        component: () => import("@/views/Classify/indexView.vue"),
-        meta: {
-          isMenu: true,
-          MenuIcon: "",
-          MenuName: "分类"
-        },
-      },
-      {
         path: "mine",
         name: 'mine',
         component: () => import("@/views/Mine/indexView.vue"),
@@ -35,27 +25,6 @@ const routes = [
           MenuIcon: "",
           MenuName: "我的"
         },
-        children: [
-          {
-            path: "collect",
-            name: 'collect',
-            component: () => import("@/views/Collect/indexView.vue")
-          },
-          {
-            path: "upvote",
-            name: 'upvote',
-            component: () => import("@/views/Upvote/indexView.vue")
-          },
-          {
-            path: "product",
-            name: "product",
-            component: () => import("@/views/Product/indexView.vue")
-          },
-          {
-            path: "/mine",
-            redirect: () => "/mine/upvote"
-          }
-        ]
       },
       {
         path: "create",
