@@ -5,6 +5,7 @@
         webkit-playsinline="true"
         playsinline="true"
         controlslist="nodownload"
+        :poster="props.cover"
         crossorigin="anonymous">
         <source :src="videoSrc" type="video/mp4">
           您的浏览器不支持video标签，请使用google浏览器浏览
@@ -26,7 +27,7 @@
         <div class="right">
           <div @click="mute"  style="display: flex;">
             <i class="iconfont icon-1 setting" v-if="!muted"></i>
-            <i class="iconfont icon-jingyinmute31 setting" style="font-size: 17px;" v-else></i>
+            <i class="iconfont icon-jingyinmute31 setting" style="font-size: 14px;" v-else></i>
           </div>
           <div>
             <el-dropdown :hide-on-click="false">
@@ -39,10 +40,10 @@
             </el-dropdown>
           </div>
           <div>
-            <button v-if="openPrintScreen" @click="openPrintScreen">截图</button>
+            <button v-if="openPrintScreen" @click="openPrintScreen" style="font-size: 14px;">截图</button>
           </div>
           <div>
-            <i class="setting iconfont icon-quanpingmu" @click="FullScreen"></i>
+            <i class="setting iconfont icon-quanpingmu" style="font-size: 14px;" @click="FullScreen"></i>
           </div>
         </div>
       </div>
@@ -290,7 +291,10 @@ onBeforeUnmount(() => {
 
 
 
-<style>
+<style scoped>
+.el-dropdown-link {
+  font-family: "SimSun", sans-serif;
+}
 .container {
   width: 100%;
   height: 100%;
@@ -303,7 +307,7 @@ onBeforeUnmount(() => {
   height: 100%;
   background-repeat: no-repeat;
   background-position: center center;
-  background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+  background-color: rgba(0, 0, 0, 0.5);
   background-size: 100% 100%;
   flex: 1;
   display: flex;   
@@ -437,6 +441,7 @@ video.heightGreaterThanWidth {
 }
 .time {
   margin-left: 5px;
+  font-size: 15px;
 }
 
 

@@ -36,35 +36,36 @@ const closeFullScreen = () => {
 }
 
 .content {
-  height: 90%;
   width: 90%;
   background: #fff; /* 内容区域背景色，可以根据需要修改 */
   border-radius: 10px;
-  padding: 20px 10px 0 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   position: relative;
 }
 
 .close-button {
-  width: 40px;
-  height: 40px;
-  background-color: #ee7b87; /* 设置按钮背景颜色 */
-  border-radius: 50%; /* 使按钮呈现圆形 */
+  width: 64px;
+  height: 64px;
+  background-color: rgba(0, 0, 0, 0.18); 
+  border-radius: 50%; 
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   position: absolute;
-  top: 40px;
-  left: 40px;
+  top: 20px;
+  left: 20px;
   z-index: 100000;
   color: #1c1f23;
   user-select: none;
+  opacity: 0.5;
+  font-size: 30px;
+  color: #fff;
 }
 
-/* 可以自定义按钮的样式，如颜色和图标 */
 .close-button:hover {
-  background-color: #ec656b; /* 鼠标悬停时的颜色 */
-  color: #fff; /* 文本颜色 */
+  background-color: #424246; 
+  opacity: 1;
 }
 </style>

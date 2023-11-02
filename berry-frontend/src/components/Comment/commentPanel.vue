@@ -21,14 +21,14 @@
     </div>
     <div class="comment-input-area">
         <input type="text" v-model="content" placeholder="留下你精彩的评论吧...">
-        <button @click="publish">发布</button>
+        <button @click="publish" :disabled="disabled">发布</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted, defineEmits } from 'vue'
-import { createUuid, isCommoning } from '@/utils'
+import { ref, defineProps, onMounted, defineEmits, watch } from 'vue'
+import { createUuid } from '@/utils'
 import commentItem from '@/components/Comment/commentItem'
 import { publisComment } from '@/api/video'
 import { userStore } from '@/store'
@@ -36,16 +36,16 @@ const props = defineProps(['videoId', 'commentList', 'total'])
 const emits = defineEmits(['publishComment', 'update:isComming', "update:commentList"])
 
 const content = ref("")
+const disabled = ref(true)
 
 onMounted(()=>{
-  // fetchCommentList()
-  dealWheelMethods()
 })
 
-const dealWheelMethods = () => {
-  let listBox = document.querySelector(".video_list");
-  console.log(listBox);
-}
+watch(() => content.value, (val) => {
+  disabled.value = val.trim() !== '' ? false : true;
+})
+
+
 
 const changeCommentState = () => {
   // isCommoning.value = false;
@@ -53,23 +53,25 @@ const changeCommentState = () => {
 }
 
 const publish = () => {
-  publisComment(props.videoId, content.value).then(res=>{
-    if(res.status == 200) {
-      const comment = {
-        author: {
-          authorAvatar: userStore.userInfo.userAvatar,
-          authorNickName: userStore.userInfo.nickName
-        },
-        id: createUuid(),
-        createTime: new Date().toString(),
-        isLiked: false,
-        likeCount: 0,
-        content: content.value,
+  if(content.value.trim() !== '') {
+    publisComment(props.videoId, content.value.trim()).then(res=>{
+      if(res.status == 200) {
+        const comment = {
+          author: {
+            authorAvatar: userStore.userInfo.userAvatar,
+            authorNickName: userStore.userInfo.nickName
+          },
+          id: createUuid(),
+          createTime: new Date().toString(),
+          isLiked: false,
+          likeCount: 0,
+          content: content.value.trim(),
+        }
+        content.value = ""
+        emits("update:commentList", [comment, ...props.commentList])
       }
-      content.value = ""
-      emits("update:commentList", [comment, ...props.commentList])
-    }
-  })
+    })
+  }
 }
 
 
@@ -134,8 +136,12 @@ const publish = () => {
     border: none;
     padding: 5px 10px;
     border-radius: 5px;
+    cursor: pointer;
 }
-
+.comment-input-area button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 .commentItem {
   margin-bottom: 5px;
 }

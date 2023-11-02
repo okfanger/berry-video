@@ -7,7 +7,7 @@
         </el-affix>
       </el-header>
       <el-container>
-        <el-aside width="200px" style="height: calc(100vh - 80px);">
+        <el-aside width="120px" style="height: calc(100vh - 80px);">
           <LAside />
         </el-aside>
         <el-main>

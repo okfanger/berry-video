@@ -47,8 +47,8 @@ const routes = [
         },
       },
       {
-        path: "trophyBase",
-        name: "trophyBase",
+        path: "trophybase",
+        name: "trophybase",
         component: () => import("@/views/Classify/indexView.vue"),
         meta: {
           isMenu: true,
@@ -57,22 +57,22 @@ const routes = [
         },
       },
       {
-        path: "knifeFork",
-        name: "knifeFork",
-        component: () => import("@/views/Classify/indexView.vue"),
-        meta: {
-          isMenu: true,
-          MenuIcon: "KnifeFork",
-          MenuName: "美食"
-        },
-      },
-      {
-        path: "music",
-        name: "music",
+        path: "service",
+        name: "service",
         component: () => import("@/views/Classify/indexView.vue"),
         meta: {
           isMenu: true,
           MenuIcon: "Service",
+          MenuName: "美食"
+        },
+      },
+      {
+        path: "knifefork",
+        name: "knifefork",
+        component: () => import("@/views/Classify/indexView.vue"),
+        meta: {
+          isMenu: true,
+          MenuIcon: "KnifeFork",
           MenuName: "音乐"
         },
       },

@@ -10,7 +10,6 @@
           :key="item.name"
           :index="item.name"
           >
-          <el-icon><icon-menu /></el-icon>
           <span>{{ item.meta.MenuName }}</span>
         </el-menu-item>
       </el-menu>

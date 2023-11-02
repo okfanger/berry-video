@@ -11,14 +11,14 @@ const observer = new IntersectionObserver((entries) => {
       let index = Array.from(map.keys()).findIndex(item => item === e.target)
       let func = map.get(e.target)
       func(index)
-      console.log(e.target)
+      // console.log(e.target)
     }
   })
 }, observerOptions)
 
 const slideIn = {
   mounted (el, binding, vnode) {
-    console.log(vnode)
+    // console.log(vnode)
     observer.observe(el)
     map.set(el, binding.value)
   },

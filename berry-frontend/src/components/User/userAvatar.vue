@@ -125,7 +125,7 @@ const uploadImg = () => {
         open.value = false;
         visible.value = false;
         loading.value = false;
-        router.go(0)
+        window.location.reload()
       }
     })
   });

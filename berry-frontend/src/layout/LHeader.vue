@@ -7,9 +7,29 @@
       </div>
       <div class="user">
         <div class="userinfo">
-          <div class="avatar">
-            <img :src="isLogin() ? avatar : avatarBoy" alt="">
-          </div>
+          <el-dropdown>
+            <span class="el-dropdown-link">
+              <div class="avatar">
+                <img :src="isLogin() ? avatar : avatarBoy" alt="">
+              </div>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="toMy()">我的</el-dropdown-item>
+                <el-dropdown-item @click="logout()">退出登录</el-dropdown-item>
+                <!-- <el-popconfirm 
+                  title="确认退出登录?"
+                  confirm-button-text="退出"
+                  cancel-button-text="取消"
+                  width="160"
+                  @confirm="">
+                  <template #reference>
+                    
+                  </template>
+                </el-popconfirm> -->
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
         <div class="button-primary login" v-if="!isLogin()" @click="handlerLogin">登录</div>
       </div>
@@ -32,11 +52,22 @@ import searchComponent from '@/components/Search/searchComponent'
 import { ref } from 'vue'
 import { isLogin } from '@/utils'
 import { userStore } from '@/store'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const LogindialogVisble = ref(false)
 const avatar = `${userStore.userInfo.userAvatar}?t=${new Date().getTime()}`;
 const handlerLogin = () => {
   LogindialogVisble.value = true
+}
+const toMy = () => {
+  router.push({
+    name: "mine"
+  })
+}
+const logout = () => {
+  userStore.logout()
+  window.location.reload()
 }
 </script>
 

@@ -11,7 +11,7 @@ function parseTime (timeStr) {
   const seconds = date.getSeconds().toString().padStart(2, '0')
 
   // 构建年月日时分秒格式
-  const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+  const formattedDateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`
   return formattedDateTime
 }
 

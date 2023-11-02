@@ -31,6 +31,7 @@ import { getQrCode, login } from '@/api/user'
 import qrcodeImg from '@/assets/qrcode.png'
 import { setToken } from '@/utils'
 import { userStore, videoStore } from '@/store'
+import router from '@/router'
 
 const props = defineProps(['LogindialogVisble'])
 const emits = defineEmits(['update:LogindialogVisble'])
@@ -70,8 +71,12 @@ const handlerLogin = (code) => {
     if(status == 200) {
       setToken(data.token);
       emits("update:LogindialogVisble", false)
-      userStore.fetchUserInfo();
-      videoStore.fetchChannelList()
+      Promise.all([
+        userStore.fetchUserInfo(),
+        videoStore.fetchChannelList()
+      ]).then(res=>{
+        window.location.reload()
+      })
     }
   })
 }

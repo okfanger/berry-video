@@ -156,3 +156,14 @@ export const getMyselfVideoApi = (current = 1) => {
     }
   })
 }
+
+// 删除已经发布的视频
+export const deleteVideoApi = (videoId) => {
+  return request({
+    url: '/video/recycle',
+    method: "post",
+    params: {
+      videoId
+    }
+  })
+} 
