@@ -1,8 +1,8 @@
 <template>
   <div class="video_list" v-scroll>
-    <VideoComponent v-for="item,index in list" 
+    <VideoComponent v-for="item,index in videoList" 
       v-slide-in="test"
-      :key="index" class="videoComponent" ref="cards"
+      :key="index" class="videoComponent"
       :videoSrc="item.url"
       :likeCount="item.likeCount"
       :id="item.id"
@@ -10,33 +10,49 @@
       :favorCount="item.favorCount"
       :isFavored="item.isFavored"
       :commentCount="item.commentCount"
-      
       />
  </div>
+ <!-- <div class="video_list" >
+  <vue-virtual-scroller class="video-list" :items="videoList" :item-height="height">
+    <template #default="{ item: item, index }">
+      <video-component 
+        :key="index" class="videoComponent"
+        :videoSrc="item.url"
+        :likeCount="item.likeCount"
+        :id="item.id"
+        :liked="item.liked"
+        :favorCount="item.favorCount"
+        :isFavored="item.isFavored"
+        :commentCount="item.commentCount"
+      />
+    </template>
+  </vue-virtual-scroller>
+ </div> -->
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import VideoComponent from '@/components/VideoComponent'
+import VueVirtualScroller from 'vue3-virtual-scroller'
+import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'
 import { getVideoFeed } from '@/api/video';
 
-const list = ref([])
+const videoList = ref([])
+const height = ref(800)
 
 onMounted(() => {
   fetchVideoFeed()
 })
+const test = () => {}
 const currentIndex = ref(0)
-const cards = ref()
-const test = (index) => {
- 
-    
-}
 
+console.log(VueVirtualScroller);
 const fetchVideoFeed = () => {
   getVideoFeed().then(res=>{
     let {data, success} = res;
     if(success) {
-      list.value = data.records;
+      videoList.value = data.records;
+      console.log(videoList);
     }
   })
 }

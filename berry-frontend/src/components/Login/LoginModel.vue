@@ -30,10 +30,11 @@ import { ref, onMounted, watchEffect, defineEmits, defineProps} from 'vue'
 import { getQrCode, login } from '@/api/user'
 import qrcodeImg from '@/assets/qrcode.png'
 import { setToken } from '@/utils'
-import { userStore } from '@/store'
+import { userStore, videoStore } from '@/store'
 
 const props = defineProps(['LogindialogVisble'])
 const emits = defineEmits(['update:LogindialogVisble'])
+
 
 const url = ref("")
 const otpCodes = ref(Array(6).fill(''));
@@ -70,6 +71,7 @@ const handlerLogin = (code) => {
       setToken(data.token);
       emits("update:LogindialogVisble", false)
       userStore.fetchUserInfo();
+      videoStore.fetchChannelList()
     }
   })
 }

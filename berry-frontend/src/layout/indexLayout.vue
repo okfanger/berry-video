@@ -2,7 +2,9 @@
   <div class="common-layout gradient-background">
     <el-container>
       <el-header style="padding: 0;height: 80px;">
-        <LHeader  />
+        <el-affix :offset="0">
+          <LHeader  />
+        </el-affix>
       </el-header>
       <el-container>
         <el-aside width="200px" style="height: calc(100vh - 80px);">
@@ -29,5 +31,6 @@ import LAside from '@/layout/LAside'
 <style scoped>
 .common-layout {
   height: 100vh;
+  min-width: 800px;
 }
 </style>

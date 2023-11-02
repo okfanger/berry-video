@@ -1,20 +1,22 @@
 <template>
  <div  class="comment-panel">
     <div class="comment-header">
-        <span class="comment-count">1234 条评论</span>
+        <span class="comment-count">{{ props.total }} 条评论</span>
         <button class="close-btn" @click="changeCommentState">关闭</button>
     </div>
     <div class="comment-list">
         <!-- 这里将显示用户的评论 -->
         <commentItem
           class="commentItem"
-          :username="commentInfo.username"
-          :id="commentInfo.id"
-          :datetime="commentInfo.datetime"
-          :content="commentInfo.content"
-          :userAvatar="commentInfo.userAvatar"
-          v-for="item in 6"
-          :key="item"
+          v-for="comment in commentList"
+          :authorNickName="comment.author.authorNickName"
+          :id="comment.id"
+          :createTime="comment.createTime"
+          :content="comment.content"
+          :authorAvatar="`${comment.author.authorAvatar}?t=${new Date().getTime()}`"
+          :isLiked="comment.isLiked"
+          :likeCount="comment.likeCount"          
+          :key="comment"
         />
     </div>
     <div class="comment-input-area">
@@ -25,46 +27,52 @@
 </template>
 
 <script setup>
-import { reactive,ref, defineProps, onMounted } from 'vue'
-import { isCommoning } from '@/utils'
+import { ref, defineProps, onMounted, defineEmits } from 'vue'
+import { createUuid, isCommoning } from '@/utils'
 import commentItem from '@/components/Comment/commentItem'
-import userAvatar from '@/assets/avatar-boy.png'
-import { publisComment, getVideoCommentList } from '@/api/video'
-const props = defineProps(['videoId'])
-const commentInfo = reactive({
-  id: "001",
-  datetime: "2020-12-1 09:23:01",
-  username: "默认用户",
-  userAvatar,
-  content: "🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子🐒猴子"
-})
+import { publisComment } from '@/api/video'
+import { userStore } from '@/store'
+const props = defineProps(['videoId', 'commentList', 'total'])
+const emits = defineEmits(['publishComment', 'update:isComming', "update:commentList"])
+
 const content = ref("")
 
 onMounted(()=>{
-  fetchCommentList()
+  // fetchCommentList()
+  dealWheelMethods()
 })
 
+const dealWheelMethods = () => {
+  let listBox = document.querySelector(".video_list");
+  console.log(listBox);
+}
 
 const changeCommentState = () => {
-  isCommoning.value = false;
+  // isCommoning.value = false;
+  emits("update:isComming", false)
 }
 
 const publish = () => {
   publisComment(props.videoId, content.value).then(res=>{
     if(res.status == 200) {
+      const comment = {
+        author: {
+          authorAvatar: userStore.userInfo.userAvatar,
+          authorNickName: userStore.userInfo.nickName
+        },
+        id: createUuid(),
+        createTime: new Date().toString(),
+        isLiked: false,
+        likeCount: 0,
+        content: content.value,
+      }
       content.value = ""
+      emits("update:commentList", [comment, ...props.commentList])
     }
   })
 }
 
-const fetchCommentList = () => {
-  getVideoCommentList({
-    videoId: props.videoId,
-    current: 1,
-  }).then(res=>{
-    console.log(res);
-  })
-}
+
 </script>
 
 
@@ -102,9 +110,10 @@ const fetchCommentList = () => {
 }
 
 .comment-list {
-  flex: 1;
+  height: 100%;
   overflow: scroll;
 }
+
 .comment-input-area {
     display: flex;
     padding: 10px;

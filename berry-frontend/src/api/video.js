@@ -1,9 +1,20 @@
 import { request } from '@/utils'
 
-export const getVideoFeed = () => request({
-  url: "/video/feed",
-  method: "get"
-})
+// 获取推荐视频流 || 频道视频
+export const getVideoFeed = (channelId) => {
+  if (channelId || channelId === 0)
+    return request({
+      url: "/video/feed",
+      method: "get",
+      params: {
+        channelId
+      }
+    })
+  else return request({
+    url: "/video/feed",
+    method: "get"
+  })
+}
 
 // 获取上传token
 export const getUpTokenApi = (uuid) => {
@@ -76,17 +87,6 @@ export const publishVideo = (data) => request({
   data
 })
 
-// 根据channelId 获取视频feed
-export const getChannelFeedByChannelIdApi = (channelId) => {
-  return request({
-    url: "/video/channelFeed",
-    method: "get",
-    params: {
-      channelId
-    }
-  })
-}
-
 
 // 发布评论
 export const publisComment = (videoId, content) => {
@@ -101,19 +101,58 @@ export const publisComment = (videoId, content) => {
 }
 
 // 给评论点赞
-export const doLikeForCommentApi = () => {
+export const doLikeForCommentApi = (commentId) => {
+  return request({
+    url: "/video/comment/doLike",
+    method: 'get',
+    params: {
+      commentId
+    }
+  })
+}
 
+// 给评论取消点赞
+export const unLikeForCommentApi = (commentId) => {
+  return request({
+    url: "/video/comment/unLike",
+    method: 'get',
+    params: {
+      commentId
+    }
+  })
 }
 
 // 获取视频的所有评论列表 分页 需要懒加载
-export const getVideoCommentList = ({ videoId, current = 1 }) => {
+export const getVideoCommentList = ({ videoId, current = 1, orderBy = 'time' }) => {
   return request({
     url: "/video/comment/feed",
     method: "get",
     params: {
       videoId,
       current,
-      // orderBy //按照什么排序
+      orderBy //按照什么排序
+    }
+  })
+}
+
+
+// 根据类型获取feed流 like favor product
+export const getVideoFeedByTypeApi = (type) => {
+  let baseUrl = '/video/my'
+  const suffix = type == 'product' ? '' : `/${type}`
+  return request({
+    url: baseUrl + suffix,
+    method: "get",
+  })
+}
+
+// 当前用户发布的视频
+export const getMyselfVideoApi = (current = 1) => {
+  return request({
+    url: "/video/my",
+    method: "get",
+    params: {
+      current
     }
   })
 }

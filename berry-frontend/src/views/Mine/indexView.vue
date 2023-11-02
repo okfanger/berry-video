@@ -1,43 +1,40 @@
 <template>
   <div class="mine-container"> 
-   
     <div class="info">
       <el-row>
-        <el-col :span="4">
-          <userAvatar />
-        </el-col>
-        <el-col>
-
+        <el-col :span="12">
+          <div class="userInfo">
+            <userAvatar />
+            <div class="username">
+              {{ nickName }}
+            </div>
+          </div>
         </el-col>
       </el-row>
     </div>
 
-    <div class="tabs">
-      <div class="tab" v-for="item in tabList" 
-      :key="item.key" @click="changeTab(item)"
-      :class="{activated: item.key === currentTab}">
-        {{ item.name }}
+    <el-affix :offset="80">
+      <div class="tabs">
+        <div class="tab" v-for="item in tabList"
+        :key="item.key" @click="changeTab(item.key)"
+        :class="{activated: item.key === currentTab}">
+          {{ item.name }}
+        </div>
       </div>
-    </div>
+    </el-affix>
 
-   <div class="list">
-    <product  v-if="currentTab == 'product'"/>
-    <upvote  v-if="currentTab == 'upvote'"/>
-    <collect  v-if="currentTab == 'collect'"/>
+
+   <div class="listBox">
+    <LikeFaverOrProduct :type="currentTab"  />
    </div>
  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import product from '@/views/Product/indexView.vue'
-import upvote from '@/views/Upvote/indexView.vue'
-import collect from '@/views/Collect/indexView.vue'
 import userAvatar from '@/components/User/userAvatar'
-
-const route = useRoute()
-const router = useRouter()
+import { userStore } from '@/store'
+import LikeFaverOrProduct from '@/views/LikeFaoverOrProduct/indexView.vue'
 
 const tabList = ref([
   {
@@ -45,47 +42,59 @@ const tabList = ref([
     name:"作品"
   },
   {
-    key:"upvote",
+    key:"like",
     name:"喜欢"
   },
   {
-    key:"collect",
+    key:"favor",
     name:"收藏"
   },
 ])
-const currentTab = ref(route.name !== 'mine' ? route.name : 'upvote' || 'upvote') // 默认是喜欢列表
-const VideoList = ref([])
-const changeTab = (e) => {
-  router.push({
-    name: e.key
-  })
-  currentTab.value = e.key
-  if(currentTab.value === 'create') {
-    console.log();
-  }
+const nickName = userStore.userInfo.nickName;
+
+const currentTab = ref('like') // 默认是喜欢列表
+
+
+
+
+const changeTab = (key) => {
+  currentTab.value = key
 }
 
-const fetchVideoListByType = () => {
 
-}
 
 </script>
 
 <style scoped>
-.love {
-  width: 80px;
-  
+.mine-container {
+  display: flex;
+  flex-direction: column;
 }
 
-.mine-container {
-  
+.username {
+  height: 110px;
+  min-width: 50px;
+  line-height: 110px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: #1c1f23;
+  user-select: none;
 }
 
 .info {
   height: 120px;
+  background-color: #fffbfe;
+}
+.userInfo {
+  display: flex;
 }
 .tabs {
   display: flex;
+  border-bottom: 1px solid #e2e2e2;
+  padding: 0 00 10px 0;
+  margin-bottom: 10px;
+  background-color: #fffbfe;
 }
 .tab {
   width: 76px;
@@ -97,9 +106,11 @@ const fetchVideoListByType = () => {
 .activated {
   color: #ec656b;
 }
-.list {
-  height: 200px;
+.listBox {
+  max-height: calc(100vh - 289px);
   width: 100%;
   background-color: #f7f9fa;
+  flex: 1;
+  overflow-y: auto;
 }
 </style>
