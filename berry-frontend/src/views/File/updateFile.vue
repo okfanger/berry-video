@@ -3,7 +3,7 @@
     <div class="button-primary" @click="showModel">发布视频</div>
     <!-- 我的创作列表 -->
     <div class="list">
-      <div class="item" v-for="item in tableData" :key="item.id">
+      <div class="item" v-for="item in tableData" :key="item.id" v-show="!loadingTableData">
         <div class="cover">
           <img :src="item.cover" alt="">
         </div>
@@ -38,6 +38,9 @@
           </el-popconfirm>
         </div>
       </div>
+      <div v-show="loadingTableData">
+        <productManagerSkeleton v-for="item in 5" :key="item" />
+      </div>
     </div>
     <div style="display: flex;justify-content: end;">
       <el-pagination layout="prev, pager, next" 
@@ -70,7 +73,7 @@
                 </div>
               </div>
               <div style="display: flex; align-items: center;">
-                <input type="text" class="custom-input tags-input" placeholder="请输入标签名" v-model="tagInput">
+                <input type="text" class="input-raspberry" placeholder="请输入标签名" v-model="tagInput" />
                 <div class="button-primary tag-button" @click="addTag" style="">添加</div>
               </div>
             </div>
@@ -85,6 +88,9 @@
               :value="item.id"
             />
           </el-select>
+          <!-- <select class="select-raspberry" v-model="form.channelId" placeholder="请选择一个分类">
+              <option :value="item.id" v-for="item in channelList" :key="item.id">{{ item.label }}</option>
+          </select> -->
           <el-icon name="el-icon-edit">
           </el-icon>
         </el-form-item>
@@ -119,6 +125,7 @@ import { publishVideo, getMyselfVideoApi,deleteVideoApi } from '@/api/video'
 import {ref, reactive, onMounted} from 'vue'
 import { videoStore } from '@/store'
 import { parseTime } from '@/utils'
+import productManagerSkeleton from '@/components/Skeleton/productManager-skeleton'
 
 const form = reactive({
   content: "",
@@ -127,6 +134,7 @@ const form = reactive({
   channelId: null,
   fileId: ""
 })
+
 const pageQuery = reactive({
   size: 10,
   total: 0,
@@ -137,15 +145,18 @@ const tagInput = ref("")
 const visble = ref(false)
 const channelList = ref(videoStore.channelList || [])
 const loading = ref(false)
+const loadingTableData = ref(false)
 
 onMounted(()=>{
   fetchMyselfVideo();
 })
 
 const fetchMyselfVideo = () => {
+  loadingTableData.value = true;
   getMyselfVideoApi(pageQuery.current).then(res=>{
     const {data, success} = res;
     if(success) {
+      loadingTableData.value = false;
       tableData.value = data.records;
       pageQuery.total = parseInt(data.total);
       pageQuery.size = parseInt(data.size);
@@ -175,7 +186,7 @@ const removeTag = (tag) => {
   form.tags = form.tags.filter(t => t !== tag);
 }
 const addTag = () => {
-  console.log(tagInput);
+  
   if (tagInput.value && !form.tags.includes(tagInput.value)) {
     form.tags.push(tagInput.value);
     tagInput.value = "";

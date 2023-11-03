@@ -11,6 +11,7 @@
  </div>
 
  <!-- 全屏 背景虚拟化 -->
+ <!-- :cover="currentVideo.cover" -->
  <FullScreenModel v-model:visible="open">
   <videoCom v-if="open"
     :videoSrc="currentVideo.url"
@@ -18,9 +19,10 @@
     :id="currentVideo.id"
     :liked="currentVideo.liked"
     :favorCount="currentVideo.favorCount"
-    :isFavored="currentVideo.isFavored"
+    :favored="currentVideo.favored"
     :commentCount="currentVideo.commentCount"
-    :cover="currentVideo.cover"
+    :author-avatar="currentVideo.author.authorAvatar"
+    :content="currentVideo.content"
   />
  </FullScreenModel>
     
@@ -52,14 +54,15 @@ const showVideo = (item) => {
   // overflow-y: auto; 
 
   .item {
-    background: #fff;
-    border: 1px solid #ccc;
     border-radius: 12px;
     overflow: hidden;
     aspect-ratio: 0.68;
     display: flex;
     flex-direction: column;
     cursor: pointer;
+    background-color: transparent;
+
+    
 
     .content {
       height: 51px;

@@ -60,7 +60,7 @@ const emits = defineEmits(['play', 'mute', 'update:speed',
 
 const props = defineProps(['volume', 'speed', 'speedList',
    'continuous', 'openPrintScreen', 'videoSrc', 'cover',
-    'streamLoad', 'id' ])
+    'streamLoad', 'id', 'content' ])
 
 const video = ref()
 const progressBox = ref()

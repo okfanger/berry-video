@@ -4,21 +4,24 @@
         <span class="comment-count">{{ props.total }} 条评论</span>
         <button class="close-btn" @click="changeCommentState">关闭</button>
     </div>
-    <div class="comment-list">
+    <el-scrollbar class="comment-list" >
         <!-- 这里将显示用户的评论 -->
-        <commentItem
-          class="commentItem"
-          v-for="comment in commentList"
-          :authorNickName="comment.author.authorNickName"
-          :id="comment.id"
-          :createTime="comment.createTime"
-          :content="comment.content"
-          :authorAvatar="`${comment.author.authorAvatar}?t=${new Date().getTime()}`"
-          :isLiked="comment.isLiked"
-          :likeCount="comment.likeCount"          
-          :key="comment"
-        />
-    </div>
+        <div v-infinite-scroll="load" infinite-scroll-delay="500">
+          <commentItem
+            class="commentItem"
+            v-for="comment in commentList"
+            :authorNickName="comment.author.authorNickName"
+            :id="comment.id"
+            :createTime="comment.createTime"
+            :content="comment.content"
+            :authorAvatar="`${comment.author.authorAvatar}?t=${new Date().getTime()}`"
+            :isLiked="comment.isLiked"
+            :likeCount="comment.likeCount"          
+            :key="comment"
+          />
+        </div>
+        
+    </el-scrollbar>
     <div class="comment-input-area">
         <input type="text" v-model="content" placeholder="留下你精彩的评论吧...">
         <button @click="publish" :disabled="disabled">发布</button>
@@ -32,8 +35,12 @@ import { createUuid } from '@/utils'
 import commentItem from '@/components/Comment/commentItem'
 import { publisComment } from '@/api/video'
 import { userStore } from '@/store'
-const props = defineProps(['videoId', 'commentList', 'total'])
-const emits = defineEmits(['publishComment', 'update:isComming', "update:commentList"])
+const props = defineProps({
+  videoId: String,
+  commentList: Array,
+  total: Number,
+})
+const emits = defineEmits(['publishComment', 'update:isComming', "update:commentList", "update:total", 'loadData'])
 
 const content = ref("")
 const disabled = ref(true)
@@ -45,6 +52,9 @@ watch(() => content.value, (val) => {
   disabled.value = val.trim() !== '' ? false : true;
 })
 
+const load = () => {
+  emits("loadData" )
+}
 
 
 const changeCommentState = () => {
@@ -69,6 +79,7 @@ const publish = () => {
         }
         content.value = ""
         emits("update:commentList", [comment, ...props.commentList])
+        emits("update:total", props.total + 1)
       }
     })
   }
@@ -113,7 +124,7 @@ const publish = () => {
 
 .comment-list {
   height: 100%;
-  overflow: scroll;
+  /* overflow: scroll; */
 }
 
 .comment-input-area {

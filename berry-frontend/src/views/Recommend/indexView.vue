@@ -8,8 +8,12 @@
       :id="item.id"
       :liked="item.liked"
       :favorCount="item.favorCount"
-      :isFavored="item.isFavored"
+      :favored="item.favored"
       :commentCount="item.commentCount"
+      
+      :contnet="item.contnet"
+      :authorAvatar="item.author.authorAvatar"
+      :authorId="item.author.authorAvatar"
       />
  </div>
  <!-- <div class="video_list" >
@@ -38,7 +42,6 @@ import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'
 import { getVideoFeed } from '@/api/video';
 
 const videoList = ref([])
-const height = ref(800)
 
 onMounted(() => {
   fetchVideoFeed()
