@@ -155,3 +155,69 @@
 .textarea-raspberry:hover {
   box-shadow: 0 6px 10px rgba(236, 101, 107, 0.15);
 }
+
+/* input */
+.input-raspberry {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(236, 101, 107, 0.1);
+  transition: box-shadow 0.3s ease;
+  outline: none;
+  color: var(--font-color);
+  background-color: #fff;
+  width: 100%;
+  min-height: 40px; /* 调整为适合input的高度 */
+}
+
+.input-raspberry:focus {
+  box-shadow: 0 6px 10px rgba(236, 101, 107, 0.2);
+}
+
+.input-raspberry::placeholder {
+  color: #ec656b;
+  opacity: 0.7;
+}
+
+.input-raspberry:hover {
+  box-shadow: 0 6px 10px rgba(236, 101, 107, 0.15);
+}
+
+/* select */
+.select-raspberry {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(236, 101, 107, 0.1);
+  transition: box-shadow 0.3s ease;
+  outline: none;
+  color: var(--font-color);
+  background-color: #fff;
+  width: 100%;
+  min-height: 40px; /* 调整为适合select的高度 */
+}
+
+.select-raspberry:focus {
+  box-shadow: 0 6px 10px rgba(236, 101, 107, 0.2);
+}
+
+.select-raspberry::placeholder {
+  color: #ec656b;
+  opacity: 0.7;
+}
+
+.select-raspberry:hover {
+  box-shadow: 0 6px 10px rgba(236, 101, 107, 0.15);
+}
+
+/* Customized option style */
+.select-raspberry option {
+  font-size: 16px;
+  background-color: #fff;
+  color: var(--font-color);
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+}

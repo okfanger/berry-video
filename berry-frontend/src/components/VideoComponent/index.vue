@@ -12,15 +12,18 @@
         :videoSrc="props.videoSrc"
         :cover="cover"
         :streamLoad="streamLoad"
-
         :continuous="continuous"
+        :content="props.content"
         @printscreen="handlerPrintscreen"
         :openPrintScreen="openPrintScreen"
         @videoEnd="videoEnd"
         @likeOrDisLike="handlerLiked"
       />
-      <!-- 点赞,评论,收藏,分享 -->
+      <!-- 发视频用户头像, 点赞,评论,收藏,分享 -->
       <div class="func">
+        <div class="userAvatar">
+          <img :src="`${authorAvatar}?t=${new Date().getTime()}`" alt="">
+        </div>
         <div class="like" @click="handlerLiked()">
           <i class="iconfont icon-aixin1" :style="{color: funcInfo.like.value ?  '#ff2e56' : '#fff'}"></i>
           <div>{{ funcInfo.like.num }}</div>
@@ -46,8 +49,9 @@
       <commentPanel 
         :videoId="props.id" 
         v-model:commentList="commentList"
-        :total="funcInfo.common.num"
+        v-model:total="funcInfo.common.num"
         v-model:isComming="isCommoning"
+        @loadData="fetchCommentList"
       />
     </div>
  </div>
@@ -61,8 +65,8 @@ import { doLikeApi,unLikeApi, doCollectApi, unCollectApi, getVideoCommentList } 
 import commentPanel from '@/components/Comment/commentPanel'
 
 const props = defineProps(['videoSrc', 'id', 'likeCount', 
-  'liked', 'favorCount', 'isFavored', 'cover',
-  'commentCount'])
+  'liked', 'favorCount', 'favored', 'cover',
+  'commentCount', 'authorId', 'authorAvatar', 'content'])
 const volume = ref(1);
 const speed = ref(1);
 const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2])
@@ -77,16 +81,17 @@ const funcInfo = reactive({
     num: props.likeCount
   },
   common: {
-    num: props.commentCount
+    num: parseInt(props.commentCount)
   },
   collect: {
-    value: props.isFavored,
+    value: props.favored,
     num: props.favorCount,
   },
   transpond: {
     num: 0
   }
 })
+const commentListCurrent = ref(1)
 
 
 const handlerLiked = () => {
@@ -146,15 +151,18 @@ const videoEnd = () => {
 const handlerPrintscreen = () => {}
 
 const fetchCommentList = () => {
-  getVideoCommentList({
-    videoId: props.id,
-    current: 1,
-  }).then(res=>{
-    if(res.success) {
-      commentList.value = commentList.value.concat(res.data.records);
-      funcInfo.common.num = res.data.total;
-    }
-  })
+  if((funcInfo.common.num > commentList.value.length) || funcInfo.common.num == 0) {
+    getVideoCommentList({
+      videoId: props.id,
+      current: commentListCurrent.value++,
+    }).then(res=>{
+      if(res.success) {
+        console.log(res);
+        commentList.value = commentList.value.concat(res.data.records);
+        funcInfo.common.num = res.data.total;
+      }
+    })
+  } 
 }
 </script>
 
@@ -197,6 +205,17 @@ const fetchCommentList = () => {
   color: white;
   user-select: none;
   height: 60px;
+}
+.func .userAvatar {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  overflow: hidden;
+}
+.func .userAvatar img {
+  height: 100%;
+  width: 100%;
 }
 
 
