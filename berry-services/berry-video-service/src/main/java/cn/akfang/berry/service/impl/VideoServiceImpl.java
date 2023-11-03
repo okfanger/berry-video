@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +31,11 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, VideoPO> implemen
     @Qualifier("favorRedisService")
     @Autowired
     LikeRedisService<Long, Long> favorRedisService;
+
+    @Qualifier("commentLikeRedisService")
+
+    @Autowired
+    LikeRedisService<Long, Long> commentRedisService;
 
     @Autowired
     ChannelService channelService;
@@ -50,6 +56,7 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, VideoPO> implemen
         videoVO.setLiked(likeRedisService.isLiked(currentUserId, videoVO.getId()));
         videoVO.setChannelId(channelService.getByVideoId(videoVO.getId()).getId());
         videoVO.setFavorCount(favorRedisService.getLikedCount(videoVO.getId()));
+        videoVO.setCommentCount(commentRedisService.getLikedCount(videoVO.getId()));
         videoVO.setFavored(favorRedisService.isLiked(currentUserId, videoVO.getId()));
         videoVO.setCover(GlobalConstants.OSS_URL + "/" + item.getCover());
         videoVO.setUrl(GlobalConstants.OSS_URL + "/" + item.getDefaultUrl());
@@ -70,5 +77,20 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, VideoPO> implemen
                 )
                 .collect(Collectors.toList()));
         return videoVOPage;
+    }
+
+    @Override
+    public List<VideoPO> selectVideoPOByChannelId(Long channelId) {
+        return baseMapper.selectVideoPOByChannelId(channelId);
+    }
+
+    @Override
+    public List<VideoVO> selectVideoVOByChannelId(Long channelId) {
+        return baseMapper.selectVideoVOByChannelId(channelId);
+    }
+
+    @Override
+    public Page<VideoVO> selectVideoVOPage(Long channelId, Long authorId, Page<VideoVO> page) {
+        return baseMapper.selectVideoVOPage(channelId, authorId, page);
     }
 }

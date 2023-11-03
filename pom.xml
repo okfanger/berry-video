@@ -15,6 +15,7 @@
         <module>berry-services/berry-user-service</module>
         <module>berry-services/berry-video-service</module>
         <module>berry-services/berry-misc-service</module>
+        <module>berry-services/berry-search-service</module>
         <module>berry-message</module>
     </modules>
 
