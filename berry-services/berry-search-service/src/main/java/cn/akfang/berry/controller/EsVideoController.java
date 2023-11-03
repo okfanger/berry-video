@@ -4,12 +4,12 @@ package cn.akfang.berry.controller;
 import cn.akfang.berry.common.constants.AuthConstants;
 import cn.akfang.berry.common.feign.client.SearchClient;
 import cn.akfang.berry.common.feign.client.VideoClient;
-import cn.akfang.berry.common.model.entity.VideoPO;
 import cn.akfang.berry.common.model.response.BaseResponse;
 import cn.akfang.berry.common.model.response.VideoVO;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.mapper.VideoEsMapper;
 import cn.akfang.berry.model.VideoEsPO;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
@@ -40,19 +40,6 @@ public class EsVideoController implements SearchClient {
         return "success";
     }
 
-    @GetMapping("/sync")
-    public String sync() {
-        List<VideoPO> videoPOS = videoClient.listAll();
-        List<VideoEsPO> collect = videoPOS.stream().map((item) -> {
-            VideoEsPO videoEsPO = new VideoEsPO();
-            videoEsPO.setVideoId(item.getId());
-            videoEsPO.setContent(item.getContent());
-            return videoEsPO;
-        }).collect(Collectors.toList());
-        videoEsMapper.insertBatch(collect);
-        return "success";
-    }
-
     @GetMapping("/list")
     public BaseResponse<Object> list() {
         List<VideoEsPO> videoEsPOS = videoEsMapper.selectList(EsWrappers.lambdaQuery(VideoEsPO.class));
@@ -60,7 +47,7 @@ public class EsVideoController implements SearchClient {
     }
 
     @GetMapping("")
-    public Page<VideoVO> getVideoIdsByKeyword(
+    public BaseResponse<Page<VideoVO>> getVideoIdsByKeyword(
             @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId,
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "current", defaultValue = "1") String currentStr) {
@@ -75,7 +62,11 @@ public class EsVideoController implements SearchClient {
         videoEsSearchDTOPage.setTotal(videoEsPOEsPageInfo.getTotal());
         List<Long> videoIds = videoEsPOEsPageInfo.getList().stream().map(VideoEsPO::getVideoId)
                 .collect(Collectors.toList());
-        videoEsSearchDTOPage.setRecords(videoClient.getVOByIds(videoIds, NumberUtil.parseLong(userId)));
-        return videoEsSearchDTOPage;
+        if (CollectionUtil.isEmpty(videoIds)) {
+            videoEsSearchDTOPage.setRecords(CollectionUtil.newArrayList());
+        } else {
+            videoEsSearchDTOPage.setRecords(videoClient.getVOByIds(videoIds, NumberUtil.parseLong(userId)));
+        }
+        return ResultUtils.success(videoEsSearchDTOPage);
     }
 }

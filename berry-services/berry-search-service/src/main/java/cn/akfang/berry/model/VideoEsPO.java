@@ -1,5 +1,6 @@
 package cn.akfang.berry.model;
 
+import cn.akfang.berry.common.constants.EsConstants;
 import lombok.Data;
 import org.dromara.easyes.annotation.IndexField;
 import org.dromara.easyes.annotation.IndexId;
@@ -8,7 +9,7 @@ import org.dromara.easyes.annotation.rely.Analyzer;
 import org.dromara.easyes.annotation.rely.FieldType;
 
 @Data
-@IndexName("es_video")
+@IndexName(EsConstants.VIDEO_INDEX)
 public class VideoEsPO {
     @IndexId
     private String id;

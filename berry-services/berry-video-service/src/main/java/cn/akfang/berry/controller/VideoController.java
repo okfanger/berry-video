@@ -19,10 +19,12 @@ import cn.akfang.berry.constant.VideoMessageConstants;
 import cn.akfang.berry.service.ChannelService;
 import cn.akfang.berry.service.LikeRedisService;
 import cn.akfang.berry.service.VideoService;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
@@ -230,8 +232,34 @@ public class VideoController implements VideoClient {
 
     @Override
     public List<VideoVO> getVOByIds(List<Long> ids, Long currentId) {
-        return videoService.listByIds(ids).stream().map(item -> {
-            return videoService.buildVideoVO(item, userClient.getUserBaseVOById(item.getAuthorId()), currentId);
-        }).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(ids)) {
+            return CollectionUtil.newArrayList();
+        } else {
+            return videoService.listByIds(ids).stream()
+                    .map(item -> videoService.buildVideoVO(item,
+                            userClient.getUserBaseVOById(item.getAuthorId()), currentId)).collect(Collectors.toList());
+        }
+    }
+
+    @Override
+    public List<Long> listIdsMinutesAgo(Long minuteNum) {
+        LambdaQueryWrapper<VideoPO> qw = new LambdaQueryWrapper<>();
+        // 查找更新时间在2分钟前的视频
+        qw.select(VideoPO::getId)
+                .geSql(VideoPO::getUpdateTime, "DATE_SUB(NOW(), INTERVAL " + minuteNum + " MINUTE)");
+        return videoService.list(qw).stream().map(VideoPO::getId).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VideoPO> listByIds(List<Long> ids) {
+        return videoService.listByIds(ids);
+    }
+
+    @Override
+    public List<Long> listAllIds() {
+        QueryWrapper<VideoPO> qw = new QueryWrapper<>();
+        qw.select("id");
+        return videoService.list(qw)
+                .stream().map(VideoPO::getId).collect(Collectors.toList());
     }
 }
