@@ -7,19 +7,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserLikeDTO implements Serializable {
+public class ActionDTO<F, T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Integer id;
-    private String fromId;
-    private String toId;
+    private F fromId;
+    private T toId;
     private Integer status = LikeStatusEnum.UNLIKE.getCode();
+    private Date createTime;
+    private Date updateTime;
 
-    public UserLikeDTO(String fromId, String toId, Integer status) {
+    public ActionDTO(F fromId, T toId, Integer status) {
         this.fromId = fromId;
         this.toId = toId;
         this.status = status;

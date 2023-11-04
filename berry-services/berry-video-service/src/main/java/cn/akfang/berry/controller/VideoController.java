@@ -17,7 +17,8 @@ import cn.akfang.berry.common.model.response.VideoVO;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.constant.VideoMessageConstants;
 import cn.akfang.berry.service.ChannelService;
-import cn.akfang.berry.service.LikeRedisService;
+import cn.akfang.berry.service.UserVideoFavorService;
+import cn.akfang.berry.service.UserVideoLikeService;
 import cn.akfang.berry.service.VideoService;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
@@ -30,7 +31,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -51,17 +51,11 @@ public class VideoController implements VideoClient {
     @Autowired
     ChannelService channelService;
 
-    @Qualifier("videoLikeRedisService")
     @Autowired
-    LikeRedisService<Long, Long> likeRedisService;
+    UserVideoLikeService userVideoLikeService;
 
-    @Qualifier("favorRedisService")
     @Autowired
-    LikeRedisService<Long, Long> favorRedisService;
-
-    @Qualifier("commentLikeRedisService")
-    @Autowired
-    LikeRedisService<Long, Long> commentRedisService;
+    UserVideoFavorService userVideoFavorService;
 
     @Autowired
     UserClient userClient;
@@ -130,56 +124,36 @@ public class VideoController implements VideoClient {
     public BaseResponse<Boolean> doLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                         @RequestParam("videoId") String videoIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
-        synchronized (userId.toString().intern()) {
-            Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (!likeRedisService.isLiked(userId, videoId)) {
-                likeRedisService.saveLiked2Redis(userId, videoId);
-                likeRedisService.incrementLikedCount(videoId);
-            }
-            return ResultUtils.success(null);
-        }
+        Long videoId = NumberUtil.parseLong(videoIdStr);
+        userVideoLikeService.doLike(userId, videoId);
+        return ResultUtils.success(null);
     }
 
     @GetMapping("/unLike")
     public BaseResponse<Boolean> doUnLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                           @RequestParam("videoId") String videoIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
-        synchronized (userId.toString().intern()) {
-            Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (likeRedisService.isLiked(userId, videoId)) {
-                likeRedisService.unlikeFromRedis(userId, videoId);
-                likeRedisService.decrementLikedCount(videoId);
-            }
-            return ResultUtils.success(null);
-        }
+        Long videoId = NumberUtil.parseLong(videoIdStr);
+        userVideoLikeService.unLike(userId, videoId);
+        return ResultUtils.success(null);
     }
 
     @GetMapping("/doFavor")
     public BaseResponse<Boolean> doFavor(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                          @RequestParam("videoId") String videoIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
-        synchronized (userId.toString().intern()) {
-            Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (!favorRedisService.isLiked(userId, videoId)) {
-                favorRedisService.saveLiked2Redis(userId, videoId);
-                favorRedisService.incrementLikedCount(videoId);
-            }
-            return ResultUtils.success(null);
-        }
+        Long videoId = NumberUtil.parseLong(videoIdStr);
+        userVideoFavorService.doFavor(userId, videoId);
+        return ResultUtils.success(null);
     }
 
     @GetMapping("/unFavor")
     public BaseResponse<Boolean> doUnFavor(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                           @RequestParam("videoId") String videoIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
-        synchronized (userId.toString().intern()) {
-            Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (favorRedisService.isLiked(userId, videoId)) {
-                favorRedisService.unlikeFromRedis(userId, videoId);
-                favorRedisService.decrementLikedCount(videoId);
-            }
-            return ResultUtils.success(null);
-        }
+        Long videoId = NumberUtil.parseLong(videoIdStr);
+        userVideoFavorService.unFavor(userId, videoId);
+        return ResultUtils.success(null);
     }
 
     @PostMapping("/publish")

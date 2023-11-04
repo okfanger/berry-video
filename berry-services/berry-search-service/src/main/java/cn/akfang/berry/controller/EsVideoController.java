@@ -32,20 +32,6 @@ public class EsVideoController implements SearchClient {
 
     @Autowired
     VideoClient videoClient;
-
-
-    @GetMapping("/init")
-    public String init() {
-        videoEsMapper.createIndex();
-        return "success";
-    }
-
-    @GetMapping("/list")
-    public BaseResponse<Object> list() {
-        List<VideoEsPO> videoEsPOS = videoEsMapper.selectList(EsWrappers.lambdaQuery(VideoEsPO.class));
-        return ResultUtils.success(videoEsPOS);
-    }
-
     @GetMapping("")
     public BaseResponse<Page<VideoVO>> getVideoIdsByKeyword(
             @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId,

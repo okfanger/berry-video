@@ -2,9 +2,9 @@ package cn.akfang.berry.service.impl;
 
 import cn.akfang.berry.common.enums.LikeTypeEnum;
 import cn.akfang.berry.common.model.dto.ActionDTO;
-import cn.akfang.berry.common.model.entity.UserVideoLikePO;
-import cn.akfang.berry.mapper.UserVideoLikeMapper;
-import cn.akfang.berry.service.UserVideoLikeService;
+import cn.akfang.berry.common.model.entity.UserVideoFavorPO;
+import cn.akfang.berry.mapper.UserVideoFavorMapper;
+import cn.akfang.berry.service.UserVideoFavorService;
 import cn.akfang.berry.service.base.ActionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,15 +15,15 @@ import java.util.stream.Collectors;
 
 /**
  * @author fang
- * @description 针对表【t_user_video_like(点赞短视频关联表)】的数据库操作Service实现
- * @createDate 2023-10-29 15:05:55
+ * @description 针对表【t_user_video_favor(点赞短视频关联表)】的数据库操作Service实现
+ * @createDate 2023-11-04 15:22:18
  */
 @Service
-public class UserVideoLikeServiceImpl extends ActionService<Long, Long, UserVideoLikeMapper, UserVideoLikePO>
-        implements UserVideoLikeService {
-
+public class UserVideoFavorServiceImpl extends ActionService<Long, Long, UserVideoFavorMapper, UserVideoFavorPO>
+        implements UserVideoFavorService {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
+
 
     @Override
     protected RedisTemplate<String, Object> getRedisTemplate() {
@@ -32,42 +32,42 @@ public class UserVideoLikeServiceImpl extends ActionService<Long, Long, UserVide
 
     @Override
     protected LikeTypeEnum getLikeTypeEnum() {
-        return LikeTypeEnum.VIDEO;
+        return LikeTypeEnum.FAVOR;
     }
 
     @Override
-    public UserVideoLikeMapper getBaseMapper() {
+    public UserVideoFavorMapper getBaseMapper() {
         return baseMapper;
     }
 
     @Override
-    public List<UserVideoLikePO> convertDTOsToPOs(List<ActionDTO<Long, Long>> actionDTOs) {
+    public List<UserVideoFavorPO> convertDTOsToPOs(List<ActionDTO<Long, Long>> actionDTOs) {
         return actionDTOs.stream().map(item -> {
-            UserVideoLikePO userVideoLikePO = new UserVideoLikePO();
-            userVideoLikePO.setVideoId(item.getToId());
-            userVideoLikePO.setUserId(item.getFromId());
-            userVideoLikePO.setStatus(item.getStatus());
-            return userVideoLikePO;
+            UserVideoFavorPO userVideoFavorPO = new UserVideoFavorPO();
+            userVideoFavorPO.setUserId(item.getFromId());
+            userVideoFavorPO.setVideoId(item.getToId());
+            userVideoFavorPO.setStatus(item.getStatus());
+            return userVideoFavorPO;
         }).collect(Collectors.toList());
     }
 
     @Override
-    public void doLike(Long userId, Long videoId) {
+    public void doFavor(Long userId, Long videoId) {
         super.saveActionToRedis(userId, videoId);
     }
 
     @Override
-    public void unLike(Long userId, Long videoId) {
+    public void unFavor(Long userId, Long videoId) {
         super.saveUnActionToRedis(userId, videoId);
     }
 
     @Override
-    public Integer getVideoLikedCountFromRedis(Long videoId) {
+    public Integer getVideoFavorCountFromRedis(Long videoId) {
         return super.getActionCountFromRedis(videoId);
     }
 
     @Override
-    public Boolean isLiked(Long userId, Long videoId) {
+    public Boolean isFavored(Long userId, Long videoId) {
         return super.isAction(userId, videoId);
     }
 }

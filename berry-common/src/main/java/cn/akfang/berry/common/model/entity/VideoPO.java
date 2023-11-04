@@ -72,6 +72,11 @@ public class VideoPO implements Serializable {
     private Integer shareCount;
 
     /**
+     * 收藏总数
+     */
+    private Integer favorCount;
+
+    /**
      * 是否私密，用户可以设置私密，如此可以不公开给比人看
      */
     private Integer visible;
