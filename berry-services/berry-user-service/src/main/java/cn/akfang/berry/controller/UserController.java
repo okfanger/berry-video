@@ -2,9 +2,12 @@ package cn.akfang.berry.controller;
 
 import cn.akfang.berry.common.constants.AuthConstants;
 import cn.akfang.berry.common.constants.GlobalConstants;
+import cn.akfang.berry.common.enums.ErrorCode;
+import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.feign.client.MiscClient;
 import cn.akfang.berry.common.feign.client.UserClient;
 import cn.akfang.berry.common.model.entity.UserPO;
+import cn.akfang.berry.common.model.request.UserInfoUpdateDTO;
 import cn.akfang.berry.common.model.request.WxLoginRequest;
 import cn.akfang.berry.common.model.response.BaseResponse;
 import cn.akfang.berry.common.model.response.UserBaseVO;
@@ -12,7 +15,8 @@ import cn.akfang.berry.common.model.response.UserTokenResponse;
 import cn.akfang.berry.common.model.response.UserVo;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.service.UserService;
-import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +34,27 @@ public class UserController implements UserClient {
     @Autowired
     MiscClient miscClient;
 
+    @PostMapping("/updateInfo")
+    public BaseResponse<UserVo> updateUserInfo(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
+                                               @RequestBody UserInfoUpdateDTO dto) {
+        Long userId = NumberUtil.parseLong(userIdStr);
+        UserPO userPO = userService.getByUserId(userId);
+        if (ObjectUtil.isNull(userPO)) {
+            throw new BerryRpcException(ErrorCode.SYSTEM_ERROR, "用户不存在");
+        }
+        Boolean update = userService.updateUserInfo(dto, userId);
+        if (update) {
+            return ResultUtils.success(userService.getUserVoById(userId));
+        } else {
+            throw new BerryRpcException(ErrorCode.SYSTEM_ERROR, "更新失败");
+        }
+    }
+
 
     @GetMapping("/info")
-    public BaseResponse<UserVo> userInfo(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId) {
-        UserPO byId = userService.getById(Long.valueOf(userId));
-        UserVo userVo = new UserVo();
-        BeanUtil.copyProperties(byId, userVo);
-        userVo.setUserAvatar(GlobalConstants.OSS_URL + "/" + byId.getUserAvatar());
-        return ResultUtils.success(userVo);
+    public BaseResponse<UserVo> userInfo(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr) {
+        Long userId = NumberUtil.parseLong(userIdStr);
+        return ResultUtils.success(userService.getUserVoById(userId));
     }
 
     @PostMapping("/wx/login")
@@ -57,6 +74,7 @@ public class UserController implements UserClient {
                 .set(UserPO::getUserAvatar, ossKey)
                 .update();
     }
+
 
     @Override
     public UserBaseVO getUserBaseVOById(Long authorId) {
