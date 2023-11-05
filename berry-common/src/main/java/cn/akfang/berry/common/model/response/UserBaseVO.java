@@ -1,5 +1,6 @@
 package cn.akfang.berry.common.model.response;
 
+import cn.akfang.berry.common.model.dto.UserActionDTO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,4 +12,6 @@ public class UserBaseVO implements Serializable {
     private Long authorId;
     private String authorNickName;
     private String authorAvatar;
+    private Integer gender;
+    private UserActionDTO action;
 }

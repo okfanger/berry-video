@@ -86,7 +86,7 @@ public class VideoController implements VideoClient {
         videoActionInfoRequest.setUserId(userId);
 
         Map<Long, VideoActionDTO> videoActionInfoByIds = actionClient.getVideoActionInfoByIds(videoActionInfoRequest);
-        Map<Long, UserBaseVO> userBaseVOMap = userClient.getUserBaseVOByIds(pairs);
+        Map<Long, UserBaseVO> userBaseVOMap = userClient.getUserBaseVOByIds(pairs, userIdStr);
 
         Page<VideoVO> videoVOPage = new Page<>();
 
@@ -129,7 +129,7 @@ public class VideoController implements VideoClient {
             videoActionInfoRequest.setUserId(currentUserId);
 
             Map<Long, VideoActionDTO> videoActionInfoByIds = actionClient.getVideoActionInfoByIds(videoActionInfoRequest);
-            Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids);
+            Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids, userIdStr);
             List<VideoVO> videoVOS1 = videoService.buildVideoVO(videoVOS, videoActionInfoByIds, userBaseVOByIds);
             FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
             videoPOFeedPage.setRecords(videoVOS1);
@@ -147,7 +147,7 @@ public class VideoController implements VideoClient {
             videoActionInfoRequest.setUserId(currentUserId);
 
             Map<Long, VideoActionDTO> videoActionInfoByIds = actionClient.getVideoActionInfoByIds(videoActionInfoRequest);
-            Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids);
+            Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids, userIdStr);
             List<VideoVO> videoVOS1 = videoService.buildVideoVO(videoVOS, videoActionInfoByIds, userBaseVOByIds);
             FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
             videoPOFeedPage.setRecords(videoVOS1);

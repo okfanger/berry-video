@@ -70,7 +70,7 @@ public class VideoCommentController {
             return pair;
         }).collect(Collectors.toList());
 
-        Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids);
+        Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids, userIdStr);
 
         List<CommentVo> collect = commentPOPage.getRecords().stream().map(item -> {
             return commentService.buildCommonVO(item, userBaseVOByIds.get(item.getCommentUserId()), userId);

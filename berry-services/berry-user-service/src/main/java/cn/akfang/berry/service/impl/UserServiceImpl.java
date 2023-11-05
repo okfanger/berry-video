@@ -9,6 +9,7 @@ import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.model.entity.UserPO;
 import cn.akfang.berry.common.model.request.UserInfoUpdateDTO;
 import cn.akfang.berry.common.model.request.WxLoginRequest;
+import cn.akfang.berry.common.model.response.UserBaseVO;
 import cn.akfang.berry.common.model.response.UserTokenResponse;
 import cn.akfang.berry.common.model.response.UserVo;
 import cn.akfang.berry.common.utils.BerryJWTUtil;
@@ -126,5 +127,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
                 .geSql(UserPO::getUpdateTime, "DATE_SUB(NOW(), INTERVAL " + minute + " MINUTE)");
         return list(qw).stream().map(UserPO::getId).collect(Collectors.toList());
 
+    }
+
+    @Override
+    public UserBaseVO buildUserBaseVO(UserPO userPO) {
+        UserBaseVO userBaseVO = new UserBaseVO();
+        userBaseVO.setAuthorAvatar(GlobalConstants.OSS_URL + "/" + userPO.getUserAvatar());
+        userBaseVO.setAuthorId(userPO.getId());
+        userBaseVO.setAuthorNickName(userPO.getNickName());
+        userBaseVO.setGender(userPO.getGender());
+        return userBaseVO;
     }
 }
