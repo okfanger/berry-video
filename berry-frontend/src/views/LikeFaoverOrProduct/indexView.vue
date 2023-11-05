@@ -1,6 +1,7 @@
 <template>
   <div>
     <VideoList :list="list" />
+    <!-- <VideoListNext :list="list"/> -->
  </div>
 </template>
 
@@ -8,6 +9,7 @@
 import { ref, defineProps,watch } from 'vue'
 import { videoStore } from '@/store'
 import VideoList from '@/components/VideoComponent/VideoList.vue';
+import VideoListNext from '@/components/VideoComponent/VideoListNext.vue';
 const props = defineProps({
   type: String,
 })

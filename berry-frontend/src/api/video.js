@@ -30,7 +30,7 @@ export const getUpTokenApi = (uuid) => {
 // 点赞
 export const doLikeApi = (videoId) => {
   return request({
-    url: "/video/doLike",
+    url: "/action/video/doLike",
     method: "get",
     params: {
       videoId
@@ -41,7 +41,7 @@ export const doLikeApi = (videoId) => {
 // 取消点赞
 export const unLikeApi = (videoId) => {
   return request({
-    url: "/video/unLike",
+    url: "/action/video/unLike",
     method: "get",
     params: {
       videoId
@@ -52,7 +52,7 @@ export const unLikeApi = (videoId) => {
 // 收藏
 export const doCollectApi = (videoId) => {
   return request({
-    url: "/video/doFavor",
+    url: "/action/video/doFavor",
     method: "get",
     params: {
       videoId
@@ -63,7 +63,7 @@ export const doCollectApi = (videoId) => {
 // 取消收藏
 export const unCollectApi = (videoId) => {
   return request({
-    url: "/video/unFavor",
+    url: "/action/video/unFavor",
     method: "get",
     params: {
       videoId
@@ -91,7 +91,7 @@ export const publishVideo = (data) => request({
 // 发布评论
 export const publisComment = (videoId, content) => {
   return request({
-    url: '/video/comment',
+    url: '/action/video/comment',
     method: "post",
     data: {
       videoId,
@@ -103,7 +103,7 @@ export const publisComment = (videoId, content) => {
 // 给评论点赞
 export const doLikeForCommentApi = (commentId) => {
   return request({
-    url: "/video/comment/doLike",
+    url: "/action/video/comment/doLike",
     method: 'get',
     params: {
       commentId
@@ -114,7 +114,7 @@ export const doLikeForCommentApi = (commentId) => {
 // 给评论取消点赞
 export const unLikeForCommentApi = (commentId) => {
   return request({
-    url: "/video/comment/unLike",
+    url: "/action/video/comment/unLike",
     method: 'get',
     params: {
       commentId
@@ -125,7 +125,7 @@ export const unLikeForCommentApi = (commentId) => {
 // 获取视频的所有评论列表 分页 需要懒加载
 export const getVideoCommentList = ({ videoId, current = 1, orderBy = 'time' }) => {
   return request({
-    url: "/video/comment/feed",
+    url: "/action/video/comment/feed",
     method: "get",
     params: {
       videoId,
@@ -166,4 +166,8 @@ export const deleteVideoApi = (videoId) => {
       videoId
     }
   })
-} 
+}
+
+
+// 删除评论
+

@@ -87,6 +87,19 @@ const routes = [
         },
       },
       {
+        path: "search",
+        name: "search",
+        component: () => import("@/views/Search/searchIndex.vue"),
+        meta: {
+          isMenu: false,
+        },
+      },
+      {
+        path: "testEmoj",
+        name: "emoj",
+        component: () => import("@/views/User/WxView.vue")
+      },
+      {
         path: "/",
         redirect: () => "/recommend"
       }

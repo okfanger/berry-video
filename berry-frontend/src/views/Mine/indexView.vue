@@ -100,7 +100,7 @@ const changeTab = (key) => {
   width: 76px;
   color: #1c1f23;
   font-weight: 400;
-  font-size: 19px;
+  font-size: 17px;
   cursor: pointer;
 }
 .activated {

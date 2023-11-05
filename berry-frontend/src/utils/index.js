@@ -7,6 +7,7 @@ import { getUserInfoStorage, setUserInfoStorage, clearUserInfoStorage } from './
 import { isLogin } from './validate'
 import { parseTime } from './parseTime'
 import { getChannelListStroge, setChannelListStroge } from './channelList'
+import { emitter } from './emitter'
 
 // 统一导出
 export {
@@ -27,5 +28,6 @@ export {
   isLogin,
   parseTime,
   getChannelListStroge,
-  setChannelListStroge
+  setChannelListStroge,
+  emitter
 }

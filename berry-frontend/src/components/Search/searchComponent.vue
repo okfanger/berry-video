@@ -4,60 +4,67 @@
       <input type="text" 
         placeholder="搜索"
         v-model="searchQuery"
-        @input="handleInput"
-        @focus="visibleSuggestions"
+        @focus="visibleHistorysBox"
+        @blur="hideHistorysBox"
         >
-      <div class="button-primary search">搜索</div>
+      <div class="button-primary search" @click="handlerSearch">搜索</div>
     </div>
     
+    <!-- 历史搜索记录 -->
     <div v-show="hasVal" class="search-suggestions">
-      <div v-if="suggestions.length > 0">
+      <div v-if="historys.length > 0">
         <div
-          v-for="(suggestion, index) in suggestions"
+          v-for="(history, index) in historys"
           :key="index"
           class="suggestion-item"
-          @click="selectSuggestion(suggestion)"
+          @click="selectHistory(history)"
         >
-          {{ suggestion }}
+          {{ history }}
         </div>
       </div>
     </div>
-
-    <!-- 历史搜索记录 -->
-    <div v-show="!hasVal">
-      
-    </div>
+    
  </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-
+import { emitter } from '@/utils';
+import { useRouter } from 'vue-router'
+import { searchVideoApi } from '@/api/search'
+const router = useRouter()
 const searchQuery = ref('');
-const showSuggestions = ref(false);
+const showHistorys = ref(false);
 
-const suggestions = ref([]);
+const historys = ref([]);
 
 const hasVal = computed(() =>{
   return searchQuery.value.trim() !== ''
 })
 
-const visibleSuggestions = (e) => {
-  showSuggestions.value = true;
+const visibleHistorysBox = (e) => {
+  showHistorys.value = true;
+}
+const hideHistorysBox = () => {
+  showHistorys.value =  false;
 }
 
-
-const handleInput = () => {
-  // 这里调用 api 展示数据
-  console.log(searchQuery);
-  setTimeout(()=>{
-    suggestions.value = ['池昌旭', '李钟硕', '宋仲基', '车银优', '朴宝剑']
-  }, 2000)
+function selectHistory(history) {
+  console.log("当前选择的是 ",history);
 }
-function selectSuggestion(suggestion) {
-  console.log(suggestion);
-  searchQuery.value = suggestion;
-  showSuggestions.value = false;
+
+const handlerSearch = () => {
+  let data = {
+    keyword: searchQuery.value,
+    currnet: 1,
+  }
+  searchVideoApi(data).then(res=>{
+    let {success, data} = res;
+    if(success) {
+      emitter.emit("searchResult", data)
+      router.push({name:"search"})
+    } 
+  })
 }
 
 </script>

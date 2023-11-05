@@ -1,16 +1,20 @@
 <template>
   <div class="container">
     <div class="initial-video" ref="videoBox" :style="{backgroundImage: `url(${props.cover})` }">
-      <video ref="video"
-        webkit-playsinline="true"
-        playsinline="true"
-        controlslist="nodownload"
-        :poster="props.cover"
-        crossorigin="anonymous">
-        <source :src="videoSrc" type="video/mp4">
-          您的浏览器不支持video标签，请使用google浏览器浏览
-      </video>
+      <div class="initial-video" ref="videoBox">
+        <video ref="video"
+          style="z-index: 3"
+          webkit-playsinline="true"
+          playsinline="true"
+          controlslist="nodownload"
+          :poster="props.cover"
+          crossorigin="anonymous">
+          <source :src="url" type="video/mp4">
+            您的浏览器不支持video标签，请使用google浏览器浏览
+        </video>
+      </div>
     </div>
+
     <div class="video-controls">
       <div class="progress-bar" ref="progressBox" @click="checkAnyTime" @mousedown="handleMousedown">
         <div class="progressLine" ref="progressLine" :style="{width: progress * 100 + '%'}"></div>
@@ -53,24 +57,24 @@
 
 <script setup>
 import { ref, onMounted, defineEmits, defineProps, onBeforeUnmount } from 'vue'
+import { muted } from '@/utils'
 import Hls from 'hls.js';
 const emits = defineEmits(['play', 'mute', 'update:speed',
    'printscreen', 'videoEnd', "likeOrDisLike",
   'upadte:volume'])
 
 const props = defineProps(['volume', 'speed', 'speedList',
-   'continuous', 'openPrintScreen', 'videoSrc', 'cover',
+   'continuous', 'openPrintScreen', 'url', 'cover',
     'streamLoad', 'id', 'content' ])
 
 const video = ref()
 const progressBox = ref()
 const progressLine = ref() // 视频进度条
-const progress = ref(0) // 初始进度设置为50%
-const dragging = ref(false) 
+const progress = ref(0)  // 视频当前进度
+const dragging = ref(false)  // 是否正在拖拽状态
 let progressTimer = null // 进度 timer
 
-const paused = ref(true) // true 暂停  false 播放
-const muted = ref(false) // true 静音  false 开启声音
+const paused = ref(false) // true 暂停  false 播放
 const videoBox = ref()
 const progressTime = ref("00:00 / 00:00")
 let hls;
@@ -104,7 +108,7 @@ onMounted(() => {
 
 const initVideo = () => {
   hls = new Hls();
-  hls.loadSource(props.videoSrc);
+  hls.loadSource(props.url);
   hls.attachMedia(video.value);
   video.value.currentTime = 0;
   muted.value = video.value.muted = props.volume == 0 ? true : false;
@@ -141,8 +145,6 @@ const checkAnyTime = (e) => {
   video.value.play()
   paused.value = false
   progressTimer = setInterval(changeProgress, 60)
-  // 显示视频在播放的样式
-  // ...
 }
 
 // 重置视频播放器
@@ -189,7 +191,6 @@ const openPrintScreen = () => {
   let width = video.value.width
   let height = video.value.height
   console.log(width, height);
-  console.log([video.value]);
   canvas.width = width;
   canvas.height = height;
   ctx.drawImage(video.value, 0, 0, width, height)
@@ -310,7 +311,7 @@ onBeforeUnmount(() => {
   background-color: rgba(0, 0, 0, 0.5);
   background-size: 100% 100%;
   flex: 1;
-  display: flex;   
+  display: grid;   
   justify-content: center; 
   align-items: center; 
   backdrop-filter: blur(30px);
@@ -342,8 +343,8 @@ video.heightGreaterThanWidth {
 
 
   --style-color: #fbfcfd;
-  --back-color: #ec656b;
-  --progress-color: #d78d8d;
+  --back-color: #eb4553;
+  --progress-color: #f66c75;
 }
 </style>
 

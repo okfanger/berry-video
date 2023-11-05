@@ -2,7 +2,7 @@
   <div class="list-container" v-show="!open">
     <div class="item shadow" v-for="item in props.list" :key="item.id" @click="showVideo(item)" >
       <div class="video">
-        <img :src="item.cover" alt="">
+        <img :src="item.cover" alt="" style="object-fit: cover;">
       </div>
       <div class="content">
         {{ item.content }} 
@@ -48,13 +48,14 @@ const showVideo = (item) => {
 <style scoped lang="scss">
 .list-container {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); 
   gap: 10px; 
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
   max-height: calc(100vh - 120px); 
-  // overflow-y: auto; 
+  grid-template-rows: masonry;
 
   .item {
     border-radius: 12px;
+    position: relative;
     overflow: hidden;
     aspect-ratio: 0.68;
     display: flex;
