@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class UserBaseVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    Long authorId;
-    String authorNickName;
-    String authorAvatar;
+    private Long authorId;
+    private String authorNickName;
+    private String authorAvatar;
 }

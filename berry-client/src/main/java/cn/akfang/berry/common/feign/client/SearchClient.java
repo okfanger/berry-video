@@ -6,4 +6,5 @@ import org.springframework.stereotype.Service;
 @Service
 @FeignClient(value = "berry-search-service")
 public interface SearchClient {
+
 }

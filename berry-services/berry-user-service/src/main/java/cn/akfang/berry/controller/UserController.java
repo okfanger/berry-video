@@ -6,6 +6,7 @@ import cn.akfang.berry.common.enums.ErrorCode;
 import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.feign.client.MiscClient;
 import cn.akfang.berry.common.feign.client.UserClient;
+import cn.akfang.berry.common.model.base.Pair;
 import cn.akfang.berry.common.model.entity.UserPO;
 import cn.akfang.berry.common.model.request.UserInfoUpdateDTO;
 import cn.akfang.berry.common.model.request.WxLoginRequest;
@@ -17,12 +18,16 @@ import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.service.UserService;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -89,5 +94,35 @@ public class UserController implements UserClient {
             return userBaseVO;
         }
 
+    }
+
+    @Override
+    public Map<Long, UserBaseVO> getUserBaseVOByIds(List<Pair<Long, Long>> ids) {
+        List<Long> authorIds = ids.stream().map(Pair::getB).collect(Collectors.toList());
+        return userService.listByIds(authorIds).stream().map(item -> {
+            UserBaseVO userBaseVO = new UserBaseVO();
+            userBaseVO.setAuthorAvatar(GlobalConstants.OSS_URL + "/" + item.getUserAvatar());
+            userBaseVO.setAuthorId(item.getId());
+            userBaseVO.setAuthorNickName(item.getNickName());
+            return userBaseVO;
+        }).collect(Collectors.toMap(UserBaseVO::getAuthorId, item -> item));
+    }
+
+    @Override
+    public List<UserPO> listByIds(List<Long> ids) {
+        return userService.listByIds(ids);
+    }
+
+    @Override
+    public List<Long> listAllIds() {
+        return new LambdaQueryChainWrapper<>(userService.getBaseMapper())
+                .select(UserPO::getId)
+                .list()
+                .stream().map(UserPO::getId).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Long> listIdsMinutesAgo(Long minute) {
+        return userService.listIdsMinutesAgo(minute);
     }
 }

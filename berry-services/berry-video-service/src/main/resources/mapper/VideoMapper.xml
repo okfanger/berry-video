@@ -54,5 +54,6 @@
             isDelete = 0
             and channelId = #{channelId}
         </where>
+        order by t.createTime desc
     </select>
 </mapper>

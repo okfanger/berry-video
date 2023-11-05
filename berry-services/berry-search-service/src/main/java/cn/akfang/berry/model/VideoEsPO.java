@@ -17,4 +17,6 @@ public class VideoEsPO {
     private Long videoId;
     @IndexField(fieldType = FieldType.TEXT, analyzer = Analyzer.IK_SMART, searchAnalyzer = Analyzer.IK_MAX_WORD)
     private String content;
+//    @IndexField(fieldType = FieldType.TEXT, analyzer = Analyzer.WHITESPACE, searchAnalyzer = Analyzer.IK_MAX_WORD)
+//    private String tags;
 }

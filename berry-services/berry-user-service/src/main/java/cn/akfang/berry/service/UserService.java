@@ -7,6 +7,8 @@ import cn.akfang.berry.common.model.response.UserTokenResponse;
 import cn.akfang.berry.common.model.response.UserVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 public interface UserService extends IService<UserPO> {
 
     String generateWxLoginClientId();
@@ -18,4 +20,6 @@ public interface UserService extends IService<UserPO> {
     Boolean updateUserInfo(UserInfoUpdateDTO dto, Long userId);
 
     UserVo getUserVoById(Long userId);
+
+    List<Long> listIdsMinutesAgo(Long minute);
 }

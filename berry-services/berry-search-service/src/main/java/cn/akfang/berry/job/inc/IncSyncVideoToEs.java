@@ -1,4 +1,4 @@
-package cn.akfang.berry.job;
+package cn.akfang.berry.job.inc;
 
 import cn.akfang.berry.common.feign.client.VideoClient;
 import cn.akfang.berry.common.model.entity.VideoPO;

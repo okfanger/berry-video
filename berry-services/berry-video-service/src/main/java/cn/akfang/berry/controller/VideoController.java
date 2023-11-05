@@ -4,24 +4,24 @@ package cn.akfang.berry.controller;
 import cn.akfang.berry.common.constants.AuthConstants;
 import cn.akfang.berry.common.enums.ErrorCode;
 import cn.akfang.berry.common.exception.BerryRpcException;
+import cn.akfang.berry.common.feign.client.ActionClient;
 import cn.akfang.berry.common.feign.client.MiscClient;
 import cn.akfang.berry.common.feign.client.UserClient;
 import cn.akfang.berry.common.feign.client.VideoClient;
+import cn.akfang.berry.common.model.base.Pair;
 import cn.akfang.berry.common.model.dto.FeedPage;
+import cn.akfang.berry.common.model.dto.VideoActionDTO;
 import cn.akfang.berry.common.model.dto.VideoSaveDTO;
 import cn.akfang.berry.common.model.entity.FilePO;
 import cn.akfang.berry.common.model.entity.VideoPO;
+import cn.akfang.berry.common.model.request.VideoActionInfoRequest;
 import cn.akfang.berry.common.model.response.BaseResponse;
 import cn.akfang.berry.common.model.response.UserBaseVO;
 import cn.akfang.berry.common.model.response.VideoVO;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.constant.VideoMessageConstants;
 import cn.akfang.berry.service.ChannelService;
-import cn.akfang.berry.service.UserVideoFavorService;
-import cn.akfang.berry.service.UserVideoLikeService;
 import cn.akfang.berry.service.VideoService;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -33,7 +33,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,6 +42,9 @@ import java.util.stream.Collectors;
 public class VideoController implements VideoClient {
 
     @Autowired
+    ActionClient actionClient;
+
+    @Autowired
     MiscClient miscClient;
 
     @Autowired
@@ -50,12 +52,6 @@ public class VideoController implements VideoClient {
 
     @Autowired
     ChannelService channelService;
-
-    @Autowired
-    UserVideoLikeService userVideoLikeService;
-
-    @Autowired
-    UserVideoFavorService userVideoFavorService;
 
     @Autowired
     UserClient userClient;
@@ -72,9 +68,34 @@ public class VideoController implements VideoClient {
         Long userId = NumberUtil.parseLong(userIdStr);
         int currentPage = NumberUtil.parseInt(pageStr);
 
-        UserBaseVO userBaseVO = userClient.getUserBaseVOById(userId);
+        Page<VideoPO> page = videoService.page(new Page<>(currentPage, 10), new LambdaQueryWrapper<VideoPO>()
+                .eq(VideoPO::getAuthorId, userId)
+                .orderByDesc(VideoPO::getCreateTime));
 
-        Page<VideoVO> videoVOPage = videoService.selectVideoVOPageByAuthorId(userId, userBaseVO, new Page<>(currentPage, 10));
+        List<Long> videoIds = page.getRecords().stream().map(VideoPO::getId).collect(Collectors.toList());
+        List<Long> authorIds = page.getRecords().stream().map(VideoPO::getAuthorId).collect(Collectors.toList());
+        List<Pair<Long, Long>> pairs = page.getRecords().stream().map(item -> {
+            Pair<Long, Long> pair = new Pair<>();
+            pair.setA(item.getId());
+            pair.setB(item.getAuthorId());
+            return pair;
+        }).collect(Collectors.toList());
+
+        VideoActionInfoRequest videoActionInfoRequest = new VideoActionInfoRequest();
+        videoActionInfoRequest.setVideoIds(videoIds);
+        videoActionInfoRequest.setUserId(userId);
+
+        Map<Long, VideoActionDTO> videoActionInfoByIds = actionClient.getVideoActionInfoByIds(videoActionInfoRequest);
+        Map<Long, UserBaseVO> userBaseVOMap = userClient.getUserBaseVOByIds(pairs);
+
+        Page<VideoVO> videoVOPage = new Page<>();
+
+        videoVOPage.setTotal(page.getTotal());
+        videoVOPage.setCurrent(page.getCurrent());
+        videoVOPage.setSize(page.getSize());
+        videoVOPage.setPages(page.getPages());
+        videoVOPage.setRecords(videoService.buildVideoVO(page.getRecords(), videoActionInfoByIds, userBaseVOMap));
+
         return ResultUtils.success(videoVOPage);
     }
 
@@ -94,66 +115,44 @@ public class VideoController implements VideoClient {
             @RequestParam(value = "channelId", required = false) String channelIdStr
     ) {
         Long currentUserId = NumberUtil.parseLong(userIdStr);
-        QueryWrapper<VideoPO> qw = new QueryWrapper<>();
-        qw.orderByDesc("createTime");
         if (StrUtil.isNotBlank(channelIdStr)) {
             Long channelId = NumberUtil.parseLong(channelIdStr);
-//            qw.eq("channelId", channelId);
             List<VideoPO> videoVOS = videoService.selectVideoPOByChannelId(channelId);
-            List<VideoVO> collect = videoVOS.stream()
-                    .filter((item) -> ObjectUtil.equal(item.getVisible(), 1))
-                    .map(item -> videoService.buildVideoVO(item, userClient.getUserBaseVOById(item.getAuthorId()), currentUserId))
-                    .collect(Collectors.toList());
+            List<Pair<Long, Long>> ids = videoVOS.stream().map(item -> {
+                Pair<Long, Long> pair = new Pair<>();
+                pair.setA(item.getId());
+                pair.setB(item.getAuthorId());
+                return pair;
+            }).collect(Collectors.toList());
+            VideoActionInfoRequest videoActionInfoRequest = new VideoActionInfoRequest();
+            videoActionInfoRequest.setVideoIds(videoVOS.stream().map(VideoPO::getId).collect(Collectors.toList()));
+            videoActionInfoRequest.setUserId(currentUserId);
+
+            Map<Long, VideoActionDTO> videoActionInfoByIds = actionClient.getVideoActionInfoByIds(videoActionInfoRequest);
+            Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids);
+            List<VideoVO> videoVOS1 = videoService.buildVideoVO(videoVOS, videoActionInfoByIds, userBaseVOByIds);
             FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
-            videoPOFeedPage.setRecords(collect);
+            videoPOFeedPage.setRecords(videoVOS1);
             return ResultUtils.success(videoPOFeedPage);
         } else {
+            List<VideoPO> videoVOS = videoService.list();
+            List<Pair<Long, Long>> ids = videoVOS.stream().map(item -> {
+                Pair<Long, Long> pair = new Pair<>();
+                pair.setA(item.getId());
+                pair.setB(item.getAuthorId());
+                return pair;
+            }).collect(Collectors.toList());
+            VideoActionInfoRequest videoActionInfoRequest = new VideoActionInfoRequest();
+            videoActionInfoRequest.setVideoIds(videoVOS.stream().map(VideoPO::getId).collect(Collectors.toList()));
+            videoActionInfoRequest.setUserId(currentUserId);
 
-            List<VideoVO> collect = videoService.getBaseMapper().selectList(qw)
-                    .stream()
-                    .filter((item) -> ObjectUtil.equal(item.getVisible(), 1))
-                    .map(item -> videoService.buildVideoVO(item, userClient.getUserBaseVOById(item.getAuthorId()), currentUserId))
-                    .collect(Collectors.toList());
+            Map<Long, VideoActionDTO> videoActionInfoByIds = actionClient.getVideoActionInfoByIds(videoActionInfoRequest);
+            Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids);
+            List<VideoVO> videoVOS1 = videoService.buildVideoVO(videoVOS, videoActionInfoByIds, userBaseVOByIds);
             FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
-            videoPOFeedPage.setRecords(collect);
+            videoPOFeedPage.setRecords(videoVOS1);
             return ResultUtils.success(videoPOFeedPage);
         }
-    }
-
-    @GetMapping("/doLike")
-    public BaseResponse<Boolean> doLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
-                                        @RequestParam("videoId") String videoIdStr) {
-        Long userId = NumberUtil.parseLong(userIdStr);
-        Long videoId = NumberUtil.parseLong(videoIdStr);
-        userVideoLikeService.doLike(userId, videoId);
-        return ResultUtils.success(null);
-    }
-
-    @GetMapping("/unLike")
-    public BaseResponse<Boolean> doUnLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
-                                          @RequestParam("videoId") String videoIdStr) {
-        Long userId = NumberUtil.parseLong(userIdStr);
-        Long videoId = NumberUtil.parseLong(videoIdStr);
-        userVideoLikeService.unLike(userId, videoId);
-        return ResultUtils.success(null);
-    }
-
-    @GetMapping("/doFavor")
-    public BaseResponse<Boolean> doFavor(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
-                                         @RequestParam("videoId") String videoIdStr) {
-        Long userId = NumberUtil.parseLong(userIdStr);
-        Long videoId = NumberUtil.parseLong(videoIdStr);
-        userVideoFavorService.doFavor(userId, videoId);
-        return ResultUtils.success(null);
-    }
-
-    @GetMapping("/unFavor")
-    public BaseResponse<Boolean> doUnFavor(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
-                                          @RequestParam("videoId") String videoIdStr) {
-        Long userId = NumberUtil.parseLong(userIdStr);
-        Long videoId = NumberUtil.parseLong(videoIdStr);
-        userVideoFavorService.unFavor(userId, videoId);
-        return ResultUtils.success(null);
     }
 
     @PostMapping("/publish")
@@ -186,33 +185,9 @@ public class VideoController implements VideoClient {
         }
     }
 
-    @GetMapping("/search/hit")
-    public BaseResponse<Map<String, List<String>>> searchHit(@RequestParam("keyword") String keyword) {
-        List<String> preStrs = Arrays.asList(
-                "是什么意思",
-                "能吃吗",
-                "怎么做"
-        );
-        return ResultUtils.success(MapUtil.builder("hits", preStrs.stream().map((item) -> {
-            return keyword + item;
-        }).collect(Collectors.toList())).build());
-    }
-
-
     @Override
     public List<VideoPO> listAll() {
         return videoService.list();
-    }
-
-    @Override
-    public List<VideoVO> getVOByIds(List<Long> ids, Long currentId) {
-        if (CollectionUtil.isEmpty(ids)) {
-            return CollectionUtil.newArrayList();
-        } else {
-            return videoService.listByIds(ids).stream()
-                    .map(item -> videoService.buildVideoVO(item,
-                            userClient.getUserBaseVOById(item.getAuthorId()), currentId)).collect(Collectors.toList());
-        }
     }
 
     @Override

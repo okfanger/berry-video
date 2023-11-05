@@ -1,4 +1,4 @@
-package cn.akfang.berry.job;
+package cn.akfang.berry.job.all;
 
 import cn.akfang.berry.common.constants.EsConstants;
 import cn.akfang.berry.common.feign.client.VideoClient;
@@ -34,7 +34,7 @@ public class NowSyncVideoToEs implements CommandLineRunner {
     }
 
     private void sync() {
-        log.info("全量同步开始");
+        log.info("[video]全量同步开始");
         List<Long> ids = videoClient.listAllIds();
         for (int i = 0; i < ids.size(); i += PER_NUM) {
             List<Long> idList = ids.subList(i, Math.min(i + PER_NUM, ids.size()));
