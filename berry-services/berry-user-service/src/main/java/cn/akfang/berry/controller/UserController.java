@@ -91,7 +91,7 @@ public class UserController implements UserClient {
 
     @Override
     public UserBaseVO getUserBaseVOById(Long authorId, String currentUserIdStr) {
-        return getUserBaseVOListByIds(Arrays.asList(authorId), NumberUtil.parseLong(currentUserIdStr))
+        return getUserBaseVOListByIds(Arrays.asList(authorId), currentUserIdStr)
                 .stream()
                 .findFirst()
                 .orElse(null);
@@ -120,11 +120,12 @@ public class UserController implements UserClient {
     }
 
     @Override
-    public List<UserBaseVO> getUserBaseVOListByIds(List<Long> ids, Long currentUserId) {
+    public List<UserBaseVO> getUserBaseVOListByIds(List<Long> ids, String currentUserId) {
+        Long currentUserIdLong = NumberUtil.parseLong(currentUserId);
         if (CollectionUtil.isEmpty(ids))
             return Collections.emptyList();
 
-        return getUserBaseVOStream(ids, currentUserId)
+        return getUserBaseVOStream(ids, currentUserIdLong)
                 .collect(Collectors.toList());
     }
 

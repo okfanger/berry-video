@@ -27,7 +27,7 @@ public interface UserClient {
     Map<Long, UserBaseVO> getUserBaseVOByIds(@RequestBody List<Pair<Long, Long>> ids, @RequestHeader("currentUserId") String currentUserId);
 
     @PostMapping("/feign/get_user_base_vo_list_by_ids")
-    List<UserBaseVO> getUserBaseVOListByIds(@RequestBody List<Long> ids, @RequestHeader("currentUserId") Long currentUserId);
+    List<UserBaseVO> getUserBaseVOListByIds(@RequestBody List<Long> ids, @RequestHeader("currentUserId") String currentUserId);
 
     @PostMapping("/feign/list_by_ids")
     List<UserPO> listByIds(@RequestBody List<Long> ids);

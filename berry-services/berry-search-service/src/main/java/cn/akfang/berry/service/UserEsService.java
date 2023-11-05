@@ -41,7 +41,7 @@ public class UserEsService {
         if (CollectionUtil.isEmpty(userIds)) {
             userEsPage.setRecords(CollectionUtil.newArrayList());
         } else {
-            userEsPage.setRecords(userClient.getUserBaseVOListByIds(userIds, currentUserId));
+            userEsPage.setRecords(userClient.getUserBaseVOListByIds(userIds, String.valueOf(currentUserId)));
         }
         return userEsPage;
     }
