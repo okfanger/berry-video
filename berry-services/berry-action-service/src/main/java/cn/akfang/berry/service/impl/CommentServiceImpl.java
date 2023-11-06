@@ -8,6 +8,7 @@ import cn.akfang.berry.common.model.response.UserBaseVO;
 import cn.akfang.berry.mapper.CommentMapper;
 import cn.akfang.berry.service.CommentService;
 import cn.akfang.berry.service.UserCommentLikeService;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -15,7 +16,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author fang
@@ -29,6 +36,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentPO>
     @Autowired
     UserCommentLikeService userCommentLikeService;
 
+    @Autowired
+    RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public CommentVo buildCommonVO(CommentPO commentPO, UserBaseVO userBaseVO, Long userId) {
@@ -52,7 +61,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentPO>
                 .authorId(videoPO.getAuthorId())
                 .likeCounts(0)
                 .build();
-        return save(newComment);
+        boolean save = save(newComment);
+        if (save) {
+            redisTemplate.opsForHash().increment("MAP_KEY_VIDEO_COMMENT_COUNT",
+                    String.valueOf(videoPO.getId()), 1);
+        }
+        return save;
     }
     @Override
     public Wrapper<CommentPO> getFeedQueryWrapper(Long videoId, String orderBy) {
@@ -69,13 +83,32 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentPO>
 
     @Override
     public Integer getCommentCountByVideoId(Long videoId) {
-        return Math.toIntExact(new LambdaQueryChainWrapper<>(baseMapper)
-                .select(CommentPO::getId)
-                .eq(CommentPO::getVideoId, videoId)
-                .count());
+        Boolean b = redisTemplate.opsForHash().hasKey("MAP_KEY_VIDEO_COMMENT_COUNT",
+                String.valueOf(videoId));
+        if (b) {
+            return (Integer) redisTemplate.opsForHash().get("MAP_KEY_VIDEO_COMMENT_COUNT",
+                    String.valueOf(videoId));
+        } else {
+            int intExact = Math.toIntExact(new LambdaQueryChainWrapper<>(baseMapper)
+                    .select(CommentPO::getId)
+                    .eq(CommentPO::getVideoId, videoId)
+                    .count());
+            redisTemplate.opsForHash().put("MAP_KEY_VIDEO_COMMENT_COUNT", String.valueOf(videoId), intExact);
+            redisTemplate.expire("MAP_KEY_VIDEO_COMMENT_COUNT", 60 * 10, TimeUnit.SECONDS);
+            return intExact;
+        }
+    }
+
+    @Override
+    public Map<String, Integer> getCommentCountGroupByVideoIds() {
+        QueryWrapper<CommentPO> qw = new QueryWrapper<>();
+        qw.select("videoId", "count(id) as cnt");
+        qw.groupBy("videoId");
+        List<Map<String, Object>> maps = baseMapper.selectMaps(qw);
+        return maps.stream()
+                .collect(Collectors.toMap(item -> MapUtil.getStr(item, "videoId"),
+                        item -> MapUtil.getInt(item, "cnt")));
     }
 }
-
-
 
 

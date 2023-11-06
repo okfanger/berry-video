@@ -9,11 +9,13 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public abstract class ActionService<A, B, M extends BaseMapper<T>, T> extends ServiceImpl<M, T> {
     protected String buildKey(A fromId, B toId) {
@@ -107,6 +109,42 @@ public abstract class ActionService<A, B, M extends BaseMapper<T>, T> extends Se
         );
         scan.close();
         return countDTOs;
+    }
+
+    public List<String> getActionedToIds(A fromId) {
+        Cursor<Map.Entry<Object, Object>> scan = getRedisTemplate().opsForHash().scan(
+                getLikeTypeEnum().getRedisKey(),
+                ScanOptions.scanOptions()
+                        .match(fromId + "::*").build()
+        );
+        List<String> collect = scan.stream()
+                .filter(entry -> entry.getValue() == LikeStatusEnum.LIKE.getCode()).map(
+                        entry -> {
+                            String key = (String) entry.getKey();
+                            String[] split = key.split("::");
+                            return split[1];
+                        }
+                ).collect(Collectors.toList());
+        scan.close();
+        return collect;
+    }
+
+    public List<String> getActionedFromIds(B toId) {
+        Cursor<Map.Entry<Object, Object>> scan = getRedisTemplate().opsForHash().scan(
+                getLikeTypeEnum().getRedisKey(),
+                ScanOptions.scanOptions()
+                        .match("*::" + toId).build()
+        );
+        List<String> collect = scan.stream()
+                .filter(entry -> entry.getValue() == LikeStatusEnum.LIKE.getCode()).map(
+                        entry -> {
+                            String key = (String) entry.getKey();
+                            String[] split = key.split("::");
+                            return split[0];
+                        }
+                ).collect(Collectors.toList());
+        scan.close();
+        return collect;
     }
 }
 

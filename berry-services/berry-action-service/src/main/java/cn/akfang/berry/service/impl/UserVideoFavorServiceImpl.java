@@ -70,6 +70,12 @@ public class UserVideoFavorServiceImpl extends ActionService<Long, Long, UserVid
     public Boolean isFavored(Long userId, Long videoId) {
         return super.isAction(userId, videoId);
     }
+
+    @Override
+    public List<Long> getFavoredVideoIdsByUserId(Long currentUserId) {
+        return super.getActionedToIds(currentUserId)
+                .stream().map(Long::parseLong).collect(Collectors.toList());
+    }
 }
 
 

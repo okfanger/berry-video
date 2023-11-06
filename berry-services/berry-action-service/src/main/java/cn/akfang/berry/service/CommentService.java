@@ -8,6 +8,8 @@ import cn.akfang.berry.common.model.response.UserBaseVO;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Map;
+
 /**
  * @author fang
  * @description 针对表【t_comment(评论表)】的数据库操作Service
@@ -21,4 +23,6 @@ public interface CommentService extends IService<CommentPO> {
     Wrapper<CommentPO> getFeedQueryWrapper(Long videoId, String orderBy);
 
     Integer getCommentCountByVideoId(Long videoId);
+
+    Map<String, Integer> getCommentCountGroupByVideoIds();
 }

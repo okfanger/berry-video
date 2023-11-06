@@ -70,6 +70,12 @@ public class UserVideoLikeServiceImpl extends ActionService<Long, Long, UserVide
     public Boolean isLiked(Long userId, Long videoId) {
         return super.isAction(userId, videoId);
     }
+
+    @Override
+    public List<Long> getLikedVideoIdsByUserId(Long userId) {
+        return super.getActionedToIds(userId).stream()
+                .map(Long::parseLong).collect(Collectors.toList());
+    }
 }
 
 

@@ -5,8 +5,8 @@ import cn.akfang.berry.common.model.entity.VideoPO;
 import cn.akfang.berry.common.utils.DBBatchUtil;
 import cn.akfang.berry.job.consumer.UserVideoLikeCountSyncConsumer;
 import cn.akfang.berry.job.consumer.UserVideoLikeSyncConsumer;
+import cn.akfang.berry.mapper.VideoMapper;
 import cn.akfang.berry.service.impl.UserVideoLikeServiceImpl;
-import cn.akfang.berry.service.impl.VideoServiceImpl;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -26,8 +26,6 @@ public class SyncUserVideoLikeJob {
 
     @Autowired
     UserVideoLikeServiceImpl userVideoLikeService;
-    @Autowired
-    VideoServiceImpl videoService;
 
     @Autowired
     UserVideoLikeSyncConsumer userLikeSyncConsumer;
@@ -49,7 +47,7 @@ public class SyncUserVideoLikeJob {
         log.info("data: {}", JSONUtil.toJsonPrettyStr(userVideoLikePOS));
         log.info("dataCount: {}", JSONUtil.toJsonPrettyStr(userLikeCountDTOs));
         DBBatchUtil.batchUpdate(sqlSessionTemplate, userVideoLikePOS, userVideoLikeService.getBaseMapper(), userLikeSyncConsumer, BATCH_SIZE);
-        DBBatchUtil.batchUpdate(sqlSessionTemplate, userLikeCountDTOs, videoService.getBaseMapper(), userLikeCountSyncConsumer, BATCH_SIZE);
+        DBBatchUtil.batchUpdate(sqlSessionTemplate, userLikeCountDTOs, sqlSessionTemplate.getMapper(VideoMapper.class), userLikeCountSyncConsumer, BATCH_SIZE);
         log.info("SyncUserVideoLikeJob end");
     }
 }

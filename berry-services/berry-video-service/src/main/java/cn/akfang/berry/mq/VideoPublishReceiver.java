@@ -1,5 +1,6 @@
 package cn.akfang.berry.mq;
 
+import cn.akfang.berry.common.enums.VideoVisibleEnum;
 import cn.akfang.berry.common.feign.client.MiscClient;
 import cn.akfang.berry.common.model.dto.VideoSaveDTO;
 import cn.akfang.berry.common.model.entity.ChannelVideoPO;
@@ -51,7 +52,7 @@ public class VideoPublishReceiver {
         videoPO.setContent(dto.getContent());
         videoPO.setFileId(dto.getFileId());
         videoPO.setAuthorId(dto.getAuthorId());
-        videoPO.setVisible(dto.getVisible());
+        videoPO.setVisible(VideoVisibleEnum.getPendingEnum(dto.getVisible()).getCode());
         videoPO.setCommentCount(0);
         videoPO.setLikeCount(0);
 

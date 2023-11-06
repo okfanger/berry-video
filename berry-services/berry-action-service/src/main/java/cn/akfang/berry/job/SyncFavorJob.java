@@ -7,8 +7,8 @@ import cn.akfang.berry.common.model.entity.VideoPO;
 import cn.akfang.berry.common.utils.DBBatchUtil;
 import cn.akfang.berry.job.consumer.UserFavorCountSyncConsumer;
 import cn.akfang.berry.job.consumer.UserFavorSyncConsumer;
+import cn.akfang.berry.mapper.VideoMapper;
 import cn.akfang.berry.service.impl.UserVideoFavorServiceImpl;
-import cn.akfang.berry.service.impl.VideoServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +27,6 @@ public class SyncFavorJob {
 
     @Autowired
     UserVideoFavorServiceImpl userVideoFavorService;
-    @Autowired
-    VideoServiceImpl videoService;
     private static final Integer BATCH_SIZE = 500;
 
     @Autowired
@@ -53,7 +51,7 @@ public class SyncFavorJob {
         }).collect(Collectors.toList());
         log.info("SyncFavorJob batchUpdatem, size1={}, size2={}", userVideoFavorPOS.size(), collect.size());
         DBBatchUtil.batchUpdate(sqlSessionTemplate, userVideoFavorPOS, userVideoFavorService.getBaseMapper(), userFavorSyncConsumer, BATCH_SIZE);
-        DBBatchUtil.batchUpdate(sqlSessionTemplate, collect, videoService.getBaseMapper(), userFavorCountSyncConsumer, BATCH_SIZE);
+        DBBatchUtil.batchUpdate(sqlSessionTemplate, collect, sqlSessionTemplate.getMapper(VideoMapper.class), userFavorCountSyncConsumer, BATCH_SIZE);
         log.info("SyncFavorJob end");
     }
 }

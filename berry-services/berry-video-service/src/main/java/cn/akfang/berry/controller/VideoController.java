@@ -63,13 +63,16 @@ public class VideoController implements VideoClient {
     public BaseResponse<Page<VideoVO>> getPersonalVideo(
             @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
             @RequestParam(value = "current", defaultValue = "1") String pageStr,
-            @RequestParam(value = "channelId", required = false) String channelIdStr
+            @RequestParam(value = "authorId", required = false) String authorId
     ) {
+        // userId: 当前登录用户的ID
         Long userId = NumberUtil.parseLong(userIdStr);
+        // 用于筛选视频的用户ID，如果制定了 authorId 就查对应用户的，反之默认查自己的
+        Long searchUserId = NumberUtil.isNumber(authorId) ? NumberUtil.parseLong(authorId) : userId;
+        // 开始查询，获取分页信息
         int currentPage = NumberUtil.parseInt(pageStr);
-
         Page<VideoPO> page = videoService.page(new Page<>(currentPage, 10), new LambdaQueryWrapper<VideoPO>()
-                .eq(VideoPO::getAuthorId, userId)
+                .eq(VideoPO::getAuthorId, searchUserId)
                 .orderByDesc(VideoPO::getCreateTime));
 
         List<Long> videoIds = page.getRecords().stream().map(VideoPO::getId).collect(Collectors.toList());
@@ -100,12 +103,67 @@ public class VideoController implements VideoClient {
     }
 
     @GetMapping("/my/{type}")
-    public BaseResponse<FeedPage<VideoVO>> getFeedListByType(
+    public BaseResponse<Page<VideoVO>> getFeedListByType(
             @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
-            @RequestParam(value = "channelId", required = false) String channelIdStr,
-            @PathVariable(value = "type", required = false) String typeStr
+            @RequestParam(value = "current", defaultValue = "1") String pageStr,
+            @PathVariable(value = "type", required = false) String typeStr,
+            @RequestParam(value = "authorId", required = false) String authorId
+
     ) {
-        return getFeedListByCurrentUser(userIdStr, channelIdStr);
+        // 类型转换
+        Long currentUserId = NumberUtil.parseLong(userIdStr);
+        Long searchUserId = NumberUtil.isNumber(authorId) ? NumberUtil.parseLong(authorId) : currentUserId;
+
+        // 获取我点过赞的视频
+        List<Long> feedIds;
+        if (ObjectUtil.equal(typeStr, "like")) {
+            feedIds = actionClient.getLikedVideoIdsByUserId(searchUserId);
+        } else if (ObjectUtil.equal(typeStr, "favor")) {
+            feedIds = actionClient.getFavoredVideoIdsByUserId(searchUserId);
+        } else {
+            return ResultUtils.success(new Page<>());
+        }
+        // 构建分页
+        int currentPage = NumberUtil.isNumber(pageStr) ? NumberUtil.parseInt(pageStr) : 1;
+        if (currentPage <= 0) currentPage = 1;
+        int pageSize = 10;
+        int total = feedIds.size();
+
+        Page<VideoVO> videoVOPage = new Page<>();
+        videoVOPage.setTotal(total);
+        videoVOPage.setCurrent(currentPage);
+        videoVOPage.setSize(pageSize);
+
+        // 截取需要查询的ids
+        int fromIndex = (currentPage - 1) * pageSize;
+        int toIndex = currentPage * pageSize;
+        if (fromIndex >= total) {
+            return ResultUtils.success(videoVOPage);
+        }
+        if (toIndex > total) {
+            toIndex = total;
+        }
+        feedIds = feedIds.subList(fromIndex, toIndex);
+        // 获取数据里的数据 PO
+        List<VideoPO> videoPOS = videoService.listByIds(feedIds);
+        // 远程调用，获取该视频的作者信息
+        List<Pair<Long, Long>> ids = videoPOS.stream().map(item -> {
+            Pair<Long, Long> pair = new Pair<>();
+            pair.setA(item.getId());
+            pair.setB(item.getAuthorId());
+            return pair;
+        }).collect(Collectors.toList());
+        Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids, userIdStr);
+        // 远程调用，获取该视频的社交信息
+        VideoActionInfoRequest videoActionInfoRequest = new VideoActionInfoRequest();
+        videoActionInfoRequest.setVideoIds(feedIds);
+        videoActionInfoRequest.setUserId(currentUserId);
+        Map<Long, VideoActionDTO> videoActionInfoByIds = actionClient.getVideoActionInfoByIds(videoActionInfoRequest);
+        // 构建 VO
+        List<VideoVO> videoVOS = videoService.buildVideoVO(videoPOS, videoActionInfoByIds, userBaseVOByIds);
+
+        videoVOPage.setRecords(videoVOS);
+        return ResultUtils.success(videoVOPage);
     }
 
 
@@ -205,10 +263,36 @@ public class VideoController implements VideoClient {
     }
 
     @Override
+    public List<VideoVO> listVideoVoByIds(List<Long> ids, String currentUserIdStr) {
+        Long currentUserId = NumberUtil.parseLong(currentUserIdStr);
+
+        VideoActionInfoRequest videoActionInfoRequest = new VideoActionInfoRequest();
+        videoActionInfoRequest.setVideoIds(ids);
+        videoActionInfoRequest.setUserId(currentUserId);
+
+        List<VideoPO> videoPOS = videoService.listByIds(ids);
+        List<Long> authorIds = videoPOS.stream().map(VideoPO::getAuthorId).collect(Collectors.toList());
+        List<Pair<Long, Long>> authorPairs = videoPOS.stream().map(item -> {
+            Pair<Long, Long> pair = new Pair<>();
+            pair.setA(item.getId());
+            pair.setB(item.getAuthorId());
+            return pair;
+        }).collect(Collectors.toList());
+        Map<Long, VideoActionDTO> videoActionInfoByIds = actionClient.getVideoActionInfoByIds(videoActionInfoRequest);
+        Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(authorPairs, currentUserIdStr);
+        return videoService.buildVideoVO(videoPOS, videoActionInfoByIds, userBaseVOByIds);
+    }
+
+    @Override
     public List<Long> listAllIds() {
         QueryWrapper<VideoPO> qw = new QueryWrapper<>();
         qw.select("id");
         return videoService.list(qw)
                 .stream().map(VideoPO::getId).collect(Collectors.toList());
+    }
+
+    @Override
+    public VideoPO getById(Long videoId) {
+        return videoService.getById(videoId);
     }
 }

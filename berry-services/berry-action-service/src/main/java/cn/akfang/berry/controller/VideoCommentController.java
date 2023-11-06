@@ -5,6 +5,7 @@ import cn.akfang.berry.common.constants.AuthConstants;
 import cn.akfang.berry.common.enums.ErrorCode;
 import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.feign.client.UserClient;
+import cn.akfang.berry.common.feign.client.VideoClient;
 import cn.akfang.berry.common.model.base.Pair;
 import cn.akfang.berry.common.model.dto.CommentAddDTO;
 import cn.akfang.berry.common.model.entity.CommentPO;
@@ -15,7 +16,6 @@ import cn.akfang.berry.common.model.response.UserBaseVO;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.service.CommentService;
 import cn.akfang.berry.service.UserCommentLikeService;
-import cn.akfang.berry.service.VideoService;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -38,14 +38,13 @@ public class VideoCommentController {
     private CommentService commentService;
 
     @Autowired
-    private VideoService videoService;
-
-    @Autowired
     private UserCommentLikeService userCommentLikeService;
 
     @Autowired
     private UserClient userClient;
 
+    @Autowired
+    private VideoClient videoClient;
 
     @GetMapping("/feed")
     public BaseResponse<Page<CommentVo>> commentFeedList(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
@@ -72,9 +71,7 @@ public class VideoCommentController {
 
         Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids, userIdStr);
 
-        List<CommentVo> collect = commentPOPage.getRecords().stream().map(item -> {
-            return commentService.buildCommonVO(item, userBaseVOByIds.get(item.getCommentUserId()), userId);
-        }).collect(Collectors.toList());
+        List<CommentVo> collect = commentPOPage.getRecords().stream().map(item -> commentService.buildCommonVO(item, userBaseVOByIds.get(item.getCommentUserId()), userId)).collect(Collectors.toList());
 
         Page<CommentVo> commentVoPage = new Page<>();
         commentVoPage.setTotal(commentPOPage.getTotal());
@@ -104,7 +101,7 @@ public class VideoCommentController {
     @PostMapping("")
     public BaseResponse<Boolean> addComment(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId,
                                             @RequestBody CommentAddDTO commentAddDTO) {
-        Optional<VideoPO> commentedVideo = Optional.ofNullable(videoService.getById(commentAddDTO.getVideoId()));
+        Optional<VideoPO> commentedVideo = Optional.ofNullable(videoClient.getById(commentAddDTO.getVideoId()));
         if (!commentedVideo.isPresent() || commentedVideo.get().getVisible() == 0) {
             throw new BerryRpcException(ErrorCode.VIDEO_NOT_EXIST_OR_VISIBLE);
         }

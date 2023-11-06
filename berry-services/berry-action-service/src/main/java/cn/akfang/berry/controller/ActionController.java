@@ -5,10 +5,7 @@ import cn.akfang.berry.common.feign.client.UserClient;
 import cn.akfang.berry.common.model.dto.UserActionDTO;
 import cn.akfang.berry.common.model.dto.VideoActionDTO;
 import cn.akfang.berry.common.model.request.VideoActionInfoRequest;
-import cn.akfang.berry.service.FollowService;
-import cn.akfang.berry.service.UserCommentLikeService;
-import cn.akfang.berry.service.UserVideoFavorService;
-import cn.akfang.berry.service.UserVideoLikeService;
+import cn.akfang.berry.service.*;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.NumberUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +33,9 @@ public class ActionController implements ActionClient {
     UserCommentLikeService userCommentLikeService;
 
     @Autowired
+    CommentService commentService;
+
+    @Autowired
     FollowService followService;
 
     @Override
@@ -46,7 +46,7 @@ public class ActionController implements ActionClient {
             videoActionDTO.setVideoId(videoId);
             videoActionDTO.setLikeCount(userVideoLikeService.getVideoLikedCountFromRedis(videoId));
             videoActionDTO.setFavorCount(userVideoFavorService.getVideoFavorCountFromRedis(videoId));
-            videoActionDTO.setCommentCount(userCommentLikeService.getLikeCount(videoId));
+            videoActionDTO.setCommentCount(commentService.getCommentCountByVideoId(videoId));
             videoActionDTO.setLiked(userVideoLikeService.isLiked(request.getUserId(), videoId));
             videoActionDTO.setFavored(userVideoFavorService.isFavored(request.getUserId(), videoId));
             return videoActionDTO;
@@ -71,5 +71,25 @@ public class ActionController implements ActionClient {
             userActionDTO.setFollowCount(followService.getFansCountFromRedis(userId));
             return userActionDTO;
         }).collect(Collectors.toMap(UserActionDTO::getToUserId, item -> item));
+    }
+
+    @Override
+    public List<Long> getFansIdsByUserId(Long userId) {
+        return followService.getFansIdByUserId(userId);
+    }
+
+    @Override
+    public List<Long> getFollowsIdsByUserId(Long userId) {
+        return followService.getFollowsIdByUserId(userId);
+    }
+
+    @Override
+    public List<Long> getLikedVideoIdsByUserId(Long userId) {
+        return userVideoLikeService.getLikedVideoIdsByUserId(userId);
+    }
+
+    @Override
+    public List<Long> getFavoredVideoIdsByUserId(Long currentUserId) {
+        return userVideoFavorService.getFavoredVideoIdsByUserId(currentUserId);
     }
 }

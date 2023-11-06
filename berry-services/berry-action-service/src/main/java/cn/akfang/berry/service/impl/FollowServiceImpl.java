@@ -6,12 +6,15 @@ import cn.akfang.berry.common.model.entity.FollowPO;
 import cn.akfang.berry.mapper.FollowMapper;
 import cn.akfang.berry.service.FollowService;
 import cn.akfang.berry.service.base.ActionService;
+import cn.hutool.core.util.NumberUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author fang
@@ -94,6 +97,37 @@ public class FollowServiceImpl extends ActionService<Long, Long, FollowMapper, F
     @Override
     public Boolean isFan(Long suspectedFanUserId, Long followedUserId) {
         return isFollowed(suspectedFanUserId, followedUserId);
+    }
+
+    @Override
+    public List<Long> getFansIdByUserId(Long userId) {
+        return super.getActionedFromIds(userId).stream()
+                .map(Long::parseLong).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Long> getFollowsIdByUserId(Long userId) {
+        return super.getActionedToIds(userId).stream()
+                .map(Long::parseLong).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Long> buildUserIds(List<Long> ids, String userIdStr) {
+        // 分页
+        int current = NumberUtil.parseInt(userIdStr);
+        if (current < 1) {
+            current = 1;
+        }
+        int size = 10;
+        int fromIndex = (current - 1) * size;
+        int toIndex = current * size;
+        if (ids.size() < fromIndex) {
+            return Collections.emptyList();
+        }
+        if (ids.size() < toIndex) {
+            toIndex = ids.size();
+        }
+        return ids.subList(fromIndex, toIndex);
     }
 }
 

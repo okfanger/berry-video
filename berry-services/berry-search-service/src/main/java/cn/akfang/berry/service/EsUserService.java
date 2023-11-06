@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserEsService {
+public class EsUserService {
 
     @Autowired
     private UserClient userClient;
