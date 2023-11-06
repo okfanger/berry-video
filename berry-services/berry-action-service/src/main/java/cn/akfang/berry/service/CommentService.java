@@ -18,7 +18,9 @@ import java.util.Map;
 public interface CommentService extends IService<CommentPO> {
     CommentVo buildCommonVO(CommentPO commentPO, UserBaseVO userBaseVO, Long userId);
 
-    boolean addComment(VideoPO videoPO, Long userId, CommentAddDTO commentAddDTO);
+    CommentPO buildNewCommentPO(VideoPO videoPO, Long currentUserId, CommentAddDTO commentAddDTO);
+
+    boolean addComment(CommentPO newComment, VideoPO videoPO);
 
     Wrapper<CommentPO> getFeedQueryWrapper(Long videoId, String orderBy);
 

@@ -14,10 +14,10 @@ import java.util.List;
 @Builder
 public class VideoSaveDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    Long fileId;
-    String content;
-    List<String> tags;
-    Long authorId;
-    Long channelId;
-    Integer visible;
+    private Long fileId;
+    private String content;
+    private List<String> tags;
+    private Long authorId;
+    private Long channelId;
+    private Integer visible;
 }

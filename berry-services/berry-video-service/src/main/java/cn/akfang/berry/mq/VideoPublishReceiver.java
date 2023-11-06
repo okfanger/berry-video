@@ -53,6 +53,7 @@ public class VideoPublishReceiver {
         videoPO.setFileId(dto.getFileId());
         videoPO.setAuthorId(dto.getAuthorId());
         videoPO.setVisible(VideoVisibleEnum.getPendingEnum(dto.getVisible()).getCode());
+        videoPO.setTags(JSONUtil.toJsonStr(dto.getTags()));
         videoPO.setCommentCount(0);
         videoPO.setLikeCount(0);
 

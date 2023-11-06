@@ -53,14 +53,18 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentPO>
     }
 
     @Override
-    public boolean addComment(VideoPO videoPO, Long userId, CommentAddDTO commentAddDTO) {
-        CommentPO newComment = CommentPO.builder()
-                .commentUserId(userId)
+    public CommentPO buildNewCommentPO(VideoPO videoPO, Long currentUserId, CommentAddDTO commentAddDTO) {
+        return CommentPO.builder()
+                .commentUserId(currentUserId)
                 .content(commentAddDTO.getContent())
                 .videoId(commentAddDTO.getVideoId())
                 .authorId(videoPO.getAuthorId())
                 .likeCounts(0)
                 .build();
+    }
+
+    @Override
+    public boolean addComment(CommentPO newComment, VideoPO videoPO) {
         boolean save = save(newComment);
         if (save) {
             redisTemplate.opsForHash().increment("MAP_KEY_VIDEO_COMMENT_COUNT",

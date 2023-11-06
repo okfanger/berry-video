@@ -4,6 +4,7 @@ import cn.akfang.berry.common.feign.client.VideoClient;
 import cn.akfang.berry.common.model.entity.VideoPO;
 import cn.akfang.berry.mapper.VideoEsMapper;
 import cn.akfang.berry.model.VideoEsPO;
+import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -49,6 +50,8 @@ public class IncSyncVideoToEs {
                 videoEsPO.setId(String.valueOf(item.getId()));
                 videoEsPO.setVideoId(item.getId());
                 videoEsPO.setContent(item.getContent());
+                videoEsPO.setTags(item.getTags());
+                videoEsPO.setCreateTime(DateUtil.format(item.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
                 return videoEsPO;
             }).collect(Collectors.toList());
             videoEsMapper.insertBatch(collect);

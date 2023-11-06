@@ -99,12 +99,23 @@ public class VideoCommentController {
     }
 
     @PostMapping("")
-    public BaseResponse<Boolean> addComment(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId,
+    public BaseResponse<CommentVo> addComment(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userId,
                                             @RequestBody CommentAddDTO commentAddDTO) {
         Optional<VideoPO> commentedVideo = Optional.ofNullable(videoClient.getById(commentAddDTO.getVideoId()));
         if (!commentedVideo.isPresent() || commentedVideo.get().getVisible() == 0) {
             throw new BerryRpcException(ErrorCode.VIDEO_NOT_EXIST_OR_VISIBLE);
         }
-        return ResultUtils.success(commentService.addComment(commentedVideo.get(), NumberUtil.parseLong(userId), commentAddDTO));
+        Long videoAuthorId = commentedVideo.get().getAuthorId();
+        Long userIdLong = NumberUtil.parseLong(userId);
+        CommentPO commentPO = commentService.buildNewCommentPO(commentedVideo.get(), userIdLong, commentAddDTO);
+        boolean b = commentService.addComment(commentPO, commentedVideo.get());
+        if (b) {
+            UserBaseVO userBaseVO = userClient.getUserBaseVOById(userIdLong, userId);
+            CommentPO byId = commentService.getById(commentPO.getId());
+            CommentVo commentVo = commentService.buildCommonVO(byId, userBaseVO, userIdLong);
+            return ResultUtils.success(commentVo);
+        } else {
+            throw new BerryRpcException(ErrorCode.SYSTEM_ERROR);
+        }
     }
 }

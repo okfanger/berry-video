@@ -8,12 +8,13 @@ import org.dromara.easyes.annotation.IndexId;
 import org.dromara.easyes.annotation.IndexName;
 import org.dromara.easyes.annotation.rely.Analyzer;
 import org.dromara.easyes.annotation.rely.FieldType;
+import org.dromara.easyes.annotation.rely.IdType;
 
 @Data
 @IndexName(EsConstants.USER_INDEX)
 public class UserEsPO {
 
-    @IndexId
+    @IndexId(type = IdType.CUSTOMIZE)
     private String id;
     @IndexField(fieldType = FieldType.LONG)
     private Long userId;

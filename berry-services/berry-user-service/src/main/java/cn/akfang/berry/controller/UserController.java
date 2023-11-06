@@ -70,6 +70,13 @@ public class UserController implements UserClient {
         return ResultUtils.success(getUserBaseVOById(userId, userIdStr));
     }
 
+    @GetMapping("/info/vo")
+    public BaseResponse<UserBaseVO> userInfo(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String currentLoginUserIdStr,
+                                             @RequestParam("authorId") String authorIdStr
+    ) {
+        Long authorId = NumberUtil.parseLong(authorIdStr);
+        return ResultUtils.success(getUserBaseVOById(authorId, currentLoginUserIdStr));
+    }
     @PostMapping("/wx/login")
     public BaseResponse<UserTokenResponse> wxLogin(@RequestBody WxLoginRequest request) {
         return ResultUtils.success(userService.wxLogin(request));
@@ -101,7 +108,6 @@ public class UserController implements UserClient {
     public Map<Long, UserBaseVO> getUserBaseVOByIds(List<Pair<Long, Long>> ids, String currentUserId) {
         if (CollectionUtil.isEmpty(ids))
             return Collections.emptyMap();
-
         List<Long> authorIds = ids.stream().map(Pair::getB).collect(Collectors.toList());
         if (CollectionUtil.isEmpty(authorIds))
             return Collections.emptyMap();
