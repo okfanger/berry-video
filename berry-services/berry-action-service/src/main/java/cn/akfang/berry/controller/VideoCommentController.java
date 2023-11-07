@@ -49,10 +49,11 @@ public class VideoCommentController {
     @GetMapping("/feed")
     public BaseResponse<Page<CommentVo>> commentFeedList(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                                          @RequestParam("videoId") String videoId,
-                                                         @RequestParam("orderBy") String orderBy, @RequestParam("current") Long currentPage) {
+                                                         @RequestParam(value = "orderBy", required = false) String orderBy,
+                                                         @RequestParam(value = "current", defaultValue = "1") String currentPageStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
-
-        currentPage = currentPage <= 0 ? currentPage : 1L;
+        long currentPage = NumberUtil.parseLong(currentPageStr);
+        currentPage = currentPage > 0 ? currentPage : 1L;
         LambdaQueryWrapper<CommentPO> qw = new LambdaQueryWrapper<>();
         qw.eq(CommentPO::getVideoId, videoId);
         if (StrUtil.equals("time", orderBy)) {
@@ -76,6 +77,7 @@ public class VideoCommentController {
         Page<CommentVo> commentVoPage = new Page<>();
         commentVoPage.setTotal(commentPOPage.getTotal());
         commentVoPage.setCurrent(commentPOPage.getCurrent());
+        commentVoPage.setSize(commentPOPage.getSize());
         commentVoPage.setRecords(collect);
         return ResultUtils.success(commentVoPage);
     }
