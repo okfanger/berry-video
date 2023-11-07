@@ -49,13 +49,14 @@
       </el-form-item>
       <el-form-item label="文案" prop="content">
         <textarea class="textarea-raspberry" placeholder="给视频搭配一个文案" v-model="form.content"></textarea>
+        <div class="button-primary" @click="createTags">生成标签</div>
       </el-form-item>
       <el-form-item label="标签" prop="tags">
         <div>
           <div>
             <div class="tags">
-              <div v-for="tag in form.tags" :key="tag" class="tag">
-                {{ tag }}
+              <div v-for="tag in form.tags" :key="tag.key" class="tag">
+                {{ tag.value }}
                 <span class="delete" @click="removeTag(tag)">x</span>
               </div>
             </div>
@@ -75,9 +76,6 @@
             :value="item.id"
           />
         </el-select>
-        <!-- <select class="select-raspberry" v-model="form.channelId" placeholder="请选择一个分类">
-            <option :value="item.id" v-for="item in channelList" :key="item.id">{{ item.label }}</option>
-        </select> -->
         <el-icon name="el-icon-edit">
         </el-icon>
       </el-form-item>
@@ -116,10 +114,10 @@ import LoginModel from '@/components/Login/LoginModel'
 import Model from '@/components/Model/indexCom.vue'
 import searchComponent from '@/components/Search/searchComponent'
 import { ref, reactive } from 'vue'
-import { isLogin } from '@/utils'
+import { isLogin, createUuid } from '@/utils'
 import { userStore , videoStore} from '@/store'
 import { useRouter } from 'vue-router'
-import { publishVideo } from '@/api/video'
+import { publishVideo, createTagsByContentApi } from '@/api/video'
 
 const router = useRouter()
 const LogindialogVisble = ref(false)
@@ -158,16 +156,30 @@ const publish = () => {
     }
   })
 }
+const createTags = () => {
+  createTagsByContentApi(form.content).then(res=>{
+    const {tokens} = res;
+    form.tags = form.tags.concat(tokens.map(e => {
+      let tag = {
+        key: createUuid(),
+        value: e.token
+      }
+      return tag;
+    }))
+  })
+}
 const showModel = () => {
   visble.value = true;
 }
 const removeTag = (tag) => {
-  form.tags = form.tags.filter(t => t !== tag);
+  form.tags = form.tags.filter(t => t.key !== tag.key);
 }
 const addTag = () => {
-  
-  if (tagInput.value && !form.tags.includes(tagInput.value)) {
-    form.tags.push(tagInput.value);
+  if (tagInput.value && !form.tags.some(e=> e.value == tagInput.value)) {
+    form.tags.push({
+      key: createUuid(),
+      value: tagInput.value,
+    });
     tagInput.value = "";
   }
 }
@@ -238,23 +250,23 @@ const getFileInfo = (info) => {
   display: inline-block;
   padding: 1px 6px;
   margin: 1px 2px;
-  background-color: rgb(245, 70, 84);
+  background-color: #e2e5e7;
   border-radius: 5px;
   border-radius: 5px;
-  color: white;
+  color: #171515;
   cursor: pointer;
   user-select: none;
 }
 .delete {
   color: white;
   cursor: pointer;
-  height: 20px;
-  width: 20px;
-  background-color: rgb(230, 17, 17);
+  height: 15px;
+  width: 15px;
+  background-color: rgb(132, 131, 131);
   border-radius: 50%;
   display: inline-block;
   text-align: center;
-  line-height: 20px;
+  line-height: 15px;
   opacity: 0;
   transition: opacity .4s;
 }

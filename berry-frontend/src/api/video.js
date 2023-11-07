@@ -175,4 +175,15 @@ export const deleteVideoApi = (videoId) => {
 // 删除评论
 
 
+// 生成标签
+export const createTagsByContentApi = (content) => {
+  return request({
+    url: "/search/ik",
+    method: "post",
+    data: {
+      words: content
+    }
+  })
+}
+
 
