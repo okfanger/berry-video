@@ -97,11 +97,9 @@
   width: 200px;
 }
 
-/* 其他可爱的元素样式... */
-
 /* 背景 */
 .gradient-background {
-  background: linear-gradient(135deg, #feffff 0%, #fff7fe 100%);
+  background-color: #fff7fe;
 }
 
 /* 输入框 */

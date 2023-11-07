@@ -18,7 +18,6 @@ import { emitter } from '@/utils';
 const videoList = ref([])
 const currentIndex = ref(0)
 
-
 onMounted(() => {
   fetchVideoFeed()
   emitter.on("scrollVideo", (direction) => {
@@ -46,8 +45,9 @@ const fetchVideoFeed = () => {
   getVideoFeed().then(res=>{
     let {data, success} = res;
     if(success) {
-
-      videoList.value = videoList.value.concat(data.records);
+      videoList.value = videoList.value.concat(
+        data.records.sort(() => Math.random() - 0.5)
+      );
     }
   })
 }

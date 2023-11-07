@@ -2,7 +2,7 @@
  <div>
   <div class="container-header">
     <div class="icon">
-      <img src="https://portal-oss.zhiye.com/609727/image/aa3c3b04-a920-4713-8027-b76b97fcda13.png" alt="">
+      <img :src="logo" alt="">
     </div>
       <div class="search">
         <searchComponent />
@@ -107,6 +107,7 @@
 
 <script setup>
 // import avatar from '@/assets/avatar-ddai.png'
+import logo from '@/assets/berry-logo.png'
 import FileUpload from '@/components/FileUpload/index'
 import { Check, Close } from '@element-plus/icons-vue'
 import avatarBoy from '@/assets/avatar-boy.png'
@@ -149,7 +150,11 @@ const logout = () => {
 
 const publish = () => {
   loading.value = true;
-  publishVideo(form).then(res=>{
+  let formData = {
+    ...form,
+    tags: form.tags.map(e => e.value)
+  }
+  publishVideo(formData).then(res=>{
     if(res.status === 200) {
       loading.value = false;
       visble.value = false;
@@ -204,9 +209,8 @@ const getFileInfo = (info) => {
 }
 
 .icon {
-  /* color: #1c1f23; */
-  height: 45px;
-  width: 110px;
+  height: 71px;
+  width: 89px;
 }
 
 .icon img {

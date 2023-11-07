@@ -18,7 +18,8 @@
 
     <div class="video-info">
       <div class="createtime">{{ fromTime(props.createTime) }}</div>
-      <div class="content">{{ props.content }}</div>
+      <div class="content" v-if="props.searchMeta" v-html="props.searchMeta.highlightContent"></div>
+      <div class="content" v-else>{{ props.content }}</div>
     </div>
 
     <div class="video-controls">
@@ -72,7 +73,7 @@ const emits = defineEmits(['play', 'mute', 'update:speed',
 
 const props = defineProps(['volume', 'speed', 'speedList',
    'continuous', 'openPrintScreen', 'url', 'cover',
-    'streamLoad', 'id', 'content', 'createTime'])
+    'streamLoad', 'id', 'content', 'createTime', 'searchMeta'])
 
 const video = ref()
 const progressBox = ref()
@@ -537,6 +538,13 @@ video.heightGreaterThanWidth {
     line-height: 22px;
     text-shadow: 0 1px 1px rgba(0,0,0,.2);
     color: white;
+    font-weight: bold;
+
+    em {
+      color: rgb(224, 34, 34);
+      display: inline-block;
+      font-weight: bold;
+    }
   }
 }
 </style>

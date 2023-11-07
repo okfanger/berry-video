@@ -14,6 +14,7 @@
         :content="videoObj.content"
         :openPrintScreen="openPrintScreen"
         :create-time="videoObj.createTime"
+        :searchMeta="videoObj.searchMeta"
         @printscreen="handlerPrintscreen"
         @videoEnd="videoEnd"
         @play="handlerPlay"

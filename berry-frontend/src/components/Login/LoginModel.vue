@@ -31,7 +31,6 @@ import { getQrCode, login } from '@/api/user'
 import qrcodeImg from '@/assets/qrcode.png'
 import { setToken } from '@/utils'
 import { userStore, videoStore } from '@/store'
-import router from '@/router'
 
 const props = defineProps(['LogindialogVisble'])
 const emits = defineEmits(['update:LogindialogVisble'])
