@@ -11,12 +11,13 @@
         <module>berry-gateway</module>
         <module>berry-common</module>
         <module>berry-client</module>
+        <module>berry-message</module>
 
         <module>berry-services/berry-user-service</module>
         <module>berry-services/berry-video-service</module>
         <module>berry-services/berry-misc-service</module>
+        <module>berry-services/berry-action-service</module>
         <module>berry-services/berry-search-service</module>
-        <module>berry-message</module>
     </modules>
 
     <packaging>pom</packaging>
