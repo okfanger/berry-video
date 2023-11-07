@@ -60,6 +60,18 @@ ElasticSearch Ik-anaylzer
 
 要求版本必须为 `7.17.x`，并在其路径的`plugins`里安装 `IK分词器`（IK分词器的版本与ElasticSearch保持一致）
 
+> 停用词表（可选项）
+
+https://github.com/goto456/stopwords
+
+1. 上传 停用词库
+
+![img](https://le8ufq2l8w.feishu.cn/space/api/box/stream/download/asynccode/?code=NWVmMjk1ODRmMzExNWMyYTcyOWMyMTIwZDQ5NDM5NWVfU01MRTdoN0FnajlQMVNSaDZoWHRFNDZNSVg5NWVRUHdfVG9rZW46QlBCMGJ5OEdsb01RUUF4d2d3SWNYU1FsbkJnXzE2OTkzNjk2NzQ6MTY5OTM3MzI3NF9WNA)
+
+2. 修改 IK分词器配置
+
+![img](https://le8ufq2l8w.feishu.cn/space/api/box/stream/download/asynccode/?code=YzRkMjc3NzkwYjA5MzNkY2YyYjM3ZDRkNmFiYWY1ZjhfVThaM1l6TU51bExCQml2TFI5NHVrVDdhTjkweU42WjhfVG9rZW46TVZBNmJUTXJHb1hBdVd4M2NJOGNLaTA1bmpiXzE2OTkzNjk2NzQ6MTY5OTM3MzI3NF9WNA)
+
 ### 7. 前端代理配置
 
 修改文件 `仓库根目录/berry-frontend/vue.config.js`的如下配置：
