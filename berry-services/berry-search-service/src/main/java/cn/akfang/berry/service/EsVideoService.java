@@ -31,6 +31,7 @@ public class EsVideoService {
     public Page<VideoVO> selectVideoVOByKeywordPage(String keyword, int currentPageNum, Long currentUserId) {
         LambdaEsQueryWrapper<VideoEsPO> like = EsWrappers.lambdaQuery(VideoEsPO.class)
                 .match(VideoEsPO::getContent, keyword)
+                .or().match(VideoEsPO::getTags, keyword)
                 .sortByScore();
 //                .or().match(VideoEsPO::getTags, keyword);
         EsPageInfo<VideoEsPO> videoEsPOEsPageInfo = videoEsMapper.pageQuery(like, currentPageNum, 10);

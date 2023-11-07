@@ -2,7 +2,7 @@ spring:
   application:
     name: berry-video-service
   profiles:
-    active: prod
+    active: dev
   cloud:
     nacos:
       config:

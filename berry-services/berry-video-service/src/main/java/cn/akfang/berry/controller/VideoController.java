@@ -190,9 +190,12 @@ public class VideoController implements VideoClient {
             Map<Long, UserBaseVO> userBaseVOByIds = userClient.getUserBaseVOByIds(ids, userIdStr);
             List<VideoVO> videoVOS1 = videoService.buildVideoVO(videoVOS, videoActionInfoByIds, userBaseVOByIds);
             FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
-            videoPOFeedPage.setRecords(videoVOS1);
+            videoPOFeedPage.setRecords(videoVOS1.stream().filter(item -> {
+                return item.getVisible() == 1;
+            }).collect(Collectors.toList()));
             return ResultUtils.success(videoPOFeedPage);
         } else {
+            QueryWrapper<VideoPO> qw = new QueryWrapper<>();
             List<VideoPO> videoVOS = videoService.list();
             List<Pair<Long, Long>> ids = videoVOS.stream().map(item -> {
                 Pair<Long, Long> pair = new Pair<>();

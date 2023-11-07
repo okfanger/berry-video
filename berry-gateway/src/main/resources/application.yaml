@@ -4,6 +4,8 @@ logging:
   level:
     cn.akfang.berry: debug
 spring:
+  profiles:
+    active: dev
   application:
     name: gateway
   config:

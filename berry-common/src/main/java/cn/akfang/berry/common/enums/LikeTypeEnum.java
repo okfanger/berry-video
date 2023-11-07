@@ -27,7 +27,4 @@ public enum LikeTypeEnum implements Serializable {
         return redisKey + "_COUNT";
     }
 
-    public String getRedisZSetCountKey() {
-        return redisKey + "_ZSET_COUNT";
-    }
 }

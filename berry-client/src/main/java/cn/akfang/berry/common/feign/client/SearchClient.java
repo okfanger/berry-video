@@ -1,5 +1,6 @@
 package cn.akfang.berry.common.feign.client;
 
+import cn.akfang.berry.common.model.dto.IKAnalyzerRequest;
 import cn.akfang.berry.common.model.response.IkAnalyzerResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
@@ -11,5 +12,5 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface SearchClient {
 
     @PostMapping("/ik")
-    IkAnalyzerResponse ikAnalyzer(@RequestBody String words);
+    IkAnalyzerResponse ikAnalyzer(@RequestBody IKAnalyzerRequest words);
 }

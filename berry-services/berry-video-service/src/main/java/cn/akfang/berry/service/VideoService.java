@@ -17,4 +17,5 @@ public interface VideoService extends IService<VideoPO> {
 
     List<VideoVO> buildVideoVO(List<VideoPO> sourceList, Map<Long, VideoActionDTO> actionInfo, Map<Long, UserBaseVO> authorInfo);
 
+    List<Long> getRandomIds(int i);
 }

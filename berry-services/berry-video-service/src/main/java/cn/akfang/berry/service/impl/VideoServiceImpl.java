@@ -55,4 +55,9 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, VideoPO> implemen
             return videoVO;
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public List<Long> getRandomIds(int i) {
+        return baseMapper.getRandomIds(i);
+    }
 }

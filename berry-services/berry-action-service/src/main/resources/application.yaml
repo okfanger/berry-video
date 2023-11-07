@@ -2,7 +2,7 @@ spring:
   application:
     name: berry-action-service
   profiles:
-    active: prod
+    active: dev
   cloud:
     nacos:
       config:

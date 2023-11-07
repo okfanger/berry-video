@@ -14,6 +14,8 @@ public interface VideoMapper extends BaseMapper<VideoPO> {
     List<VideoVO> selectVideoVOByChannelId(Long channelId);
 
     List<VideoPO> selectVideoPOByChannelId(Long channelId);
+
+    List<Long> getRandomIds(int i);
 //    IPage<VideoVO> selectVideoVOPage(IPage<User> page, @Param(Constants.WRAPPER) Wrapper<VideoVO> queryWrapper);
 
 }

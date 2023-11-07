@@ -1,6 +1,7 @@
 package cn.akfang.berry.controller;
 
 import cn.akfang.berry.common.feign.client.SearchClient;
+import cn.akfang.berry.common.model.dto.IKAnalyzerRequest;
 import cn.akfang.berry.common.model.response.IkAnalyzerResponse;
 import cn.akfang.berry.service.EsCommonService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ public class SearchController implements SearchClient {
     private EsCommonService esCommonService;
 
     @Override
-    public IkAnalyzerResponse ikAnalyzer(String words) {
-        return esCommonService.ikAnalyzer("ik_smart", words);
+    public IkAnalyzerResponse ikAnalyzer(IKAnalyzerRequest request) {
+        return esCommonService.ikAnalyzer("ik_smart", request.getWords());
     }
 }
