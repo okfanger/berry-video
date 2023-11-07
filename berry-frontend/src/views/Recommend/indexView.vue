@@ -1,58 +1,53 @@
 <template>
   <div class="video_list" v-scroll>
-    <VideoComponent v-for="item,index in videoList" 
-      v-slide-in="test"
-      :key="index" class="videoComponent"
-      :videoSrc="item.url"
-      :likeCount="item.likeCount"
-      :id="item.id"
-      :liked="item.liked"
-      :favorCount="item.favorCount"
-      :isFavored="item.isFavored"
-      :commentCount="item.commentCount"
+      <VideoComponent  
+        v-for="(item,index) in videoList" 
+        v-model:videoPropsObj="videoList[index]" 
+        v-slide-in="test"
+        :key="videoList[index].id"
       />
  </div>
- <!-- <div class="video_list" >
-  <vue-virtual-scroller class="video-list" :items="videoList" :item-height="height">
-    <template #default="{ item: item, index }">
-      <video-component 
-        :key="index" class="videoComponent"
-        :videoSrc="item.url"
-        :likeCount="item.likeCount"
-        :id="item.id"
-        :liked="item.liked"
-        :favorCount="item.favorCount"
-        :isFavored="item.isFavored"
-        :commentCount="item.commentCount"
-      />
-    </template>
-  </vue-virtual-scroller>
- </div> -->
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import VideoComponent from '@/components/VideoComponent'
-import VueVirtualScroller from 'vue3-virtual-scroller'
 import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'
 import { getVideoFeed } from '@/api/video';
 
+
+
 const videoList = ref([])
-const height = ref(800)
+const currentIndex = ref(0)
+const currentVideo = ref({})
+const prevVideo = ref({})
+const nextVideo = ref({})
+
 
 onMounted(() => {
   fetchVideoFeed()
+  currentVideo.value = videoList.value.length ? videoList.value[currentIndex.value] : {}
 })
-const test = () => {}
-const currentIndex = ref(0)
 
-console.log(VueVirtualScroller);
+watch(() => currentIndex.value, (index)=>{
+  // index>=1 且有数据的时候
+  if(index >= 1 && videoList.value.length >=2) {
+    prevVideo.value = videoList.value[--index]
+  }
+  if(videoList.value.length <= index+1) {
+    nextVideo.value = videoList.value[++index]
+  }  
+
+  // 视频即将刷完的时候 就再次请求数据
+})
+
+function test() {}
+
 const fetchVideoFeed = () => {
   getVideoFeed().then(res=>{
     let {data, success} = res;
     if(success) {
       videoList.value = data.records;
-      console.log(videoList);
     }
   })
 }

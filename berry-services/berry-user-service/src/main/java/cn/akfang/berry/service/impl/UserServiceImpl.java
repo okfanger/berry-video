@@ -1,20 +1,26 @@
 package cn.akfang.berry.service.impl;
 
+import cn.akfang.berry.common.constants.GlobalConstants;
 import cn.akfang.berry.common.constants.WxConstants;
 import cn.akfang.berry.common.enums.ErrorCode;
 import cn.akfang.berry.common.enums.UserGenderEnum;
 import cn.akfang.berry.common.enums.UserRoleEnum;
 import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.model.entity.UserPO;
+import cn.akfang.berry.common.model.request.UserInfoUpdateDTO;
 import cn.akfang.berry.common.model.request.WxLoginRequest;
 import cn.akfang.berry.common.model.response.UserTokenResponse;
+import cn.akfang.berry.common.model.response.UserVo;
 import cn.akfang.berry.common.utils.BerryJWTUtil;
 import cn.akfang.berry.mapper.UserMapper;
 import cn.akfang.berry.service.UserService;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -84,5 +90,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
         return new LambdaQueryChainWrapper<>(baseMapper)
                 .eq(UserPO::getId, userId)
                 .oneOpt().orElse(null);
+    }
+
+    @Override
+    public Boolean updateUserInfo(UserInfoUpdateDTO dto, Long userId) {
+
+        LambdaUpdateWrapper<UserPO> qw = new LambdaUpdateWrapper<>();
+        qw.eq(UserPO::getId, userId);
+        if (StrUtil.isNotBlank(dto.getNickName())) {
+            qw.set(UserPO::getNickName, dto.getNickName());
+        }
+        if (ObjectUtil.isNotNull(dto.getGender())) {
+            qw.set(UserPO::getGender, ObjectUtil.equal(dto.getGender(), 1) ? 1 : 0);
+        }
+        return this.update(qw);
+    }
+
+    @Override
+    public UserVo getUserVoById(Long userId) {
+        UserPO byId = getById(userId);
+        UserVo userVo = new UserVo();
+        BeanUtil.copyProperties(byId, userVo);
+        userVo.setUserAvatar(GlobalConstants.OSS_URL + "/" + byId.getUserAvatar());
+        return userVo;
     }
 }

@@ -9,5 +9,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @createDate 2023-10-29 15:05:55
  */
 public interface UserVideoLikeService extends IService<UserVideoLikePO> {
+    void doLike(Long userId, Long videoId);
 
+    void unLike(Long userId, Long videoId);
+
+    Integer getVideoLikedCountFromRedis(Long videoId);
+
+    Boolean isLiked(Long userId, Long videoId);
 }

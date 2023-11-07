@@ -17,19 +17,25 @@ import cn.akfang.berry.common.model.response.VideoVO;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.constant.VideoMessageConstants;
 import cn.akfang.berry.service.ChannelService;
-import cn.akfang.berry.service.LikeRedisService;
+import cn.akfang.berry.service.UserVideoFavorService;
+import cn.akfang.berry.service.UserVideoLikeService;
 import cn.akfang.berry.service.VideoService;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,17 +51,11 @@ public class VideoController implements VideoClient {
     @Autowired
     ChannelService channelService;
 
-    @Qualifier("videoLikeRedisService")
     @Autowired
-    LikeRedisService<Long, Long> likeRedisService;
+    UserVideoLikeService userVideoLikeService;
 
-    @Qualifier("favorRedisService")
     @Autowired
-    LikeRedisService<Long, Long> favorRedisService;
-
-    @Qualifier("commentLikeRedisService")
-    @Autowired
-    LikeRedisService<Long, Long> commentRedisService;
+    UserVideoFavorService userVideoFavorService;
 
     @Autowired
     UserClient userClient;
@@ -93,74 +93,67 @@ public class VideoController implements VideoClient {
             @RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
             @RequestParam(value = "channelId", required = false) String channelIdStr
     ) {
-        Long channelId = NumberUtil.parseLong(channelIdStr);
         Long currentUserId = NumberUtil.parseLong(userIdStr);
         QueryWrapper<VideoPO> qw = new QueryWrapper<>();
         qw.orderByDesc("createTime");
-        List<VideoVO> collect = videoService.getBaseMapper().selectList(qw)
-                .stream()
-                .filter((item) -> ObjectUtil.equal(item.getVisible(), 1))
-                .map(item -> videoService.buildVideoVO(item, userClient.getUserBaseVOById(item.getAuthorId()), currentUserId))
-                .collect(Collectors.toList());
-        FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
-        videoPOFeedPage.setRecords(collect);
-        return ResultUtils.success(videoPOFeedPage);
+        if (StrUtil.isNotBlank(channelIdStr)) {
+            Long channelId = NumberUtil.parseLong(channelIdStr);
+//            qw.eq("channelId", channelId);
+            List<VideoPO> videoVOS = videoService.selectVideoPOByChannelId(channelId);
+            List<VideoVO> collect = videoVOS.stream()
+                    .filter((item) -> ObjectUtil.equal(item.getVisible(), 1))
+                    .map(item -> videoService.buildVideoVO(item, userClient.getUserBaseVOById(item.getAuthorId()), currentUserId))
+                    .collect(Collectors.toList());
+            FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
+            videoPOFeedPage.setRecords(collect);
+            return ResultUtils.success(videoPOFeedPage);
+        } else {
+
+            List<VideoVO> collect = videoService.getBaseMapper().selectList(qw)
+                    .stream()
+                    .filter((item) -> ObjectUtil.equal(item.getVisible(), 1))
+                    .map(item -> videoService.buildVideoVO(item, userClient.getUserBaseVOById(item.getAuthorId()), currentUserId))
+                    .collect(Collectors.toList());
+            FeedPage<VideoVO> videoPOFeedPage = new FeedPage<>();
+            videoPOFeedPage.setRecords(collect);
+            return ResultUtils.success(videoPOFeedPage);
+        }
     }
 
     @GetMapping("/doLike")
     public BaseResponse<Boolean> doLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                         @RequestParam("videoId") String videoIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
-        synchronized (userId.toString().intern()) {
-            Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (!likeRedisService.isLiked(userId, videoId)) {
-                likeRedisService.saveLiked2Redis(userId, videoId);
-                likeRedisService.incrementLikedCount(videoId);
-            }
-            return ResultUtils.success(null);
-        }
+        Long videoId = NumberUtil.parseLong(videoIdStr);
+        userVideoLikeService.doLike(userId, videoId);
+        return ResultUtils.success(null);
     }
 
     @GetMapping("/unLike")
     public BaseResponse<Boolean> doUnLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                           @RequestParam("videoId") String videoIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
-        synchronized (userId.toString().intern()) {
-            Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (likeRedisService.isLiked(userId, videoId)) {
-                likeRedisService.unlikeFromRedis(userId, videoId);
-                likeRedisService.decrementLikedCount(videoId);
-            }
-            return ResultUtils.success(null);
-        }
+        Long videoId = NumberUtil.parseLong(videoIdStr);
+        userVideoLikeService.unLike(userId, videoId);
+        return ResultUtils.success(null);
     }
 
     @GetMapping("/doFavor")
     public BaseResponse<Boolean> doFavor(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                          @RequestParam("videoId") String videoIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
-        synchronized (userId.toString().intern()) {
-            Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (!favorRedisService.isLiked(userId, videoId)) {
-                favorRedisService.saveLiked2Redis(userId, videoId);
-                favorRedisService.incrementLikedCount(videoId);
-            }
-            return ResultUtils.success(null);
-        }
+        Long videoId = NumberUtil.parseLong(videoIdStr);
+        userVideoFavorService.doFavor(userId, videoId);
+        return ResultUtils.success(null);
     }
 
     @GetMapping("/unFavor")
     public BaseResponse<Boolean> doUnFavor(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                           @RequestParam("videoId") String videoIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
-        synchronized (userId.toString().intern()) {
-            Long videoId = NumberUtil.parseLong(videoIdStr);
-            if (favorRedisService.isLiked(userId, videoId)) {
-                favorRedisService.unlikeFromRedis(userId, videoId);
-                favorRedisService.decrementLikedCount(videoId);
-            }
-            return ResultUtils.success(null);
-        }
+        Long videoId = NumberUtil.parseLong(videoIdStr);
+        userVideoFavorService.unFavor(userId, videoId);
+        return ResultUtils.success(null);
     }
 
     @PostMapping("/publish")
@@ -191,5 +184,56 @@ public class VideoController implements VideoClient {
         } else {
             return ResultUtils.success(videoService.removeById(videoId));
         }
+    }
+
+    @GetMapping("/search/hit")
+    public BaseResponse<Map<String, List<String>>> searchHit(@RequestParam("keyword") String keyword) {
+        List<String> preStrs = Arrays.asList(
+                "是什么意思",
+                "能吃吗",
+                "怎么做"
+        );
+        return ResultUtils.success(MapUtil.builder("hits", preStrs.stream().map((item) -> {
+            return keyword + item;
+        }).collect(Collectors.toList())).build());
+    }
+
+
+    @Override
+    public List<VideoPO> listAll() {
+        return videoService.list();
+    }
+
+    @Override
+    public List<VideoVO> getVOByIds(List<Long> ids, Long currentId) {
+        if (CollectionUtil.isEmpty(ids)) {
+            return CollectionUtil.newArrayList();
+        } else {
+            return videoService.listByIds(ids).stream()
+                    .map(item -> videoService.buildVideoVO(item,
+                            userClient.getUserBaseVOById(item.getAuthorId()), currentId)).collect(Collectors.toList());
+        }
+    }
+
+    @Override
+    public List<Long> listIdsMinutesAgo(Long minuteNum) {
+        LambdaQueryWrapper<VideoPO> qw = new LambdaQueryWrapper<>();
+        // 查找更新时间在2分钟前的视频
+        qw.select(VideoPO::getId)
+                .geSql(VideoPO::getUpdateTime, "DATE_SUB(NOW(), INTERVAL " + minuteNum + " MINUTE)");
+        return videoService.list(qw).stream().map(VideoPO::getId).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VideoPO> listByIds(List<Long> ids) {
+        return videoService.listByIds(ids);
+    }
+
+    @Override
+    public List<Long> listAllIds() {
+        QueryWrapper<VideoPO> qw = new QueryWrapper<>();
+        qw.select("id");
+        return videoService.list(qw)
+                .stream().map(VideoPO::getId).collect(Collectors.toList());
     }
 }

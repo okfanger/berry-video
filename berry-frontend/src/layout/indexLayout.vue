@@ -1,13 +1,13 @@
 <template>
   <div class="common-layout gradient-background">
     <el-container>
-      <el-header style="padding: 0;height: 80px;">
+      <el-header style="padding: 0;height: 60px;">
         <el-affix :offset="0">
           <LHeader  />
         </el-affix>
       </el-header>
       <el-container>
-        <el-aside width="120px" style="height: calc(100vh - 80px);">
+        <el-aside width="120px" style="height: calc(100vh - 60px);">
           <LAside />
         </el-aside>
         <el-main>

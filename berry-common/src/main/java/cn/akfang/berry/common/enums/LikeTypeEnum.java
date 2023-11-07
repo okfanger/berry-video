@@ -9,14 +9,18 @@ import java.io.Serializable;
 @Getter
 @AllArgsConstructor
 public enum LikeTypeEnum implements Serializable {
-    VIDEO(1, "视频点赞", "MAP_KEY_VIDEO_LIKED"),
-    COMMENT(2, "评论点赞", "MAP_KEY_COMMENT_LIKED"),
-    FAVOR(3, "收藏点赞", "MAP_KEY_FAVOR_LIKED");
+    VIDEO(1, "视频点赞", "MAP_KEY_VIDEO_LIKED", "id", "userId", "videoId", "status"),
+    COMMENT(2, "评论点赞", "MAP_KEY_VIDEO_COMMENT_LIKED", "id", "userId", "commentId", "status"),
+    FAVOR(3, "收藏点赞", "MAP_KEY_VIDEO_FAVORED", "id", "userId", "videoId", "status");
 
     @EnumValue
     private final Integer code;
     private final String desc;
     private final String redisKey;
+    private String dbIdColumn = "id";
+    private String dbFromIdColumn = "userId";
+    private String dbToIdColumn = "videoId";
+    private String dbStatusColumn = "status";
 
     public String getRedisHashCountKey() {
         return redisKey + "_COUNT";

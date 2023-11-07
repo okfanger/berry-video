@@ -7,14 +7,14 @@ import cn.akfang.berry.common.model.response.CommentVo;
 import cn.akfang.berry.common.model.response.UserBaseVO;
 import cn.akfang.berry.mapper.CommentMapper;
 import cn.akfang.berry.service.CommentService;
-import cn.akfang.berry.service.LikeRedisService;
+import cn.akfang.berry.service.UserCommentLikeService;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,10 +26,8 @@ import org.springframework.stereotype.Service;
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentPO>
         implements CommentService {
 
-
     @Autowired
-    @Qualifier("commentLikeRedisService")
-    private LikeRedisService<Long, Long> commentLikeRedisService;
+    UserCommentLikeService userCommentLikeService;
 
 
     @Override
@@ -39,9 +37,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentPO>
         commentVo.setAuthor(userBaseVO);
         commentVo.setContent(commentPO.getContent());
         commentVo.setCreateTime(commentPO.getCreateTime());
-        commentVo.setLikeCount(commentLikeRedisService.getLikedCount(commentPO.getId()));
+        commentVo.setLikeCount(userCommentLikeService.getLikeCount(commentPO.getId()));
 //        log.debug("commentId: {}, likeCount: {}", commentPO.getId(), commentVo.getLikeCount());
-        commentVo.setIsLiked(commentLikeRedisService.isLiked(userId, commentPO.getId()));
+        commentVo.setIsLiked(userCommentLikeService.isLiked(userId, commentPO.getId()));
         return commentVo;
     }
 
@@ -56,31 +54,6 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentPO>
                 .build();
         return save(newComment);
     }
-
-    @Override
-    public boolean doLike(Long userId, Long commentId) {
-        synchronized (String.valueOf(userId).intern()) {
-            if (!commentLikeRedisService.isLiked(userId, commentId)) {
-                commentLikeRedisService.saveLiked2Redis(userId, commentId);
-                commentLikeRedisService.incrementLikedCount(commentId);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public Boolean doUnLike(Long userId, Long commentId) {
-        synchronized (String.valueOf(userId).intern()) {
-            if (commentLikeRedisService.isLiked(userId, commentId)) {
-                commentLikeRedisService.unlikeFromRedis(userId, commentId);
-                commentLikeRedisService.decrementLikedCount(commentId);
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public Wrapper<CommentPO> getFeedQueryWrapper(Long videoId, String orderBy) {
         LambdaQueryWrapper<CommentPO> qw = new QueryWrapper<CommentPO>()
@@ -92,6 +65,14 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentPO>
             qw = qw.orderByDesc(CommentPO::getLikeCounts);
         }
         return qw;
+    }
+
+    @Override
+    public Integer getCommentCountByVideoId(Long videoId) {
+        return Math.toIntExact(new LambdaQueryChainWrapper<>(baseMapper)
+                .select(CommentPO::getId)
+                .eq(CommentPO::getVideoId, videoId)
+                .count());
     }
 }
 

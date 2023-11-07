@@ -41,3 +41,11 @@ spring:
             - Path=/misc/**
           filters:
             - RewritePath=/misc/(?<segment>.*), //$\{segment}
+
+
+        - id: search-service
+          uri: lb://berry-search-service
+          predicates:
+            - Path=/search/**
+          filters:
+            - RewritePath=/search/(?<segment>.*), //$\{segment}

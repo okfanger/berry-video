@@ -1,0 +1,49 @@
+# DataSource Config
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/berryvideo-dev
+    username: root
+    password:
+
+  redis:
+    ## Redis数据库索引（默认为0）
+    database: 0
+    ## Redis服务器连接端口
+    port: 6379
+    ## Redis服务器地址
+    host: 127.0.0.1
+    ## Redis服务器连接密码（默认为空）
+    password:
+    jedis:
+      pool:
+        ## 连接池最大连接数（使用负值表示没有限制）
+        #spring.redis.pool.max-active=8
+        max-active: 8
+        ## 连接池最大阻塞等待时间（使用负值表示没有限制）
+        #spring.redis.pool.max-wait=-1
+        max-wait: -1
+        ## 连接池中的最大空闲连接
+        #spring.redis.pool.max-idle=8
+        max-idle: 8
+        ## 连接池中的最小空闲连接
+        #spring.redis.pool.min-idle=0
+        min-idle: 0
+    ## 连接超时时间（毫秒）
+    timeout: 1200
+  cache:
+    redis:
+      time-to-live: 1800s
+    cache-names: menus_cache
+    type: redis
+
+
+easy-es:
+  address: 127.0.0.1:9200 # es连接地址+端口 格式必须为ip:port,如果是集群则可用逗号隔开
+  username: elastic #如果无账号密码则可不配置此行
+  password: changeme #如果无账号密码则可不配置此行
+  socketTimeout: 600000 # 请求通信超时时间 单位:ms 默认值600000ms 在平滑模式下,由于要迁移数据,用户可根据数据量大小调整此参数值大小,否则请求容易超时导致索引托管失败,建议您尽量给大不给小,跟那玩意一样,大点没事,太小你懂的!
+  global-config:
+    process_index_mode: manual #smoothly:平滑模式, not_smoothly:非平滑模式, manual:手动模式
+    async-process-index-blocking: true # 异步处理索引是否阻塞主线程 默认阻塞
+    distributed: false # 项目是否分布式环境部署,默认为true, 如果是单机运行可填false,将不加分布式锁,效率更高.
+    reindexTimeOutHours: 72 # 重建索引超时时间 单位小时,默认72H 根据迁移索引数据量大小灵活指定

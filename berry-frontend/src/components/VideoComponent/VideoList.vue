@@ -2,7 +2,7 @@
   <div class="list-container" v-show="!open">
     <div class="item shadow" v-for="item in props.list" :key="item.id" @click="showVideo(item)" >
       <div class="video">
-        <img :src="item.cover" alt="">
+        <img :src="item.cover" alt="" style="object-fit: cover;">
       </div>
       <div class="content">
         {{ item.content }} 
@@ -11,16 +11,10 @@
  </div>
 
  <!-- 全屏 背景虚拟化 -->
+ <!-- :cover="currentVideo.cover" -->
  <FullScreenModel v-model:visible="open">
   <videoCom v-if="open"
-    :videoSrc="currentVideo.url"
-    :likeCount="currentVideo.likeCount"
-    :id="currentVideo.id"
-    :liked="currentVideo.liked"
-    :favorCount="currentVideo.favorCount"
-    :isFavored="currentVideo.isFavored"
-    :commentCount="currentVideo.commentCount"
-    :cover="currentVideo.cover"
+    v-model:videoPropsObj="currentVideo"
   />
  </FullScreenModel>
     
@@ -46,20 +40,22 @@ const showVideo = (item) => {
 <style scoped lang="scss">
 .list-container {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); 
   gap: 10px; 
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
   max-height: calc(100vh - 120px); 
-  // overflow-y: auto; 
+  grid-template-rows: masonry;
 
   .item {
-    background: #fff;
-    border: 1px solid #ccc;
     border-radius: 12px;
+    position: relative;
     overflow: hidden;
     aspect-ratio: 0.68;
     display: flex;
     flex-direction: column;
     cursor: pointer;
+    background-color: transparent;
+
+    
 
     .content {
       height: 51px;

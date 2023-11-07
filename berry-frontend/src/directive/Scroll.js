@@ -26,12 +26,12 @@ const vScroll = {
 
     // 滚动事件
     function wheelEvent (event) {
-      if (event.deltaY > 0) {
-        handleScroll('down')
-      } else {
-        handleScroll('up')
-      }
-      event.preventDefault()
+      // if (event.deltaY > 0) {
+      //   handleScroll('down')
+      // } else {
+      //   handleScroll('up')
+      // }
+      // event.preventDefault()
     }
 
 

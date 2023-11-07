@@ -3,159 +3,68 @@
     <div class="dplayer-container">
       <!-- 视频 -->
       <OriginVideo
-        :id="props.id"
-        @play="handlerPlay"
-        @mute="handlerMute"
+        :id="videoObj.id"
         v-model:volume="volume"
         v-model:speed="speed"
         :speedList="speedList"
-        :videoSrc="props.videoSrc"
-        :cover="cover"
+        :url="videoObj.url"
+        :cover="videoObj.cover"
         :streamLoad="streamLoad"
-
         :continuous="continuous"
-        @printscreen="handlerPrintscreen"
+        :content="videoObj.content"
         :openPrintScreen="openPrintScreen"
+        :create-time="videoObj.createTime"
+        @printscreen="handlerPrintscreen"
         @videoEnd="videoEnd"
+        @play="handlerPlay"
+        @mute="handlerMute"
         @likeOrDisLike="handlerLiked"
       />
-      <!-- 点赞,评论,收藏,分享 -->
-      <div class="func">
-        <div class="like" @click="handlerLiked()">
-          <i class="iconfont icon-aixin1" :style="{color: funcInfo.like.value ?  '#ff2e56' : '#fff'}"></i>
-          <div>{{ funcInfo.like.num }}</div>
-        </div>
-        <div class="common">
-          <i class="iconfont icon-pinglun1" @click="changeCommentState"></i>
-          <div>{{ funcInfo.common.num }}</div>
-        </div>
-        <div class="collect" @click="handlerCollected()">
-          <i class="iconfont icon-shoucangfill" v-if="!funcInfo.collect.value"></i>
-          <i class="iconfont icon-jiaxingshoucangtianchong" style="color: #feba28;" v-else></i>
-          <div>{{ funcInfo.collect.num }}</div>
-        </div>
-        <div class="transpond">
-          <i class="iconfont icon-zhuanfa"></i>
-          <div>{{ funcInfo.transpond.num }}</div>
-        </div>
-      </div>
+     
     </div>
     
     <!-- 评论面板 -->
     <div v-if="isCommoning">
       <commentPanel 
-        :videoId="props.id" 
-        v-model:commentList="commentList"
-        :total="funcInfo.common.num"
-        v-model:isComming="isCommoning"
+        :videoId="videoObj.id" 
+        v-model:videoPropsPanel="videoObj"
       />
     </div>
  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, defineProps } from 'vue'
+import { ref, onMounted, defineProps } from 'vue'
 import OriginVideo from './OriginIndex.vue';
-import { continuous } from '@/utils'
-import { doLikeApi,unLikeApi, doCollectApi, unCollectApi, getVideoCommentList } from '@/api/video'
+import { continuous,isCommoning } from '@/utils'
 import commentPanel from '@/components/Comment/commentPanel'
 
-const props = defineProps(['videoSrc', 'id', 'likeCount', 
-  'liked', 'favorCount', 'isFavored', 'cover',
-  'commentCount'])
+const props = defineProps({
+  videoPropsObj: Object
+})
 const volume = ref(1);
 const speed = ref(1);
 const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2])
 
 const openPrintScreen = ref(false)
 const streamLoad = ref(false)
-const isCommoning = ref(false)
-const commentList = ref([])
-const funcInfo = reactive({
-  like: {
-    value: props.liked,
-    num: props.likeCount
-  },
-  common: {
-    num: props.commentCount
-  },
-  collect: {
-    value: props.isFavored,
-    num: props.favorCount,
-  },
-  transpond: {
-    num: 0
-  }
-})
 
-
-const handlerLiked = () => {
-  let liked = funcInfo.like.value;
-  if(liked) {
-    unLikeApi(props.id).then(res=>{
-      if(res.status === 200) {
-        funcInfo.like.num--;
-      }
-    }) 
-  } else {
-    doLikeApi(props.id).then(res=>{
-      if(res.status === 200) {
-        funcInfo.like.num++;
-      }
-    })
-  }
-  funcInfo.like.value = !liked;
-}
-const changeCommentState = () => {
-  isCommoning.value = !isCommoning.value
-}
-const handlerCollected = () => {
-  let collectValue = funcInfo.collect.value;
-  if(collectValue) {
-    // 如果已经收藏 就取消收藏
-    unCollectApi(props.id).then(res=>{
-      if(res.status == 200) {
-        funcInfo.collect.num--;
-        funcInfo.collect.value = !collectValue;
-      }
-    })
-  } else {
-    doCollectApi(props.id).then(res=>{
-      if(res.status==200) {
-        funcInfo.collect.num++;
-        funcInfo.collect.value = !collectValue;
-      }
-    })
-  }
-}
+const videoObj = ref(props.videoPropsObj)
 
 onMounted(()=>{
-  commentList.value = []
-  fetchCommentList()
+  
 })
 
+
 const handlerPlay = (e) => {
-  console.log("handlerPlay", e);
 }
 const handlerMute = (e) => {
-  console.log("handlerMute", e);
 }
 const videoEnd = () => {
-  console.log("end 父组件");
 }
 const handlerPrintscreen = () => {}
 
-const fetchCommentList = () => {
-  getVideoCommentList({
-    videoId: props.id,
-    current: 1,
-  }).then(res=>{
-    if(res.success) {
-      commentList.value = commentList.value.concat(res.data.records);
-      funcInfo.common.num = res.data.total;
-    }
-  })
-}
+
 </script>
 
 <style scoped>
@@ -176,18 +85,7 @@ const fetchCommentList = () => {
   width: 100%;
   height: 100%;
 }
-.func {
-  display: flex;
-  flex-direction: column;
-  width: 100px;  
-  justify-content: end;
-  align-items: center;
-  padding-bottom: 90px;
-  z-index: 999 !important;
-  position: absolute;
-  bottom: 40px;
-  right: 0;
-}
+
 .func i {
   font-size: 30px;
 }
@@ -197,12 +95,6 @@ const fetchCommentList = () => {
   color: white;
   user-select: none;
   height: 60px;
-}
-
-
-/* 爱心点击效果 */
-.func i:hover {
-  font-size: 35px;
 }
 
 </style>

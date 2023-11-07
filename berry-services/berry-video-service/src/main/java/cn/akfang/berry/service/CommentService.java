@@ -18,9 +18,7 @@ public interface CommentService extends IService<CommentPO> {
 
     boolean addComment(VideoPO videoPO, Long userId, CommentAddDTO commentAddDTO);
 
-    boolean doLike(Long userId, Long commentId);
-
-    Boolean doUnLike(Long userId, Long commentId);
-
     Wrapper<CommentPO> getFeedQueryWrapper(Long videoId, String orderBy);
+
+    Integer getCommentCountByVideoId(Long videoId);
 }

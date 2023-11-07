@@ -12,14 +12,13 @@ import cn.akfang.berry.common.model.response.BaseResponse;
 import cn.akfang.berry.common.model.response.CommentVo;
 import cn.akfang.berry.common.utils.ResultUtils;
 import cn.akfang.berry.service.CommentService;
-import cn.akfang.berry.service.LikeRedisService;
+import cn.akfang.berry.service.UserCommentLikeService;
 import cn.akfang.berry.service.VideoService;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,17 +40,15 @@ public class CommentController {
     private UserClient userClient;
 
     @Autowired
-    @Qualifier("commentLikeRedisService")
-    private LikeRedisService<Long, Long> likeRedisService;
-
+    private UserCommentLikeService userCommentLikeService;
 
     @GetMapping("/doLike")
     public BaseResponse<Boolean> doLike(@RequestHeader(AuthConstants.EXCHANGE_AUTH_HEADER) String userIdStr,
                                         @RequestParam("commentId") String commentIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
         Long commentId = NumberUtil.parseLong(commentIdStr);
-
-        return ResultUtils.success(commentService.doLike(userId, commentId));
+        userCommentLikeService.doLike(userId, commentId);
+        return ResultUtils.success(null);
     }
 
     @GetMapping("/unLike")
@@ -59,8 +56,8 @@ public class CommentController {
                                           @RequestParam("commentId") String commentIdStr) {
         Long userId = NumberUtil.parseLong(userIdStr);
         Long commentId = NumberUtil.parseLong(commentIdStr);
-
-        return ResultUtils.success(commentService.doUnLike(userId, commentId));
+        userCommentLikeService.unLike(userId, commentId);
+        return ResultUtils.success(null);
     }
 
     @PostMapping("")
