@@ -72,7 +72,24 @@ https://github.com/goto456/stopwords
 
 ![img](https://le8ufq2l8w.feishu.cn/space/api/box/stream/download/asynccode/?code=YzRkMjc3NzkwYjA5MzNkY2YyYjM3ZDRkNmFiYWY1ZjhfVThaM1l6TU51bExCQml2TFI5NHVrVDdhTjkweU42WjhfVG9rZW46TVZBNmJUTXJHb1hBdVd4M2NJOGNLaTA1bmpiXzE2OTkzNjk2NzQ6MTY5OTM3MzI3NF9WNA)
 
-### 7. 前端代理配置
+### 7. 七牛SDK配置修改
+
+修改`berry-misc-service/**/application-dev.yaml`中的配置
+
+```
+qiniu:
+  oss:
+    accessKey: 
+    secretKey: 
+    bucket: 
+    pipeline: 
+```
+
+其中pipeline指的是`智能多媒体服务`中的队列
+
+![image-20231107232714362](./README.assets/image-20231107232714362.png)
+
+### 8. 前端代理配置
 
 修改文件 `仓库根目录/berry-frontend/vue.config.js`的如下配置：
 
@@ -88,17 +105,18 @@ https://github.com/goto456/stopwords
 
 修改 `target`的值为 后端Gateway的服务地址
 
-### 6. 启动
+## 启动项目流程
 
-### 6.1 后端
+### 1. 后端
 
 保证MySQL、Redis、RabbitMQ服务正常，相关的配置正确。
 
 打开idea，启动
-berry-user-service、berry-misc-service、berry-video-service、berry-search-service、berry-search-service、berry-action-service。最后启动
-gateway即可
+berry-user-service、berry-misc-service、berry-video-service、berry-search-service、berry-search-service、berry-action-service。
 
-### 6.2 前端
+最后启动 gateway。
+
+### 2. 前端
 
 进入 berry-frontend 目录，安装依赖
 
