@@ -8,9 +8,11 @@
 
 后端源码：`仓库根目录`
 
+前端源码：`仓库根目录/berry-frontend`
+
 demo演示视频：
 
-- B站链接：
+- B站链接：https://www.bilibili.com/video/BV1Rj411h7z8/
 - 百度云(备用):
   - 链接: https://pan.baidu.com/s/1k2JU6SUWUFbhIWjyDVZrvA?pwd=e1eu
   - 提取码: e1eu
@@ -19,7 +21,7 @@ demo演示视频：
 
 ## 如何运行项目
 
-### 1. 准备环境：
+### 1. 准备环境
 
 ```
 MySQL 8.0
@@ -45,3 +47,57 @@ ElasticSearch Ik-anaylzer
 3. 获取密钥，将其配置在`berry-misc-service` 下的`application-dev.yaml` 配置下
 
 ![image-20231107224807031](./README.assets/image-20231107224807031.png)
+
+### 4. RabbitMQ + Redis 配置修改
+
+同MySQL，在`仓库根目录/berry-services/**/application-dev.yml`的配置文件里都有`TODO`标识
+
+### 5. Nacos
+
+版本为 `2.x` 的即可，端口默认，无须修改配置。
+
+### 6. ElasticSearch + IK分词器
+
+要求版本必须为 `7.17.x`，并在其路径的`plugins`里安装 `IK分词器`（IK分词器的版本与ElasticSearch保持一致）
+
+### 7. 前端代理配置
+
+修改文件 `仓库根目录/berry-frontend/vue.config.js`的如下配置：
+
+```
+'/api': {
+    target: "http://192.168.43.9:10010",
+    changeOrigin: true,
+    pathRewrite: {
+      '^/api': ''
+    }
+}	
+```
+
+修改 `target`的值为 后端Gateway的服务地址
+
+### 6. 启动
+
+### 6.1 后端
+
+保证MySQL、Redis、RabbitMQ服务正常，相关的配置正确。
+
+打开idea，启动
+berry-user-service、berry-misc-service、berry-video-service、berry-search-service、berry-search-service、berry-action-service。最后启动
+gateway即可
+
+### 6.2 前端
+
+进入 berry-frontend 目录，安装依赖
+
+```
+npm install --registry=https://registry.npmmirror.com/
+```
+
+安装依赖完毕后，运行前端
+
+```
+npm run serve
+```
+
+访问 `http://localhost:8080` 端口即可访问。
