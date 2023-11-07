@@ -11,7 +11,7 @@
     </div>
     
     <!-- 历史搜索记录 -->
-    <div v-show="hasVal" class="search-suggestions">
+    <div v-if="hasVal" class="search-suggestions">
       <div v-if="historys.length > 0">
         <div
           v-for="(history, index) in historys"
@@ -29,9 +29,10 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { emitter } from '@/utils';
-import { useRouter } from 'vue-router'
-import { searchVideoApi } from '@/api/search'
+import { useRouter, useRoute } from 'vue-router'
+import { emitter } from '@/utils'
+
+const route = useRoute()
 const router = useRouter()
 const searchQuery = ref('');
 const showHistorys = ref(false);
@@ -54,17 +55,11 @@ function selectHistory(history) {
 }
 
 const handlerSearch = () => {
-  let data = {
-    keyword: searchQuery.value,
-    currnet: 1,
-  }
-  searchVideoApi(data).then(res=>{
-    let {success, data} = res;
-    if(success) {
-      emitter.emit("searchResult", data)
-      router.push({name:"search"})
-    } 
-  })
+  router.push({name:"search", query: {
+    searchKey: searchQuery.value,
+    tab: route.query.tab || "video"
+  }})
+  emitter.emit("search", searchQuery.value)
 }
 
 </script>

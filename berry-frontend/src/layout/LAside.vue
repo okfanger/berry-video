@@ -19,21 +19,26 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
+import { userStore } from '@/store';
 const router = useRouter()
 const route = useRoute()
 
 const activate = ref(route.name)
-
 const routes = computed(()=>{
-  return router.getRoutes().filter(route=>route.meta.isMenu)
+  return router.getRoutes()
+          .filter(route=>route.meta.isMenu)
+          .sort((a,b)=>a.meta.index - b.meta.index)
 })
-
-// const path = 
 const changeMenu = (pathName) => {
-  router.push({
-    name: pathName
-  })
+  if(pathName=='user') {
+    const userId = userStore.userInfo.authorId;
+    router.push(`/user/self`)
+  } else {
+    router.push({
+      name: pathName
+    })
+  }
+ 
 }
 
 </script>

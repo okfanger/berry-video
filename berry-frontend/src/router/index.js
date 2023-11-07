@@ -12,28 +12,31 @@ const routes = [
         meta: {
           isMenu: true,
           MenuIcon: "",
-          MenuName: "推荐"
+          MenuName: "推荐",
+          index: 1
         },
         component: () => import("@/views/Recommend/indexView.vue")
       },
       {
-        path: "mine",
-        name: 'mine',
+        path: "user/:userId?",
+        name: 'user',
         component: () => import("@/views/Mine/indexView.vue"),
         meta: {
           isMenu: true,
           MenuIcon: "",
-          MenuName: "我的"
+          MenuName: "我的",
+          index: 2
         },
       },
       {
-        path: "create",
-        name: "create",
-        component: () => import("@/views/File/updateFile.vue"),
+        path: "manager",
+        name: "manager",
+        component: () => import("@/views/Mine/ManagerView.vue"),
         meta: {
           isMenu: true,
           MenuIcon: "",
-          MenuName: "内容管理"
+          MenuName: "内容管理",
+          index: 3
         },
       },
       {
@@ -43,7 +46,8 @@ const routes = [
         meta: {
           isMenu: true,
           MenuIcon: "Discount",
-          MenuName: "娱乐"
+          MenuName: "娱乐",
+          index: 4
         },
       },
       {
@@ -53,7 +57,8 @@ const routes = [
         meta: {
           isMenu: true,
           MenuIcon: "TrophyBase",
-          MenuName: "二次元"
+          MenuName: "二次元",
+          index: 5
         },
       },
       {
@@ -63,7 +68,8 @@ const routes = [
         meta: {
           isMenu: true,
           MenuIcon: "Service",
-          MenuName: "美食"
+          MenuName: "美食",
+          index: 6
         },
       },
       {
@@ -73,7 +79,8 @@ const routes = [
         meta: {
           isMenu: true,
           MenuIcon: "KnifeFork",
-          MenuName: "音乐"
+          MenuName: "音乐",
+          index: 7
         },
       },
       {
@@ -83,7 +90,8 @@ const routes = [
         meta: {
           isMenu: true,
           MenuIcon: "Basketball",
-          MenuName: "体育"
+          MenuName: "体育",
+          index: 8
         },
       },
       {
@@ -95,21 +103,12 @@ const routes = [
         },
       },
       {
-        path: "testEmoj",
-        name: "emoj",
-        component: () => import("@/views/User/WxView.vue")
-      },
-      {
         path: "/",
         redirect: () => "/recommend"
       }
     ]
   },
-  {
-    path: "/WxLogin",
-    name: "WxLogin",
-    component: () => import("@/views/User/WxView.vue")
-  }
+
 ]
 
 const router = createRouter({

@@ -13,6 +13,7 @@
         :continuous="continuous"
         :content="videoObj.content"
         :openPrintScreen="openPrintScreen"
+        :create-time="videoObj.createTime"
         @printscreen="handlerPrintscreen"
         @videoEnd="videoEnd"
         @play="handlerPlay"
@@ -38,9 +39,9 @@ import OriginVideo from './OriginIndex.vue';
 import { continuous,isCommoning } from '@/utils'
 import commentPanel from '@/components/Comment/commentPanel'
 
-const props = defineProps(['url', 'id', 'likeCount', 
-  'liked', 'favorCount', 'favored', 'cover',
-  'commentCount', 'authorId', 'authorAvatar', 'content', 'videoPropsObj'])
+const props = defineProps({
+  videoPropsObj: Object
+})
 const volume = ref(1);
 const speed = ref(1);
 const speedList = ref([0.25, 0.5, 0.75, 1, 1.25, 1.5, 2])
@@ -54,18 +55,12 @@ onMounted(()=>{
   
 })
 
-const changeCommentState = () => {
-  isCommoning.value = !isCommoning.value
-}
 
 const handlerPlay = (e) => {
-  console.log("handlerPlay", e);
 }
 const handlerMute = (e) => {
-  console.log("handlerMute", e);
 }
 const videoEnd = () => {
-  console.log("end 父组件");
 }
 const handlerPrintscreen = () => {}
 

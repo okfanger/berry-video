@@ -9,15 +9,20 @@
 import { ref, defineProps,watch } from 'vue'
 import { videoStore } from '@/store'
 import VideoList from '@/components/VideoComponent/VideoList.vue';
-import VideoListNext from '@/components/VideoComponent/VideoListNext.vue';
 const props = defineProps({
   type: String,
+  userId: String
 })
 const list = ref([])
-
 watch(() => props.type, () =>{
   list.value = []
-  videoStore.fetchVideoFeedByType(props.type).then(res=>{
+  let data = {
+    type: props.type,
+  }
+  if(props.userId !== 'self') {
+    data.authorId = props.userId;
+  }
+  videoStore.fetchVideoFeedByType(data).then(res=>{
     list.value =  res
   })
 }, {

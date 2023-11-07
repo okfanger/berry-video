@@ -14,15 +14,7 @@
  <!-- :cover="currentVideo.cover" -->
  <FullScreenModel v-model:visible="open">
   <videoCom v-if="open"
-    :videoSrc="currentVideo.url"
-    :likeCount="currentVideo.likeCount"
-    :id="currentVideo.id"
-    :liked="currentVideo.liked"
-    :favorCount="currentVideo.favorCount"
-    :favored="currentVideo.favored"
-    :commentCount="currentVideo.commentCount"
-    :author-avatar="currentVideo.author.authorAvatar"
-    :content="currentVideo.content"
+    v-model:videoPropsObj="currentVideo"
   />
  </FullScreenModel>
     

@@ -69,8 +69,8 @@ import { Plus, Minus,RefreshRight, RefreshLeft, UploadFilled } from '@element-pl
 import { userStore } from '@/store'
 import { isLogin } from '@/utils'
 import avatarBoy from '@/assets/avatar-boy.png'
-import router from '@/router'
-const avatar = `${userStore.userInfo.userAvatar}?t=${new Date().getTime()}`;
+
+const avatar = `${userStore.userInfo.authorAvatar}?t=${new Date().getTime()}`;
 const options = reactive({
   img: isLogin() ? avatar : avatarBoy, 
   autoCrop: true, // 是否默认生成截图框

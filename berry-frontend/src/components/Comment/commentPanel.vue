@@ -2,35 +2,42 @@
  <div  class="comment-panel">
     <!-- header -->
     <div class="comment-header">
-      <div class="userAvatar">
+      <div class="userAvatar" >
         <img :src="`${props.videoPropsPanel.author.authorAvatar}?t=${new Date().getTime()}`" alt="">
       </div>
       <div class="username">{{ videoPropsPanel.author.authorNickName }}</div>
-      <div class="button-primary focus">关注</div>
     </div>
 
     <!-- comment list -->
-    <div class="comment-list-box">
-      <div class="comment-count">共 {{ funcInfo.common.num }} 条评论</div>
-      <el-scrollbar class="comment-list" >
+    <el-scrollbar class="comment-list-box" >
+      <div class="comment-count">共 {{ commentList.length }} 条评论</div>
+     
+      <!-- <el-scrollbar class="comment-list" > -->
         <!-- 这里将显示用户的评论 -->
         <div v-infinite-scroll="load" infinite-scroll-delay="500">
-          <commentItem
-            class="commentItem"
-            v-for="comment in commentList"
-            :authorNickName="comment.author.authorNickName"
-            :id="comment.id"
-            :createTime="comment.createTime"
-            :content="comment.content"
-            :authorAvatar="`${comment.author.authorAvatar}?t=${new Date().getTime()}`"
-            :isLiked="comment.isLiked"
-            :likeCount="comment.likeCount"          
-            :key="comment"
-          />
+          <div v-if="commentLoading">
+            <commentSkeleton v-for="item in 10"  :key="item"  />
+          </div>
+          <div v-else>
+            <commentItem 
+              class="commentItem"
+              v-for="comment in commentList"
+              :authorNickName="comment.author.authorNickName"
+              :id="comment.id"
+              :createTime="comment.createTime"
+              :content="comment.content"
+              :authorAvatar="`${comment.author.authorAvatar}?t=${new Date().getTime()}`"
+              :isLiked="comment.isLiked"
+              :likeCount="comment.likeCount"          
+              :key="comment"
+              :user="comment.author"
+              :videoOwnerId="props.videoPropsPanel.author.authorId"
+            />
+          </div>
         </div>
     </el-scrollbar>
-    </div>
     
+
     <div class="comment-input-area">
         <div class="func">
           <div class="like" @click="handlerLiked()" >
@@ -53,7 +60,7 @@
           </div>
         </div>
        <div class="input">
-        <input type="text" v-model="content" placeholder="留下你精彩的评论吧...">
+        <input type="text" v-model="content" placeholder="留下你精彩的评论吧..." @keyup.enter="publish">
         <button @click="publish" :disabled="disabled">发布</button>
        </div>
     </div>
@@ -61,15 +68,15 @@
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted, defineEmits, watch, reactive} from 'vue'
-import { createUuid } from '@/utils'
+import { ref, defineProps, onMounted, watch, reactive} from 'vue'
 import commentItem from '@/components/Comment/commentItem'
+import commentSkeleton from '@/components/Skeleton/comment-skeleton'
 import { publisComment } from '@/api/video'
+
 import { userStore } from '@/store'
 import { doLikeApi,unLikeApi, doCollectApi, unCollectApi, getVideoCommentList } from '@/api/video'
 const props = defineProps({
   videoId: String,
-  total: Number,
   videoPropsPanel: Object
 })
 const commentList = ref([])
@@ -90,12 +97,13 @@ const funcInfo = reactive({
   }
 })
 
-
-const emits = defineEmits(['publishComment', "update:commentList", "update:total", 'loadData'])
-
 const content = ref("")
 const disabled = ref(true)
 const commentListCurrent = ref(1)
+const commentLoading = ref(false)
+
+const videoUserId = ref(props.videoPropsPanel.author.authorId)
+const mineUserId = ref(userStore.userInfo.authorId)
 
 onMounted(()=>{
   fetchCommentList()
@@ -105,31 +113,26 @@ watch(() => content.value, (val) => {
   disabled.value = val.trim() !== '' ? false : true;
 })
 
+
+
+// 懒加载触发事件
 const load = () => {
-  emits("loadData" )
+  fetchCommentList()
 }
 
+// 发布新评论
 const publish = () => {
   if(content.value.trim() !== '') {
     publisComment(props.videoId, content.value.trim()).then(res=>{
       if(res.status == 200) {
-        const comment = {
-          author: {
-            authorAvatar: userStore.userInfo.userAvatar,
-            authorNickName: userStore.userInfo.nickName
-          },
-          id: createUuid(),
-          createTime: new Date().toString(),
-          isLiked: false,
-          likeCount: 0,
-          content: content.value.trim(),
-        }
+        commentList.value.unshift(res.data)
         content.value = ""
       }
     })
   }
 }
 
+// 视频点赞
 const handlerLiked = () => {
   let liked = funcInfo.like.value;
   if(liked) {
@@ -147,6 +150,7 @@ const handlerLiked = () => {
   }
   funcInfo.like.value = !liked;
 }
+// 视频关注
 const handlerCollected = () => {
   let collectValue = funcInfo.collect.value;
   if(collectValue) {
@@ -166,15 +170,22 @@ const handlerCollected = () => {
     })
   }
 }
+
+// 获取评论列表
 const fetchCommentList = () => {
-  if((funcInfo.common.num > commentList.value.length) || funcInfo.common.num == 0) {
+  if(commentListCurrent.value == 1) {
+    commentLoading.value = true;
+  }
+  if((funcInfo.common.num > commentList.value.length) 
+    || (funcInfo.common.num == 0) && commentListCurrent.value == 1) {
     getVideoCommentList({
       videoId: props.videoId,
       current: commentListCurrent.value++,
     }).then(res=>{
       if(res.success) {
         commentList.value = commentList.value.concat(res.data.records);
-        funcInfo.common.num = res.data.total;
+        funcInfo.common.num = parseInt(res.data.total);
+        commentLoading.value = false;
       }
     })
   } 
@@ -235,11 +246,9 @@ const fetchCommentList = () => {
 }
 
 .comment-list-box {
-  padding-top: 10px;
+  padding: 10px 0 20px 0;
   height: 100%;
-  flex: 1;
   overflow: auto;
-  padding-bottom: 20px;
 }
 
 
@@ -291,6 +300,7 @@ const fetchCommentList = () => {
     margin: 3px 0;
     text-align: center;
     user-select: none;
+    cursor: pointer;
   }
 
   .videoIcon {

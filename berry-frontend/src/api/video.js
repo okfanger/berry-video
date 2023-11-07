@@ -137,12 +137,15 @@ export const getVideoCommentList = ({ videoId, current = 1, orderBy = 'time' }) 
 
 
 // 根据类型获取feed流 like favor product
-export const getVideoFeedByTypeApi = (type) => {
+export const getVideoFeedByTypeApi = ({ type, authorId }) => {
   let baseUrl = '/video/my'
   const suffix = type == 'product' ? '' : `/${type}`
   return request({
     url: baseUrl + suffix,
     method: "get",
+    params: {
+      authorId
+    }
   })
 }
 
@@ -170,4 +173,6 @@ export const deleteVideoApi = (videoId) => {
 
 
 // 删除评论
+
+
 

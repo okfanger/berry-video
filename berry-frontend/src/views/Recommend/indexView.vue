@@ -1,28 +1,11 @@
 <template>
   <div class="video_list" v-scroll>
-    <!-- <VideoComponent v-for="item,index in videoList" 
-      v-slide-in="test"
-      :key="index" class="videoComponent"
-      :videoSrc="item.url"
-      :likeCount="item.likeCount"
-      :id="item.id"
-      :liked="item.liked"
-      :favorCount="item.favorCount"
-      :favored="item.favored"
-      :commentCount="item.commentCount"
-      :cover="item.cover"
-      
-      :contnet="item.contnet"
-      :authorAvatar="item.author.authorAvatar"
-      :authorId="item.author.authorAvatar"
-      /> -->
       <VideoComponent  
         v-for="(item,index) in videoList" 
         v-model:videoPropsObj="videoList[index]" 
         v-slide-in="test"
         :key="videoList[index].id"
       />
-      <!-- <VideoComponent v-model:videoPropsObj="target" /> -->
  </div>
 </template>
 
@@ -31,6 +14,8 @@ import { ref, onMounted, watch } from 'vue'
 import VideoComponent from '@/components/VideoComponent'
 import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'
 import { getVideoFeed } from '@/api/video';
+
+
 
 const videoList = ref([])
 const currentIndex = ref(0)
