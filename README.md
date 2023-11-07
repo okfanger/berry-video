@@ -89,11 +89,26 @@ qiniu:
 
 ![image-20231107232714362](./README.assets/image-20231107232714362.png)
 
-### 8. 前端代理配置
+### 8. 常量配置修改
+
+位于：`cn.akfang.berry.common.constants.GlobalConstants`里
+
+```java
+public class GlobalConstants implements Serializable {
+  public static final String GATEWAY_URL = "http://berry-api.***.cn";
+  public static final String OSS_URL = "http://berry-cdn.***.cn";
+}
+```
+
+其中 `GATEWAY_URL` 是最后可以公网访问的网址（微信公众平台和七牛的上传、转码都会根据该URL回调）
+
+`OSS_URL` 是七牛OSS的CDN地址，用于最后返回给前端时拼接资源URL用。
+
+### 9. 前端代理配置
 
 修改文件 `仓库根目录/berry-frontend/vue.config.js`的如下配置：
 
-```
+```json
 '/api': {
     target: "http://192.168.43.9:10010",
     changeOrigin: true,
@@ -120,13 +135,13 @@ berry-user-service、berry-misc-service、berry-video-service、berry-search-ser
 
 进入 berry-frontend 目录，安装依赖
 
-```
+```shell
 npm install --registry=https://registry.npmmirror.com/
 ```
 
 安装依赖完毕后，运行前端
 
-```
+```shell
 npm run serve
 ```
 
