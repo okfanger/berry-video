@@ -1,53 +1,53 @@
 <template>
   <div class="video_list" v-scroll>
-      <VideoComponent  
-        v-for="(item,index) in videoList" 
+    <div v-for="(item,index) in videoList" :key="videoList[index].id">
+      <VideoComponent  v-if='index == currentIndex'
         v-model:videoPropsObj="videoList[index]" 
-        v-slide-in="test"
-        :key="videoList[index].id"
       />
+    </div>
  </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import VideoComponent from '@/components/VideoComponent'
-import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'
 import { getVideoFeed } from '@/api/video';
-
+import { emitter } from '@/utils';
 
 
 const videoList = ref([])
 const currentIndex = ref(0)
-const currentVideo = ref({})
-const prevVideo = ref({})
-const nextVideo = ref({})
 
 
 onMounted(() => {
   fetchVideoFeed()
-  currentVideo.value = videoList.value.length ? videoList.value[currentIndex.value] : {}
+  emitter.on("scrollVideo", (direction) => {
+    if(direction == 'down') {
+      currentIndex.value++;
+      
+    } else if(direction == 'up'){
+      if(currentIndex.value >= 1) {
+        currentIndex.value--;
+      }
+    }
+  })
 })
 
 watch(() => currentIndex.value, (index)=>{
-  // index>=1 且有数据的时候
-  if(index >= 1 && videoList.value.length >=2) {
-    prevVideo.value = videoList.value[--index]
-  }
-  if(videoList.value.length <= index+1) {
-    nextVideo.value = videoList.value[++index]
-  }  
-
   // 视频即将刷完的时候 就再次请求数据
+  if(index == videoList.value.length - 2) {
+    fetchVideoFeed()
+  }
 })
 
-function test() {}
+
 
 const fetchVideoFeed = () => {
   getVideoFeed().then(res=>{
     let {data, success} = res;
     if(success) {
-      videoList.value = data.records;
+
+      videoList.value = videoList.value.concat(data.records);
     }
   })
 }
@@ -66,6 +66,9 @@ const fetchVideoFeed = () => {
   height: 100%; 
   width: 100%;
 }
-
+.blank {
+  height: 646px;
+  width: 100%;
+}
 </style>
 
