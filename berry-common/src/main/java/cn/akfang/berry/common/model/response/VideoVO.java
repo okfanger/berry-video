@@ -1,5 +1,6 @@
 package cn.akfang.berry.common.model.response;
 
+import cn.akfang.berry.common.model.dto.EsVideoMetaDTO;
 import cn.akfang.berry.common.model.entity.FilePO;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -88,7 +89,10 @@ public class VideoVO implements Serializable {
     /**
      * 文件地址
      */
+    @JsonIgnore
     private FilePO file;
+
+    private EsVideoMetaDTO searchMeta;
 
     /**
      * 更新时间

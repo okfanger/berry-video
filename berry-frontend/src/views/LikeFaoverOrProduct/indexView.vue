@@ -1,7 +1,6 @@
 <template>
   <div>
-    <VideoList :list="list" />
-    <!-- <VideoListNext :list="list"/> -->
+    <VideoList :list="list" v-model:loading="loading" />
  </div>
 </template>
 
@@ -14,8 +13,10 @@ const props = defineProps({
   userId: String
 })
 const list = ref([])
+const loading = ref(false)
 watch(() => props.type, () =>{
   list.value = []
+  loading.value = true;
   let data = {
     type: props.type,
   }
@@ -24,6 +25,7 @@ watch(() => props.type, () =>{
   }
   videoStore.fetchVideoFeedByType(data).then(res=>{
     list.value =  res
+    loading.value = false;
   })
 }, {
   immediate: true

@@ -16,7 +16,7 @@
         <!-- 这里将显示用户的评论 -->
         <div v-infinite-scroll="load" infinite-scroll-delay="500">
           <div v-if="commentLoading">
-            <commentSkeleton v-for="item in 10"  :key="item"  />
+            <commentSkeleton v-for="item in 8"  :key="item"  />
           </div>
           <div v-else>
             <commentItem 

@@ -27,6 +27,7 @@
         left join t_channel_video cv on v.id = cv.videoId
         <where>
             isDelete = 0
+            and visible = 1
             <if test="channelId != null">and channelId = #{params.channelId}</if>
             <if test="authorId != null">and authorId = #{params.authorId}</if>
         </where>
@@ -44,6 +45,7 @@
         left join t_channel_video cv on v.id = cv.videoId
         <where>
             isDelete = 0
+            and visible = 1
             and channelId = #{channelId}
         </where>
     </select>
@@ -52,7 +54,19 @@
         left join t_channel_video cv on t.id = cv.videoId
         <where>
             isDelete = 0
+            and visible = 1
             and channelId = #{channelId}
         </where>
+        order by t.createTime desc
+    </select>
+    <select id="getRandomIds" resultType="java.lang.Long">
+
+        SELECT * FROM t_video
+        <where>
+            isDelete = 0
+            and visible = 1
+        </where>
+        ORDER BY RAND()
+        limit #{i}
     </select>
 </mapper>

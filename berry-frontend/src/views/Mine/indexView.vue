@@ -7,7 +7,7 @@
             <div class="left">
               <userAvatar v-if="isOwnSelf" />
               <div class="avatar" v-else>
-                <img :src="otherUser.authorAvatar" alt="">
+                <img :src="`${otherUser.authorAvatar}?t=${new Date().getTime()}`" alt="">
               </div>
             </div>
             <div class="center">
@@ -181,10 +181,13 @@ const fetchUserInfo = () => {
         .action {
           display: flex;
           width: 200px;
-          
-          span {
-            font-weight: 800;
+          div {
+            margin-right: 15px;
+            span {
+              font-weight: 800;
+            }
           }
+          
         }
       }
       

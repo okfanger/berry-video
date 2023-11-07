@@ -1,6 +1,6 @@
 <template>
   <div class="classify-container">
-    <VideoList :list="channelVideoList" />
+    <VideoList :list="channelVideoList" v-model:loading="loading" />
  </div>
 </template>
 
@@ -12,7 +12,7 @@ import { videoStore } from '@/store'
 import VideoList from '@/components/VideoComponent/VideoList.vue'
 
 const route = useRoute()
-
+const loading = ref(false)
 const channelList = ref(videoStore.channelList || [])
 const channelVideoList = ref([])
 const channelId = ref(channelList.value.find(item => item.icon.toLocaleLowerCase() == route.name).id)
@@ -24,6 +24,7 @@ onMounted(() => {
 watch(() => route, (value) =>{
   // 使用route 找到
   // let icon = value.meta.MenuIcon
+  
   let icon = value.name.toLocaleLowerCase()
   let channel = channelList.value.find(item => item.icon.toLocaleLowerCase() == icon) || {}
   channelId.value =  channel.id
@@ -36,10 +37,11 @@ watch(() => route, (value) =>{
 
 
 const fetchChannelVideoList = async () => {
-
+  loading.value = true;
   let res = await getVideoFeed(channelId.value)
   const { success, data} = res;
   if(success) {
+    loading.value = false;
     channelVideoList.value = data.records;
   }
 }

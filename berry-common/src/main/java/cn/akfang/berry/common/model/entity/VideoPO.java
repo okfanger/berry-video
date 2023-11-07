@@ -51,7 +51,12 @@ public class VideoPO implements Serializable {
     private Long fileId;
 
     /**
-     * 视频标题，可以为空
+     * 标签
+     */
+    private String tags;
+
+    /**
+     * 视频标题
      */
     private String content;
 
@@ -78,6 +83,7 @@ public class VideoPO implements Serializable {
 
     /**
      * 是否私密，用户可以设置私密，如此可以不公开给比人看
+     * feat: 2表示转码中
      */
     private Integer visible;
 

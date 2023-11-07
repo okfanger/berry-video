@@ -1,8 +1,10 @@
 package cn.akfang.berry.common.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -10,6 +12,8 @@ import java.util.Date;
 @Data
 @TableName("t_user")
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserPO implements Serializable {
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

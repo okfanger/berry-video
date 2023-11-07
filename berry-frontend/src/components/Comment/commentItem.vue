@@ -32,7 +32,7 @@ import userCardInfo from '@/components/User/userCardInfo.vue';
 const props = defineProps({
   authorNickName: String,
   authorAvatar: String,
-  isLiked: String,
+  isLiked: Boolean,
   likeCount: Number,
   createTime: String,
   id: String,

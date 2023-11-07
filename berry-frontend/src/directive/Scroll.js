@@ -1,5 +1,5 @@
 
-
+import { emitter } from "@/utils"
 const vScroll = {
   mounted (el) {
     let scrollPosition = 0
@@ -14,10 +14,12 @@ const vScroll = {
         // Scrolling up
         scrollPosition -= el.clientHeight
       }
+      emitter.emit("scrollVideo", direction)
       el.scrollTo({
         top: scrollPosition,
         behavior: 'smooth'
       })
+
       lock = true
       setTimeout(() => {
         lock = false
@@ -39,6 +41,7 @@ const vScroll = {
     function keydownEvent (event) {
       if (event.keyCode === 38) {
         handleScroll('up')
+
       } else if (event.keyCode === 40) {
         handleScroll('down')
       }

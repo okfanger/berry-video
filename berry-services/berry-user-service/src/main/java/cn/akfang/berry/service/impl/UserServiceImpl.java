@@ -9,6 +9,7 @@ import cn.akfang.berry.common.exception.BerryRpcException;
 import cn.akfang.berry.common.model.entity.UserPO;
 import cn.akfang.berry.common.model.request.UserInfoUpdateDTO;
 import cn.akfang.berry.common.model.request.WxLoginRequest;
+import cn.akfang.berry.common.model.response.UserBaseVO;
 import cn.akfang.berry.common.model.response.UserTokenResponse;
 import cn.akfang.berry.common.model.response.UserVo;
 import cn.akfang.berry.common.utils.BerryJWTUtil;
@@ -20,6 +21,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -28,8 +30,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -113,5 +117,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
         BeanUtil.copyProperties(byId, userVo);
         userVo.setUserAvatar(GlobalConstants.OSS_URL + "/" + byId.getUserAvatar());
         return userVo;
+    }
+
+    @Override
+    public List<Long> listIdsMinutesAgo(Long minute) {
+        LambdaQueryWrapper<UserPO> qw = new LambdaQueryWrapper<>();
+        // 查找更新时间在2分钟前的视频
+        qw.select(UserPO::getId)
+                .geSql(UserPO::getUpdateTime, "DATE_SUB(NOW(), INTERVAL " + minute + " MINUTE)");
+        return list(qw).stream().map(UserPO::getId).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public UserBaseVO buildUserBaseVO(UserPO userPO) {
+        UserBaseVO userBaseVO = new UserBaseVO();
+        userBaseVO.setAuthorAvatar(GlobalConstants.OSS_URL + "/" + userPO.getUserAvatar());
+        userBaseVO.setAuthorId(userPO.getId());
+        userBaseVO.setAuthorNickName(userPO.getNickName());
+        userBaseVO.setGender(userPO.getGender());
+        return userBaseVO;
     }
 }

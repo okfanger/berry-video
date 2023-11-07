@@ -1,8 +1,11 @@
 <template>
   <div class="container">
-    <div class="initial-video" ref="videoBox" :style="{backgroundImage: `url(${props.cover})` }">
+    <!-- :style="{backgroundImage: `url(${props.cover})` }" -->
+    <div class="initial-video" ref="videoBox" >
+      <div class="background-image">
+        <img :src="props.cover" alt="">
+      </div>
       <video ref="video"
-        style="z-index: 3"
         webkit-playsinline="true"
         playsinline="true"
         controlslist="nodownload"
@@ -15,7 +18,8 @@
 
     <div class="video-info">
       <div class="createtime">{{ fromTime(props.createTime) }}</div>
-      <div class="content">{{ props.content }}</div>
+      <div class="content" v-if="props.searchMeta" v-html="props.searchMeta.highlightContent"></div>
+      <div class="content" v-else>{{ props.content }}</div>
     </div>
 
     <div class="video-controls">
@@ -69,7 +73,7 @@ const emits = defineEmits(['play', 'mute', 'update:speed',
 
 const props = defineProps(['volume', 'speed', 'speedList',
    'continuous', 'openPrintScreen', 'url', 'cover',
-    'streamLoad', 'id', 'content', 'createTime'])
+    'streamLoad', 'id', 'content', 'createTime', 'searchMeta'])
 
 const video = ref()
 const progressBox = ref()
@@ -313,12 +317,28 @@ onBeforeUnmount(() => {
   background-color: rgba(0, 0, 0, 0.5);
   background-size: 100% 100%;
   flex: 1;
-  display: flex;   
+  position: relative;
+  /* display: flex;   
   justify-content: center; 
-  align-items: center; 
-  backdrop-filter: blur(30px);
+  align-items: center;  */
 }
 
+.background-image {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+.background-image img {
+  height: 100%;
+  width: 100%;
+  filter: blur(20px);
+}
+video {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);  
+  z-index: 0;
+}
 
 video.widthGreaterThanHeight {
   height: auto;
@@ -518,6 +538,13 @@ video.heightGreaterThanWidth {
     line-height: 22px;
     text-shadow: 0 1px 1px rgba(0,0,0,.2);
     color: white;
+    font-weight: bold;
+
+    em {
+      color: rgb(224, 34, 34);
+      display: inline-block;
+      font-weight: bold;
+    }
   }
 }
 </style>
