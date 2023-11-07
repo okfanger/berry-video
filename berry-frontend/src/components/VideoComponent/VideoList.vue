@@ -1,13 +1,20 @@
 <template>
   <div class="list-container" v-show="!open">
-    <div class="item shadow" v-for="item in props.list" :key="item.id" @click="showVideo(item)" >
-      <div class="video">
-        <img :src="item.cover" alt="" style="object-fit: cover;">
+    <template v-if="!loading">
+      <div class="item shadow" v-for="item in props.list" :key="item.id" @click="showVideo(item)" >
+        <div class="video">
+          <img :src="item.cover" alt="" style="object-fit: cover;">
+        </div>
+        <div class="content">
+          {{ item.content }} 
+        </div>
       </div>
-      <div class="content">
-        {{ item.content }} 
+    </template>
+    <template v-else>
+      <div class="item shadow" v-for="item,index in 12" :key="index" >
+        <videoCardSkeleton />
       </div>
-    </div>
+    </template>
  </div>
 
  <!-- 全屏 背景虚拟化 -->
@@ -24,8 +31,9 @@
 import { ref, defineProps } from 'vue'
 import videoCom from '@/components/VideoComponent/index.vue'
 import FullScreenModel from './FullScreenModel.vue';
+import videoCardSkeleton from '../Skeleton/videoCard-skeleton.vue';
 
-const props = defineProps(['list'])
+const props = defineProps(['list', 'loading'])
 const open = ref(false)
 const currentVideo = ref({})
 

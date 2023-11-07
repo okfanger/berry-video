@@ -1,8 +1,11 @@
 <template>
   <div class="container">
-    <div class="initial-video" ref="videoBox" :style="{backgroundImage: `url(${props.cover})` }">
+    <!-- :style="{backgroundImage: `url(${props.cover})` }" -->
+    <div class="initial-video" ref="videoBox" >
+      <div class="background-image">
+        <img :src="props.cover" alt="">
+      </div>
       <video ref="video"
-        style="z-index: 3"
         webkit-playsinline="true"
         playsinline="true"
         controlslist="nodownload"
@@ -313,12 +316,28 @@ onBeforeUnmount(() => {
   background-color: rgba(0, 0, 0, 0.5);
   background-size: 100% 100%;
   flex: 1;
-  display: flex;   
+  position: relative;
+  /* display: flex;   
   justify-content: center; 
-  align-items: center; 
-  backdrop-filter: blur(30px);
+  align-items: center;  */
 }
 
+.background-image {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+.background-image img {
+  height: 100%;
+  width: 100%;
+  filter: blur(20px);
+}
+video {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);  
+  z-index: 0;
+}
 
 video.widthGreaterThanHeight {
   height: auto;

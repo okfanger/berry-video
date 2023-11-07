@@ -1,8 +1,9 @@
 <template>
   <div>
-    <el-skeleton class="card">
+    <el-skeleton class="card-video-skeneton" animated :throttle="100">
       <template #template>
-        <el-skeleton-item variant="circle" />
+        <el-skeleton-item variant="image" style="width: 100%;height: 80%; aspect-ratio: 0.68;" />
+        <el-skeleton-item variant="text" style="width: 50%" />
       </template>
     </el-skeleton>
  </div>
@@ -13,7 +14,7 @@
 </script>
 
 <style scoped lang="scss">
-.card {
+.card-video-skeneton {
   height: 100%;
   width: 100%;
 }

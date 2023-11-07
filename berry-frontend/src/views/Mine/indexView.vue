@@ -181,10 +181,13 @@ const fetchUserInfo = () => {
         .action {
           display: flex;
           width: 200px;
-          
-          span {
-            font-weight: 800;
+          div {
+            margin-right: 15px;
+            span {
+              font-weight: 800;
+            }
           }
+          
         }
       }
       
