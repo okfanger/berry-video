@@ -1,16 +1,26 @@
 <template>
   <div class="container">
-    <div class="initial-video" ref="videoBox" :style="{backgroundImage: `url(${props.cover})` }">
+    <!-- :style="{backgroundImage: `url(${props.cover})` }" -->
+    <div class="initial-video" ref="videoBox" >
+      <div class="background-image">
+        <img :src="props.cover" alt="">
+      </div>
       <video ref="video"
         webkit-playsinline="true"
         playsinline="true"
         controlslist="nodownload"
         :poster="props.cover"
         crossorigin="anonymous">
-        <source :src="videoSrc" type="video/mp4">
+        <source :src="url" type="video/mp4">
           您的浏览器不支持video标签，请使用google浏览器浏览
       </video>
     </div>
+
+    <div class="video-info">
+      <div class="createtime">{{ fromTime(props.createTime) }}</div>
+      <div class="content">{{ props.content }}</div>
+    </div>
+
     <div class="video-controls">
       <div class="progress-bar" ref="progressBox" @click="checkAnyTime" @mousedown="handleMousedown">
         <div class="progressLine" ref="progressLine" :style="{width: progress * 100 + '%'}"></div>
@@ -53,24 +63,25 @@
 
 <script setup>
 import { ref, onMounted, defineEmits, defineProps, onBeforeUnmount } from 'vue'
+import { muted } from '@/utils'
 import Hls from 'hls.js';
+import { fromTime } from '@/utils'
 const emits = defineEmits(['play', 'mute', 'update:speed',
    'printscreen', 'videoEnd', "likeOrDisLike",
   'upadte:volume'])
 
 const props = defineProps(['volume', 'speed', 'speedList',
-   'continuous', 'openPrintScreen', 'videoSrc', 'cover',
-    'streamLoad', 'id', 'content' ])
+   'continuous', 'openPrintScreen', 'url', 'cover',
+    'streamLoad', 'id', 'content', 'createTime'])
 
 const video = ref()
 const progressBox = ref()
 const progressLine = ref() // 视频进度条
-const progress = ref(0) // 初始进度设置为50%
-const dragging = ref(false) 
+const progress = ref(0)  // 视频当前进度
+const dragging = ref(false)  // 是否正在拖拽状态
 let progressTimer = null // 进度 timer
 
-const paused = ref(true) // true 暂停  false 播放
-const muted = ref(false) // true 静音  false 开启声音
+const paused = ref(false) // true 暂停  false 播放
 const videoBox = ref()
 const progressTime = ref("00:00 / 00:00")
 let hls;
@@ -104,7 +115,7 @@ onMounted(() => {
 
 const initVideo = () => {
   hls = new Hls();
-  hls.loadSource(props.videoSrc);
+  hls.loadSource(props.url);
   hls.attachMedia(video.value);
   video.value.currentTime = 0;
   muted.value = video.value.muted = props.volume == 0 ? true : false;
@@ -124,10 +135,8 @@ function changeProgress() {
     var timeStr = parseTime(video.value.currentTime)  + '/' + parseTime(video.value.duration)
     progressTime.value = timeStr
     var percent = video.value.currentTime / video.value.duration
-    if(!dragging.value)
+    if(!dragging.value){
       progress.value = Math.min(Math.max(percent, 0), 1); // 让进度条在0-1之间
-    if(progress.value >= 1) {
-      videoEnd();
     }
     progressLine.value.style.width = percent * 100 + '%'
   }
@@ -135,14 +144,12 @@ function changeProgress() {
 // 点击进度条的任意地方
 const checkAnyTime = (e) => {
   clearInterval(progressTimer)
-  var length = e.clientX - progressBox.value.offsetLeft - 220;
+  var length = e.clientX - progressBox.value.offsetLeft - 200;
   var percent = length / progressBox.value.offsetWidth
   video.value.currentTime = percent * video.value.duration
   video.value.play()
   paused.value = false
   progressTimer = setInterval(changeProgress, 60)
-  // 显示视频在播放的样式
-  // ...
 }
 
 // 重置视频播放器
@@ -189,7 +196,6 @@ const openPrintScreen = () => {
   let width = video.value.width
   let height = video.value.height
   console.log(width, height);
-  console.log([video.value]);
   canvas.width = width;
   canvas.height = height;
   ctx.drawImage(video.value, 0, 0, width, height)
@@ -219,7 +225,7 @@ const videoEnd = () => {
     play()
   } else {
     clearVideo()
-    emits("videoEnd", true)
+    // emits("videoEnd", true)
   }
 }
 
@@ -310,12 +316,28 @@ onBeforeUnmount(() => {
   background-color: rgba(0, 0, 0, 0.5);
   background-size: 100% 100%;
   flex: 1;
-  display: flex;   
+  position: relative;
+  /* display: flex;   
   justify-content: center; 
-  align-items: center; 
-  backdrop-filter: blur(30px);
+  align-items: center;  */
 }
 
+.background-image {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+.background-image img {
+  height: 100%;
+  width: 100%;
+  filter: blur(20px);
+}
+video {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);  
+  z-index: 0;
+}
 
 video.widthGreaterThanHeight {
   height: auto;
@@ -342,8 +364,8 @@ video.heightGreaterThanWidth {
 
 
   --style-color: #fbfcfd;
-  --back-color: #ec656b;
-  --progress-color: #d78d8d;
+  --back-color: #eb4553;
+  --progress-color: #f66c75;
 }
 </style>
 
@@ -495,6 +517,28 @@ video.heightGreaterThanWidth {
   right: -15px;
 }
 
+</style>
+
+
+<style lang="scss" scoped>
+.video-info {
+  position: absolute;
+  bottom: 40px;
+  padding: 0 0 0 10px;
+  user-select: none;
+
+  .createtime {
+    font-size: 12px;
+    line-height: 22px;
+    color: #eeeeed;
+  }
+  .content {
+    font-size: 14px;
+    line-height: 22px;
+    text-shadow: 0 1px 1px rgba(0,0,0,.2);
+    color: white;
+  }
+}
 </style>
 
 

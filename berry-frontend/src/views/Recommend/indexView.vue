@@ -1,61 +1,53 @@
 <template>
   <div class="video_list" v-scroll>
-    <VideoComponent v-for="item,index in videoList" 
-      v-slide-in="test"
-      :key="index" class="videoComponent"
-      :videoSrc="item.url"
-      :likeCount="item.likeCount"
-      :id="item.id"
-      :liked="item.liked"
-      :favorCount="item.favorCount"
-      :favored="item.favored"
-      :commentCount="item.commentCount"
-      
-      :contnet="item.contnet"
-      :authorAvatar="item.author.authorAvatar"
-      :authorId="item.author.authorAvatar"
+    <div v-for="(item,index) in videoList" :key="videoList[index].id">
+      <VideoComponent  v-if='index == currentIndex'
+        v-model:videoPropsObj="videoList[index]" 
       />
+    </div>
  </div>
- <!-- <div class="video_list" >
-  <vue-virtual-scroller class="video-list" :items="videoList" :item-height="height">
-    <template #default="{ item: item, index }">
-      <video-component 
-        :key="index" class="videoComponent"
-        :videoSrc="item.url"
-        :likeCount="item.likeCount"
-        :id="item.id"
-        :liked="item.liked"
-        :favorCount="item.favorCount"
-        :isFavored="item.isFavored"
-        :commentCount="item.commentCount"
-      />
-    </template>
-  </vue-virtual-scroller>
- </div> -->
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import VideoComponent from '@/components/VideoComponent'
-import VueVirtualScroller from 'vue3-virtual-scroller'
-import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'
 import { getVideoFeed } from '@/api/video';
+import { emitter } from '@/utils';
+
 
 const videoList = ref([])
+const currentIndex = ref(0)
+
 
 onMounted(() => {
   fetchVideoFeed()
+  emitter.on("scrollVideo", (direction) => {
+    if(direction == 'down') {
+      currentIndex.value++;
+      
+    } else if(direction == 'up'){
+      if(currentIndex.value >= 1) {
+        currentIndex.value--;
+      }
+    }
+  })
 })
-const test = () => {}
-const currentIndex = ref(0)
 
-console.log(VueVirtualScroller);
+watch(() => currentIndex.value, (index)=>{
+  // 视频即将刷完的时候 就再次请求数据
+  if(index == videoList.value.length - 2) {
+    fetchVideoFeed()
+  }
+})
+
+
+
 const fetchVideoFeed = () => {
   getVideoFeed().then(res=>{
     let {data, success} = res;
     if(success) {
-      videoList.value = data.records;
-      console.log(videoList);
+
+      videoList.value = videoList.value.concat(data.records);
     }
   })
 }
@@ -74,6 +66,9 @@ const fetchVideoFeed = () => {
   height: 100%; 
   width: 100%;
 }
-
+.blank {
+  height: 646px;
+  width: 100%;
+}
 </style>
 

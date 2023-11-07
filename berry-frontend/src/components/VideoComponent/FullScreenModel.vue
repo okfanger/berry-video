@@ -28,7 +28,7 @@ const closeFullScreen = () => {
   height: 100vh;
   background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
   backdrop-filter: blur(5px); /* 背景虚化效果 */
-  z-index: 9999;
+  z-index: 99;
   display: flex;
   justify-content: center;
   align-items: center;

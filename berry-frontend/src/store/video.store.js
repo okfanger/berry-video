@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { getChannelList, getVideoFeedByTypeApi } from '@/api/video'
 import { getChannelListStroge, setChannelListStroge } from '@/utils'
+
 export const useVideoStore = defineStore('video', {
   state: () => ({
     channelList: getChannelListStroge() || [],
@@ -19,9 +20,9 @@ export const useVideoStore = defineStore('video', {
       }
     },
 
-    async fetchVideoFeedByType (type) {
+    async fetchVideoFeedByType (data) {
       return new Promise(resolve => {
-        getVideoFeedByTypeApi(type).then(res => {
+        getVideoFeedByTypeApi(data).then(res => {
           const { success, data } = res
           resolve(success ? data.records : [])
         })

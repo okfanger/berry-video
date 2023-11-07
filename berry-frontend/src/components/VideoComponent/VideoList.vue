@@ -1,28 +1,27 @@
 <template>
   <div class="list-container" v-show="!open">
-    <div class="item shadow" v-for="item in props.list" :key="item.id" @click="showVideo(item)" >
-      <div class="video">
-        <img :src="item.cover" alt="">
+    <template v-if="!loading">
+      <div class="item shadow" v-for="item in props.list" :key="item.id" @click="showVideo(item)" >
+        <div class="video">
+          <img :src="item.cover" alt="" style="object-fit: cover;">
+        </div>
+        <div class="content">
+          {{ item.content }} 
+        </div>
       </div>
-      <div class="content">
-        {{ item.content }} 
+    </template>
+    <template v-else>
+      <div class="item shadow" v-for="item,index in 12" :key="index" >
+        <videoCardSkeleton />
       </div>
-    </div>
+    </template>
  </div>
 
  <!-- 全屏 背景虚拟化 -->
  <!-- :cover="currentVideo.cover" -->
  <FullScreenModel v-model:visible="open">
   <videoCom v-if="open"
-    :videoSrc="currentVideo.url"
-    :likeCount="currentVideo.likeCount"
-    :id="currentVideo.id"
-    :liked="currentVideo.liked"
-    :favorCount="currentVideo.favorCount"
-    :favored="currentVideo.favored"
-    :commentCount="currentVideo.commentCount"
-    :author-avatar="currentVideo.author.authorAvatar"
-    :content="currentVideo.content"
+    v-model:videoPropsObj="currentVideo"
   />
  </FullScreenModel>
     
@@ -32,8 +31,9 @@
 import { ref, defineProps } from 'vue'
 import videoCom from '@/components/VideoComponent/index.vue'
 import FullScreenModel from './FullScreenModel.vue';
+import videoCardSkeleton from '../Skeleton/videoCard-skeleton.vue';
 
-const props = defineProps(['list'])
+const props = defineProps(['list', 'loading'])
 const open = ref(false)
 const currentVideo = ref({})
 
@@ -48,13 +48,14 @@ const showVideo = (item) => {
 <style scoped lang="scss">
 .list-container {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); 
   gap: 10px; 
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
   max-height: calc(100vh - 120px); 
-  // overflow-y: auto; 
+  grid-template-rows: masonry;
 
   .item {
     border-radius: 12px;
+    position: relative;
     overflow: hidden;
     aspect-ratio: 0.68;
     display: flex;
